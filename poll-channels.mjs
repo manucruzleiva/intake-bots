@@ -76,6 +76,37 @@ async function listForumPosts(channel, guildId) {
   return [...byId.values()];
 }
 
+// Every message in a thread, oldest-first (skips the bot's own messages).
+async function fetchAllThreadMessages(threadId) {
+  const all = [];
+  let before = null;
+  for (let i = 0; i < 10; i++) {
+    const q = before ? `?before=${before}&limit=100` : `?limit=100`;
+    const batch = await discordSafe(`/channels/${threadId}/messages${q}`);
+    if (!batch?.length) break;
+    all.push(...batch);
+    if (batch.length < 100) break;
+    before = batch[batch.length - 1].id;
+  }
+  return all.filter((m) => !m.author?.bot).sort((a, b) => (gt(a.id, b.id) ? 1 : -1));
+}
+
+// Render a list of messages' text + attachments into Markdown for the issue body. Images embed
+// inline; other files (logs, crash reports…) become links. (Discord CDN links expire after ~24h,
+// so the issue always also links back to the thread.)
+function renderMessages(messages) {
+  const parts = [];
+  for (const m of messages) {
+    const txt = (m.content || "").trim();
+    if (txt) parts.push(txt);
+    for (const att of m.attachments || []) {
+      const isImg = (att.content_type || "").startsWith("image/");
+      parts.push(isImg ? `![${att.filename}](${att.url})` : `📎 [${att.filename}](${att.url})`);
+    }
+  }
+  return parts.join("\n\n");
+}
+
 async function importForum(ch, channel, guildId, last, reporters) {
   const posts = (await listForumPosts(channel, guildId))
     .filter((t) => gt(t.id, last || "0"))
@@ -83,23 +114,23 @@ async function importForum(ch, channel, guildId, last, reporters) {
 
   let newLast = last || "0";
   for (const t of posts) {
-    const starter = await discordSafe(`/channels/${t.id}/messages/${t.id}`);
-    const content = starter?.content?.trim() || "_(no description — see the Discord thread)_";
-    const author = starter?.author || { username: "unknown", id: t.owner_id || "" };
+    const messages = await fetchAllThreadMessages(t.id);
+    const op = messages[0]?.author || { username: "unknown", id: t.owner_id || "" };
+    const rendered = renderMessages(messages) || "_(no text or attachments readable — open the Discord thread)_";
     const link = `https://discord.com/channels/${guildId}/${t.id}`;
     const body = [
-      content,
+      rendered,
       "",
       "---",
-      `**Reported by:** ${author.username} (\`${author.id}\`) in Discord`,
+      `**Reported by:** ${op.username} (\`${op.id}\`) in Discord`,
       `**Thread:** ${link}`,
-      `*Imported automatically from the #${channel.name} forum.*`,
+      `*Imported automatically from the #${channel.name} forum (full thread text + attachments).*`,
     ].join("\n");
 
     const url = await createIssue(`${ch.prefix} ${trunc(t.name || "(untitled)", 90)}`, body, ch.labels);
-    console.log(`[${ch.kind}] post ${t.id} "${t.name}" -> ${url}`);
+    console.log(`[${ch.kind}] post ${t.id} "${t.name}" (${messages.length} msg) -> ${url}`);
 
-    const r = (reporters[author.username] ||= { count: 0, bugs: 0, features: 0 });
+    const r = (reporters[op.username] ||= { count: 0, bugs: 0, features: 0 });
     r.count += 1;
     r[ch.kind === "bug" ? "bugs" : "features"] += 1;
 
