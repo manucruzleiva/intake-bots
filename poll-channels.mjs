@@ -1,13 +1,14 @@
 // Cobblemon Picnic — Discord channel intake (runs in this PUBLIC repo for free, frequent polling).
 //
-// Polls the #bugs and #features Discord channels and opens a GitHub issue in the (private) mod repo
-// for each NEW message. Also maintains reporters.json, which the mod's wiki reads to build its
-// community credits page. State + reporters live here; issues are created cross-repo via a PAT.
+// Polls the #bug-report and #features-request channels and opens a GitHub issue in the (private) mod
+// repo for each NEW report. Supports both forum channels (type 15/16 — each report is a forum post /
+// thread) and plain text channels (type 0 — each report is a message). Also maintains reporters.json,
+// which the mod's wiki reads to build its community credits page.
 //
 // Env:
 //   DISCORD_TOKEN        bot token (read access to the two channels)
 //   MOD_REPO_TOKEN       PAT with Issues: write on MOD_REPO
-//   MOD_REPO             "owner/repo" to file issues in (e.g. manucruzleiva/cobblemon-picnic)
+//   MOD_REPO             "owner/repo" to file issues in
 //   BUG_CHANNEL_ID, FEATURE_CHANNEL_ID
 //   STATE_PATH / REPORTERS_PATH  optional overrides
 
@@ -26,6 +27,7 @@ const CHANNELS = [
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const readJson = (p, fallback) => (existsSync(p) ? JSON.parse(readFileSync(p, "utf8")) : fallback);
+const gt = (a, b) => BigInt(a) > BigInt(b); // snowflake compare
 
 async function discord(path, init) {
   const res = await fetch(`${DISCORD}${path}`, {
@@ -35,6 +37,7 @@ async function discord(path, init) {
   if (!res.ok) throw new Error(`Discord ${path}: HTTP ${res.status} ${await res.text()}`);
   return res.status === 204 ? null : res.json();
 }
+const discordSafe = (p, i) => discord(p, i).catch(() => null);
 
 async function createIssue(title, body, labels) {
   const res = await fetch(`${GH}/repos/${MOD_REPO}/issues`, {
@@ -52,28 +55,111 @@ async function createIssue(title, body, labels) {
   return (await res.json()).html_url;
 }
 
-// Fetch every message after `afterId`, oldest first, paginating in case there are many.
-async function fetchNewMessages(channelId, afterId) {
+const trunc = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+
+// --- Forum channels (type 15/16): each report is a thread/post -------------------------------
+async function listForumPosts(channel, guildId) {
+  const byId = new Map();
+  const active = await discordSafe(`/guilds/${guildId}/threads/active`);
+  for (const t of active?.threads || []) if (t.parent_id === channel.id) byId.set(t.id, t);
+
+  let before = null;
+  for (let i = 0; i < 10; i++) {
+    const q = before ? `?before=${before}&limit=100` : `?limit=100`;
+    const arc = await discordSafe(`/channels/${channel.id}/threads/archived/public${q}`);
+    if (!arc?.threads?.length) break;
+    for (const t of arc.threads) byId.set(t.id, t);
+    if (!arc.has_more) break;
+    before = arc.threads[arc.threads.length - 1].thread_metadata?.archive_timestamp;
+    if (!before) break;
+  }
+  return [...byId.values()];
+}
+
+async function importForum(ch, channel, guildId, last, reporters) {
+  const posts = (await listForumPosts(channel, guildId))
+    .filter((t) => gt(t.id, last || "0"))
+    .sort((a, b) => (gt(a.id, b.id) ? 1 : -1));
+
+  let newLast = last || "0";
+  for (const t of posts) {
+    const starter = await discordSafe(`/channels/${t.id}/messages/${t.id}`);
+    const content = starter?.content?.trim() || "_(no description — see the Discord thread)_";
+    const author = starter?.author || { username: "unknown", id: t.owner_id || "" };
+    const link = `https://discord.com/channels/${guildId}/${t.id}`;
+    const body = [
+      content,
+      "",
+      "---",
+      `**Reported by:** ${author.username} (\`${author.id}\`) in Discord`,
+      `**Thread:** ${link}`,
+      `*Imported automatically from the #${channel.name} forum.*`,
+    ].join("\n");
+
+    const url = await createIssue(`${ch.prefix} ${trunc(t.name || "(untitled)", 90)}`, body, ch.labels);
+    console.log(`[${ch.kind}] post ${t.id} "${t.name}" -> ${url}`);
+
+    const r = (reporters[author.username] ||= { count: 0, bugs: 0, features: 0 });
+    r.count += 1;
+    r[ch.kind === "bug" ? "bugs" : "features"] += 1;
+
+    try {
+      await discord(`/channels/${t.id}/messages/${t.id}/reactions/${encodeURIComponent("✅")}/@me`, { method: "PUT" });
+    } catch { /* ignore */ }
+
+    if (gt(t.id, newLast)) newLast = t.id;
+    await sleep(1200);
+  }
+  console.log(`[${ch.kind}] imported ${posts.length} forum post(s)`);
+  return newLast;
+}
+
+// --- Text channels (type 0): each report is a message ----------------------------------------
+async function importText(ch, channelId, guildId, last, reporters) {
   const collected = [];
-  let cursor = afterId;
+  let cursor = last;
   for (let page = 0; page < 20; page++) {
     const batch = await discord(`/channels/${channelId}/messages?after=${cursor}&limit=100`);
     if (!batch.length) break;
     collected.push(...batch);
-    const newest = batch.reduce((a, b) => (BigInt(b.id) > BigInt(a) ? b.id : a), cursor);
+    const newest = batch.reduce((a, b) => (gt(b.id, a) ? b.id : a), cursor);
     if (batch.length < 100 || newest === cursor) break;
     cursor = newest;
   }
   const seen = new Set();
-  return collected
+  const messages = collected
     .filter((m) => (seen.has(m.id) ? false : seen.add(m.id)))
-    .sort((a, b) => (BigInt(a.id) < BigInt(b.id) ? -1 : 1));
-}
+    .filter((m) => !m.author?.bot && m.content?.trim())
+    .sort((a, b) => (gt(a.id, b.id) ? 1 : -1));
 
-function titleFrom(prefix, content) {
-  const firstLine = (content.split("\n")[0] || "").trim();
-  const short = firstLine.length > 80 ? firstLine.slice(0, 77) + "…" : firstLine;
-  return `${prefix} ${short || "(no text)"}`;
+  let newLast = last;
+  for (const m of messages) {
+    const content = m.content.trim();
+    const link = `https://discord.com/channels/${guildId}/${channelId}/${m.id}`;
+    const body = [
+      content,
+      "",
+      "---",
+      `**Reported by:** ${m.author.username} (\`${m.author.id}\`) in Discord`,
+      `**Message:** ${link}`,
+      `*Imported automatically from Discord.*`,
+    ].join("\n");
+    const title = trunc((content.split("\n")[0] || "").trim() || "(no text)", 90);
+    const url = await createIssue(`${ch.prefix} ${title}`, body, ch.labels);
+    console.log(`[${ch.kind}] msg ${m.id} -> ${url}`);
+
+    const r = (reporters[m.author.username] ||= { count: 0, bugs: 0, features: 0 });
+    r.count += 1;
+    r[ch.kind === "bug" ? "bugs" : "features"] += 1;
+
+    try {
+      await discord(`/channels/${channelId}/messages/${m.id}/reactions/${encodeURIComponent("✅")}/@me`, { method: "PUT" });
+    } catch { /* ignore */ }
+    newLast = m.id;
+    await sleep(1200);
+  }
+  console.log(`[${ch.kind}] imported ${messages.length} message(s)`);
+  return newLast;
 }
 
 async function run() {
@@ -85,47 +171,28 @@ async function run() {
   let changed = false;
 
   for (const ch of CHANNELS) {
-    const { guild_id } = await discord(`/channels/${ch.id}`);
+    const channel = await discord(`/channels/${ch.id}`);
+    const guildId = channel.guild_id;
+    const isForum = channel.type === 15 || channel.type === 16;
     const last = state[ch.kind]?.lastId || null;
 
-    if (!last) {
+    // Text channels skip backfill on first run (chat can be noisy); forums import existing posts.
+    if (!last && !isForum) {
       const latest = await discord(`/channels/${ch.id}/messages?limit=1`);
       state[ch.kind] = { lastId: latest[0]?.id || "0" };
       changed = true;
-      console.log(`[${ch.kind}] initialized at ${state[ch.kind].lastId} (no backfill)`);
+      console.log(`[${ch.kind}] text channel initialized (no backfill)`);
       continue;
     }
 
-    const messages = (await fetchNewMessages(ch.id, last)).filter((m) => !m.author?.bot && m.content?.trim());
-    for (const m of messages) {
-      const content = m.content.trim();
-      const link = `https://discord.com/channels/${guild_id}/${ch.id}/${m.id}`;
-      const body = [
-        content,
-        "",
-        "---",
-        `**Reported by:** ${m.author.username} (\`${m.author.id}\`) in Discord`,
-        `**Message:** ${link}`,
-        `**Posted:** ${m.timestamp}`,
-        `*Imported automatically from the #${ch.kind} channel.*`,
-      ].join("\n");
+    const newLast = isForum
+      ? await importForum(ch, channel, guildId, last, reporters)
+      : await importText(ch, ch.id, guildId, last, reporters);
 
-      const url = await createIssue(titleFrom(ch.prefix, content), body, ch.labels);
-      console.log(`[${ch.kind}] ${m.id} -> ${url}`);
-
-      const r = (reporters[m.author.username] ||= { count: 0, bugs: 0, features: 0 });
-      r.count += 1;
-      r[ch.kind === "bug" ? "bugs" : "features"] += 1;
-
-      try {
-        await discord(`/channels/${ch.id}/messages/${m.id}/reactions/${encodeURIComponent("✅")}/@me`, { method: "PUT" });
-      } catch { /* ignore missing permission */ }
-
-      state[ch.kind] = { lastId: m.id };
+    if (newLast && newLast !== (state[ch.kind]?.lastId || null)) {
+      state[ch.kind] = { lastId: newLast };
       changed = true;
-      await sleep(1200); // stay clear of GitHub's secondary rate limits
     }
-    console.log(`[${ch.kind}] imported ${messages.length} message(s)`);
   }
 
   if (changed) {
