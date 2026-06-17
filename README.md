@@ -1,50 +1,37 @@
-# Cobblemon Picnic — Discord bot (serverless)
+# Cobblemon Picnic — Discord intake
 
-A tiny **Vercel Edge Function** ([`api/interactions.js`](api/interactions.js)) that lets players
-file reports from Discord with slash commands, opening a **GitHub issue** for each:
-
-- **`/bug title description [version]`** → issue labelled `bug`, `discord`
-- **`/feature title description`** → issue labelled `enhancement`, `discord`
-
-It runs **serverless** — Discord POSTs each interaction to the function, which verifies the
-Ed25519 signature and creates the issue. No always-on server, free, zero maintenance. Issues land in
-[`manucruzleiva/cobblemon-picnic`](https://github.com/manucruzleiva/cobblemon-picnic/issues).
+This **public** repo runs the Discord → GitHub issue intake for
+[Cobblemon Picnic](https://github.com/manucruzleiva/cobblemon-picnic). It lives here (not in the mod
+repo) on purpose: **public repos get unlimited GitHub Actions minutes**, so the poller can run every
+**5 minutes** for free — about as real-time as a scheduled job gets.
 
 ```
-Discord ──(slash command)──▶ Vercel function ──▶ GitHub issue
-        ◀──(ephemeral reply with the link)──
+#bugs / #features  ──(every 5 min)──▶  poll-channels.mjs (Actions)  ──▶  issues in the mod repo
 ```
 
-## Deploy (one-time)
+- [`poll-channels.mjs`](poll-channels.mjs) — the poller (Node, no dependencies).
+- [`.github/workflows/intake.yml`](.github/workflows/intake.yml) — the 5-minute cron.
+- [`intake-state.json`](intake-state.json) — last imported message id per channel (committed by the job).
+- [`reporters.json`](reporters.json) — per-reporter tallies; the mod's **wiki** reads this to build its
+  community credits page.
 
-### 1. Import into Vercel
-[vercel.com/new](https://vercel.com/new) → **Import** this repo (`cobblemon-picnic-bot`).
-Framework preset: **Other**. Deploy.
+## Setup
 
-### 2. Set Environment Variables
-Project → **Settings → Environment Variables** (Production), then **redeploy**:
+In **Settings → Secrets and variables → Actions**:
 
-| Name | Value |
-|------|-------|
-| `DISCORD_PUBLIC_KEY` | Discord Developer Portal → your app → **General Information → Public Key** |
-| `GITHUB_TOKEN` | a fine-grained PAT with **Issues: Read and write** on the repo |
-| `GITHUB_REPO` | `manucruzleiva/cobblemon-picnic` |
+| Type | Name | Value |
+|------|------|-------|
+| Secret | `DISCORD_TOKEN` | bot token (read access to the channels) |
+| Secret | `MOD_REPO_TOKEN` | a PAT with **Issues: write** on the mod repo |
+| Variable | `MOD_REPO` | `manucruzleiva/cobblemon-picnic` |
+| Variable | `BUG_CHANNEL_ID` | the #bugs channel id |
+| Variable | `FEATURE_CHANNEL_ID` | the #features channel id |
 
-### 3. Point Discord at it
-Developer Portal → **General Information → Interactions Endpoint URL** =
-`https://<your-project>.vercel.app/api/interactions` → **Save**. Discord sends a test PING; the
-function answers and the URL is accepted.
+The bot must be in the server with **View Channel + Read Message History** on both channels.
 
-### 4. Register the slash commands (once)
-```bash
-DISCORD_TOKEN=<your bot token> bash register-commands.sh
-# add GUILD_ID=<server id> before the command to register instantly in one server
-```
+## Behaviour
 
-Then try `/bug` in your server. Every push to this repo auto-redeploys.
-
-## Notes
-
-- Secrets (`GITHUB_TOKEN`) live **only** in Vercel env vars — never committed.
-- The labels `bug` / `enhancement` / `discord` must exist on the repo (already created).
-- App ID is baked into `register-commands.sh` (`1516859986414932070`); override with `DISCORD_APP_ID`.
+- First run per channel records the latest message id and imports nothing (no backfill flood);
+  later runs import messages posted since.
+- Each message becomes an issue labelled `bug`/`discord` or `enhancement`/`discord`, with author,
+  jump-link and timestamp. The bot adds a ✅ reaction so players see it was logged.
