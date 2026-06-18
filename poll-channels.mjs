@@ -94,14 +94,37 @@ async function fetchAllThreadMessages(threadId) {
 // Render a list of messages' text + attachments into Markdown for the issue body. Images embed
 // inline; other files (logs, crash reports…) become links. (Discord CDN links expire after ~24h,
 // so the issue always also links back to the thread.)
-function renderMessages(messages) {
+async function fetchText(url) {
+  try {
+    const r = await fetch(url);
+    return r.ok ? await r.text() : null;
+  } catch {
+    return null;
+  }
+}
+
+async function renderMessages(messages) {
   const parts = [];
   for (const m of messages) {
     const txt = (m.content || "").trim();
     if (txt) parts.push(txt);
     for (const att of m.attachments || []) {
-      const isImg = (att.content_type || "").startsWith("image/");
-      parts.push(isImg ? `![${att.filename}](${att.url})` : `📎 [${att.filename}](${att.url})`);
+      const ct = att.content_type || "";
+      const name = att.filename || "file";
+      if (ct.startsWith("image/")) {
+        parts.push(`![${name}](${att.url})`); // images embed inline
+      } else if (ct.startsWith("text/") || /\.(txt|log|json|ya?ml|cfg|conf|toml)$/i.test(name)) {
+        // Crash reports / logs: embed the actual content so it stays in the issue (CDN links expire).
+        const content = await fetchText(att.url);
+        if (content) {
+          const capped = content.length > 50000 ? content.slice(0, 50000) + "\n…(truncated)" : content;
+          parts.push(`<details><summary>📄 ${name}</summary>\n\n\`\`\`\n${capped}\n\`\`\`\n\n</details>`);
+        } else {
+          parts.push(`📎 ${name}`);
+        }
+      } else {
+        parts.push(`📎 [${name}](${att.url})`); // other files: link (Discord CDN, not the repo)
+      }
     }
   }
   return parts.join("\n\n");
@@ -116,7 +139,7 @@ async function importForum(ch, channel, guildId, last, reporters) {
   for (const t of posts) {
     const messages = await fetchAllThreadMessages(t.id);
     const op = messages[0]?.author || { username: "unknown", id: t.owner_id || "" };
-    const rendered = renderMessages(messages) || "_(no text or attachments readable — open the Discord thread)_";
+    const rendered = (await renderMessages(messages)) || "_(no text or attachments readable — open the Discord thread)_";
     const link = `https://discord.com/channels/${guildId}/${t.id}`;
     const body = [
       rendered,
@@ -134,9 +157,22 @@ async function importForum(ch, channel, guildId, last, reporters) {
     r.count += 1;
     r[ch.kind === "bug" ? "bugs" : "features"] += 1;
 
+    // Acknowledge in the thread: a ✅ reaction + a "tracked" note. NEVER include the repo/issue link —
+    // the tracker repo is private.
     try {
       await discord(`/channels/${t.id}/messages/${t.id}/reactions/${encodeURIComponent("✅")}/@me`, { method: "PUT" });
-    } catch { /* ignore */ }
+    } catch { /* missing Add Reactions permission */ }
+    try {
+      await discord(`/channels/${t.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content:
+            "✅ Thanks for the report! It's been logged and is now **being tracked by the team** — " +
+            "we'll reply here once it's resolved.",
+        }),
+      });
+    } catch { /* missing Send Messages in Threads permission */ }
 
     if (gt(t.id, newLast)) newLast = t.id;
     await sleep(1200);
