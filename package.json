@@ -1,0 +1,13 @@
+{
+  "name": "cobblemon-routes-discord-intake",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Polls the Cobblemon Routes Discord bug-reports forum and files GitHub issues.",
+  "scripts": {
+    "poll": "node poll.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
