@@ -165,7 +165,8 @@ async function main() {
 			// Reply in the thread — NEVER link the private code repo.
 			try {
 				await discordPost(`/channels/${thread.id}/messages`, {
-					content: "Thanks for the report — it's been **tracked** ✅. We'll post here when it's fixed in a release.",
+					content: "🔍 Thanks for the report — we're **investigating** it. We'll post here when it's fixed in a release. "
+						+ "If you can, attach your **crash report** (`crash-reports/crash-*.txt`) — it has the stack trace we need.",
 				});
 			} catch (e) {
 				console.warn("reply failed:", e.message);
