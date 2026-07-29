@@ -1,0 +1,51 @@
+name: Discord intake
+
+# Public repo = unlimited free Actions minutes, so we poll at GitHub's 5-minute floor — about as
+# real-time as a scheduled job gets. Issues are filed in the (private) mod repo via a PAT.
+#
+# Setup (repo Settings -> Secrets and variables -> Actions):
+#   Secret    DISCORD_TOKEN       = bot token (read access to the channels)
+#   Secret    MOD_REPO_TOKEN      = PAT with Issues: write on the mod repo
+#   Variable  MOD_REPO            = manucruzleiva/cobblemon-picnic
+#   Variable  BUG_CHANNEL_ID      = #bugs channel id
+#   Variable  FEATURE_CHANNEL_ID  = #features channel id
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes (GitHub's minimum; may be delayed under load)
+  workflow_dispatch:
+
+permissions:
+  contents: write # to commit state + reporters back to this repo
+
+concurrency:
+  group: discord-intake
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Poll channels and file issues
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          MOD_REPO_TOKEN: ${{ secrets.MOD_REPO_TOKEN }}
+          MOD_REPO: ${{ vars.MOD_REPO }}
+          BUG_CHANNEL_ID: ${{ vars.BUG_CHANNEL_ID }}
+          FEATURE_CHANNEL_ID: ${{ vars.FEATURE_CHANNEL_ID }}
+        run: node poll-channels.mjs
+
+      - name: Persist state + reporters
+        run: |
+          git add intake-state.json reporters.json
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(intake): update state + reporters [skip ci]"
+            git push
+          fi
