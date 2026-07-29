@@ -1,9 +1,12 @@
-# Cobblemon Nuzlocke — intake (pendiente)
+# Cobblemon Nuzlocke & Soul Link — intake (pendiente)
+
+Nombre de display **Cobblemon Nuzlocke & Soul Link**; identificadores técnicos cortos
+(`cobblemon-nuzlocke`, mod id `cobblemon_nuzlocke`) — de ahí el nombre de esta carpeta.
 
 Todavía no hay bot acá, **a propósito**: el mod `cobblemon-nuzlocke` aún no existe como repo. Sale
 del split de Cobblemon Routes descrito en
-[#122](https://github.com/manucruzleiva/cobblemon-routes/issues/122), y hasta que ese repo exista no
-hay dónde abrir los issues.
+[#122](https://github.com/manucruzleiva/routes/issues/122), y hasta que ese repo exista no hay dónde
+abrir los issues.
 
 No hay workflow en `.github/workflows/` para este proyecto por el mismo motivo: un cron apuntando a
 un repo inexistente fallaría cada 5 minutos y llenaría el historial de Actions de rojo.
