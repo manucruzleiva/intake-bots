@@ -1,0 +1,55 @@
+# Discord → GitHub Issues intake (cron).
+#
+# Place this file at .github/workflows/discord-intake.yml IN A PUBLIC REPO so the 5-minute cron uses the
+# unlimited public-repo Actions allowance (a private repo would burn its limited minutes). It files issues
+# into whatever GH_ISSUES_REPO you configure (e.g. the private code repo) via a PAT.
+#
+# Repo secrets to add (Settings → Secrets and variables → Actions):
+#   DISCORD_BOT_TOKEN          the bot token (Message Content intent enabled)
+#   DISCORD_FORUM_CHANNEL_ID   the bug-reports forum channel id
+#   DISCORD_GUILD_ID           (optional) the server id
+#   ISSUES_REPO_TOKEN          a PAT with `repo` (issues) scope on the code repo
+# Repo variable:
+#   GH_ISSUES_REPO             "owner/repo" to file issues into
+
+name: Discord intake
+on:
+  schedule:
+    - cron: "*/10 * * * *" # every 10 minutes
+  workflow_dispatch: {}
+
+# Allow the job to commit the dedup state back to this repo.
+permissions:
+  contents: write
+
+concurrency:
+  group: discord-intake
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Poll Discord and file issues
+        working-directory: discord-intake
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ secrets.DISCORD_FORUM_CHANNEL_ID }}
+          DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.ISSUES_REPO_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.GH_ISSUES_REPO }}
+        run: node poll.mjs
+      - name: Persist dedup state
+        run: |
+          cd discord-intake
+          if [ -n "$(git status --porcelain state.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add state.json
+            git commit -m "chore: update discord intake state [skip ci]"
+            git push
+          fi
