@@ -1,0 +1,47 @@
+name: Intake — Ditto HMs
+
+# Poller de Cobblemon Ditto HMs. Es el único que guarda el estado en el cache de Actions en vez de
+# commitearlo al repo; se respetó ese comportamiento al consolidar (sólo cambió la ruta, que ahora
+# lleva el prefijo del proyecto). El script (ditto-hms/bot/intake.js) no se modificó.
+#
+# Secrets: DITTO_HMS_DISCORD_TOKEN, DITTO_HMS_DISCORD_GUILD_ID, DITTO_HMS_DISCORD_BUG_CHANNEL_ID,
+#          DITTO_HMS_DISCORD_FEATURE_CHANNEL_ID, DITTO_HMS_INTAKE_GITHUB_TOKEN
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: intake-ditto-hms
+  cancel-in-progress: false
+
+jobs:
+  intake:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Restore state cache
+        uses: actions/cache@v4
+        with:
+          path: ditto-hms/bot/state.json
+          key: intake-ditto-hms-state-${{ github.run_id }}
+          restore-keys: intake-ditto-hms-state-
+
+      - name: Run intake bot
+        working-directory: ditto-hms
+        env:
+          DISCORD_TOKEN: ${{ secrets.DITTO_HMS_DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ secrets.DITTO_HMS_DISCORD_GUILD_ID }}
+          DISCORD_BUG_CHANNEL_ID: ${{ secrets.DITTO_HMS_DISCORD_BUG_CHANNEL_ID }}
+          DISCORD_FEATURE_CHANNEL_ID: ${{ secrets.DITTO_HMS_DISCORD_FEATURE_CHANNEL_ID }}
+          GITHUB_TOKEN: ${{ secrets.DITTO_HMS_INTAKE_GITHUB_TOKEN }}
+          GITHUB_REPO: manucruzleiva/cobblemon-ditto-hms
+        run: node bot/intake.js

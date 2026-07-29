@@ -1,0 +1,54 @@
+name: Intake — Routes
+
+# Poller de Cobblemon Routes. El script (routes/poll.mjs) NO se tocó al consolidar: sigue esperando
+# los mismos nombres de env vars que cuando vivía en cobblemon-routes-intake. Lo único que cambia es
+# de qué secret sale cada uno — acá están namespaceados por proyecto (ROUTES_*) porque los cuatro
+# bots comparten repo.
+#
+# Secrets:  ROUTES_DISCORD_BOT_TOKEN, ROUTES_DISCORD_FORUM_CHANNEL_ID,
+#           ROUTES_DISCORD_GUILD_ID (opcional), ROUTES_ISSUES_REPO_TOKEN (PAT con scope repo)
+# Variable: ROUTES_GH_ISSUES_REPO  = manucruzleiva/cobblemon-routes
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Namespaceado: si los cuatro bots compartieran grupo se serializarían entre sí sin motivo.
+concurrency:
+  group: intake-routes
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Poll Discord and file issues
+        working-directory: routes
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.ROUTES_DISCORD_BOT_TOKEN }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ secrets.ROUTES_DISCORD_FORUM_CHANNEL_ID }}
+          DISCORD_GUILD_ID: ${{ secrets.ROUTES_DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.ROUTES_ISSUES_REPO_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.ROUTES_GH_ISSUES_REPO }}
+        run: node poll.mjs
+
+      - name: Persist dedup state
+        run: |
+          if [ -n "$(git status --porcelain routes/state.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add routes/state.json
+            git commit -m "chore(routes): update intake state [skip ci]"
+            # Los cuatro bots commitean al mismo branch: reintentar sobre lo que haya entrado.
+            git pull --rebase --autostash
+            git push
+          fi
