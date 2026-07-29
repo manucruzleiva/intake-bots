@@ -20,6 +20,32 @@ gratis e ilimitado en repos públicos y metered en privados — los mods son pri
 Cada proyecto tiene su propio workflow en [`.github/workflows/`](.github/workflows/) (GitHub sólo
 lee workflows desde ahí, no desde subcarpetas), su propio estado y sus propios secrets.
 
+## Un solo hilo de tickets por proyecto
+
+El Discord cambió de metodología: **ya no hay canal de features**, sólo un hilo de tickets por
+proyecto. Los canales son:
+
+| Proyecto | Tickets | Anuncios |
+|---|---|---|
+| routes | `1519377359290110137` | `1522425693265203331` |
+| picnic | `1532081390508839083` | `1532081457462513734` |
+| ditto-hms | `1532081100749406218` | `1532081291963531574` |
+| nuzlocke | `1532081527662313764` | `1532081610034253904` |
+
+Server: https://discord.gg/SwcwXcCN4k
+
+**Los pollers de picnic y ditto-hms siguen esperando dos ids** (bugs + features) porque no se tocó su
+código. Los workflows setean **sólo el de bugs** y dejan el de features vacío a propósito: los dos
+scripts descartan el canal ausente (`.filter((c) => c.id)` en picnic, `if (FEATURE_CHANNEL)` en
+ditto), así que hacen una sola pasada.
+
+> ⚠️ **No apuntar los dos ids al mismo canal.** El estado se guarda por *kind*, no por canal, así que
+> el mismo thread se importaría dos veces — una como `[Bug]` y otra como `[Feature]`, con `lastId`
+> independientes. Duplica cada issue.
+
+Consecuencia: todo ticket entra etiquetado `bug` + `discord`. El triage a `enhancement` se hace en el
+issue, no en el intake.
+
 ## Las tres implementaciones NO están unificadas
 
 Son tres pollers que evolucionaron por separado (175 / 244 / 152 líneas, ~408 líneas de diferencia
@@ -39,15 +65,15 @@ Diferencias reales que habría que reconciliar antes de unificar:
 Al vivir todos en un repo, los secrets se namespacean por proyecto. **Esta migración todavía no está
 hecha** — los bots viejos siguen corriendo en sus repos originales hasta que se haga el cutover.
 
-| Secret | Notas |
-|---|---|
-| `<PROYECTO>_DISCORD_TOKEN` | Token del bot de Discord |
-| `<PROYECTO>_DISCORD_GUILD_ID` | ID del server |
-| `<PROYECTO>_DISCORD_BUG_CHANNEL_ID` | Canal foro de bugs |
-| `<PROYECTO>_DISCORD_FEATURE_CHANNEL_ID` | Canal foro de features (sólo picnic) |
-| `<PROYECTO>_INTAKE_GITHUB_TOKEN` | PAT con scope `repo` sobre el repo privado del mod |
+| Nombre | Tipo | Notas |
+|---|---|---|
+| `<PROYECTO>_DISCORD_TOKEN` | secret | Token del bot de Discord |
+| `<PROYECTO>_DISCORD_GUILD_ID` | secret | ID del server |
+| `<PROYECTO>_INTAKE_GITHUB_TOKEN` | secret | PAT con scope `repo` sobre el repo del mod |
+| `<PROYECTO>_TICKETS_CHANNEL_ID` | **variable** | Canal foro de tickets — un id de canal no es sensible |
 
-donde `<PROYECTO>` ∈ `ROUTES`, `PICNIC`, `DITTO_HMS`, `NUZLOCKE`.
+donde `<PROYECTO>` ∈ `ROUTES`, `PICNIC`, `DITTO_HMS`, `NUZLOCKE`. Los nombres exactos de env var que
+espera cada script varían (no se unificaron los pollers); cada workflow hace el mapeo.
 
 ## Cutover pendiente
 

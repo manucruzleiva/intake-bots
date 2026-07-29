@@ -4,8 +4,12 @@ name: Intake — Ditto HMs
 # commitearlo al repo; se respetó ese comportamiento al consolidar (sólo cambió la ruta, que ahora
 # lleva el prefijo del proyecto). El script (ditto-hms/bot/intake.js) no se modificó.
 #
-# Secrets: DITTO_HMS_DISCORD_TOKEN, DITTO_HMS_DISCORD_GUILD_ID, DITTO_HMS_DISCORD_BUG_CHANNEL_ID,
-#          DITTO_HMS_DISCORD_FEATURE_CHANNEL_ID, DITTO_HMS_INTAKE_GITHUB_TOKEN
+# Secrets:  DITTO_HMS_DISCORD_TOKEN, DITTO_HMS_DISCORD_GUILD_ID, DITTO_HMS_INTAKE_GITHUB_TOKEN
+# Variable: DITTO_HMS_TICKETS_CHANNEL_ID = 1532081100749406218
+#
+# El Discord paso a UN SOLO hilo de tickets por proyecto: ya no hay canal de features. Se setea solo
+# el id de bugs; el script hace `if (FEATURE_CHANNEL)` asi que sin ese env hace una sola pasada.
+# Apuntar los dos al mismo canal duplicaria cada ticket.
 
 on:
   schedule:
@@ -40,8 +44,8 @@ jobs:
         env:
           DISCORD_TOKEN: ${{ secrets.DITTO_HMS_DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ secrets.DITTO_HMS_DISCORD_GUILD_ID }}
-          DISCORD_BUG_CHANNEL_ID: ${{ secrets.DITTO_HMS_DISCORD_BUG_CHANNEL_ID }}
-          DISCORD_FEATURE_CHANNEL_ID: ${{ secrets.DITTO_HMS_DISCORD_FEATURE_CHANNEL_ID }}
+          # Un solo hilo de tickets. DISCORD_FEATURE_CHANNEL_ID NO se setea a proposito.
+          DISCORD_BUG_CHANNEL_ID: ${{ vars.DITTO_HMS_TICKETS_CHANNEL_ID }}
           GITHUB_TOKEN: ${{ secrets.DITTO_HMS_INTAKE_GITHUB_TOKEN }}
           GITHUB_REPO: manucruzleiva/cobblemon-ditto-hms
         run: node bot/intake.js

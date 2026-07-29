@@ -6,7 +6,16 @@ name: Intake — Picnic
 #
 # Secrets:  PICNIC_DISCORD_TOKEN, PICNIC_MOD_REPO_TOKEN (PAT con Issues: write)
 # Variables: PICNIC_MOD_REPO = manucruzleiva/cobblemon-picnic
-#            PICNIC_BUG_CHANNEL_ID, PICNIC_FEATURE_CHANNEL_ID
+#            PICNIC_TICKETS_CHANNEL_ID = 1532081390508839083
+#
+# El Discord paso a UN SOLO hilo de tickets por proyecto: ya no hay canal de features.
+#
+# Se setea SOLO BUG_CHANNEL_ID. FEATURE_CHANNEL_ID queda deliberadamente vacio: el script filtra
+# los canales sin id (`.filter((c) => c.id)`), asi que hace una sola pasada. Apuntar los dos al
+# mismo canal duplicaria cada ticket, porque el estado se guarda por `kind` y no por canal — el
+# mismo thread entraria como [Bug] y como [Feature] con lastId independientes.
+#
+# Efecto: todo ticket se etiqueta `bug` + `discord`. El triage a enhancement se hace en el issue.
 
 on:
   schedule:
@@ -35,8 +44,8 @@ jobs:
           DISCORD_TOKEN: ${{ secrets.PICNIC_DISCORD_TOKEN }}
           MOD_REPO_TOKEN: ${{ secrets.PICNIC_MOD_REPO_TOKEN }}
           MOD_REPO: ${{ vars.PICNIC_MOD_REPO }}
-          BUG_CHANNEL_ID: ${{ vars.PICNIC_BUG_CHANNEL_ID }}
-          FEATURE_CHANNEL_ID: ${{ vars.PICNIC_FEATURE_CHANNEL_ID }}
+          # Un solo hilo de tickets. FEATURE_CHANNEL_ID NO se setea a proposito (ver cabecera).
+          BUG_CHANNEL_ID: ${{ vars.PICNIC_TICKETS_CHANNEL_ID }}
         run: node poll-channels.mjs
 
       - name: Persist state + reporters

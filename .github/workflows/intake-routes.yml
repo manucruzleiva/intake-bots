@@ -5,9 +5,14 @@ name: Intake — Routes
 # de qué secret sale cada uno — acá están namespaceados por proyecto (ROUTES_*) porque los cuatro
 # bots comparten repo.
 #
-# Secrets:  ROUTES_DISCORD_BOT_TOKEN, ROUTES_DISCORD_FORUM_CHANNEL_ID,
-#           ROUTES_DISCORD_GUILD_ID (opcional), ROUTES_ISSUES_REPO_TOKEN (PAT con scope repo)
-# Variable: ROUTES_GH_ISSUES_REPO  = manucruzleiva/cobblemon-routes
+# Secrets:   ROUTES_DISCORD_BOT_TOKEN, ROUTES_DISCORD_GUILD_ID (opcional),
+#            ROUTES_ISSUES_REPO_TOKEN (PAT con scope repo)
+# Variables: ROUTES_GH_ISSUES_REPO = manucruzleiva/routes
+#            ROUTES_TICKETS_CHANNEL_ID = 1519377359290110137
+#
+# Este poller ya trabajaba sobre UN solo canal foro, asi que el cambio del Discord a un unico hilo
+# de tickets no lo afecta: solo se renombro la variable a TICKETS para que los cuatro proyectos usen
+# el mismo vocabulario.
 
 on:
   schedule:
@@ -35,7 +40,7 @@ jobs:
         working-directory: routes
         env:
           DISCORD_BOT_TOKEN: ${{ secrets.ROUTES_DISCORD_BOT_TOKEN }}
-          DISCORD_FORUM_CHANNEL_ID: ${{ secrets.ROUTES_DISCORD_FORUM_CHANNEL_ID }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ vars.ROUTES_TICKETS_CHANNEL_ID }}
           DISCORD_GUILD_ID: ${{ secrets.ROUTES_DISCORD_GUILD_ID }}
           GH_TOKEN: ${{ secrets.ROUTES_ISSUES_REPO_TOKEN }}
           GH_ISSUES_REPO: ${{ vars.ROUTES_GH_ISSUES_REPO }}
