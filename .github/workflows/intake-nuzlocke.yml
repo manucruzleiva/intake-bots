@@ -1,0 +1,63 @@
+name: Intake — Nuzlocke & Soul Link
+
+# Poller de Cobblemon Nuzlocke & Soul Link. Usa una copia del poller de routes (nuzlocke/poll.mjs):
+# es el mas completo de los tres — inlinea imagenes y pliega crash reports .txt/.log/.json en un
+# <details> antes de que expire el link del CDN de Discord, y Nuzlocke va a recibir sobre todo
+# reportes de bugs con logs.
+#
+# Secrets:   NUZLOCKE_DISCORD_BOT_TOKEN, NUZLOCKE_DISCORD_GUILD_ID (opcional),
+#            NUZLOCKE_ISSUES_REPO_TOKEN (PAT con scope repo — el repo del mod es privado)
+# Variables: NUZLOCKE_GH_ISSUES_REPO = manucruzleiva/cobblemon-nuzlocke
+#            NUZLOCKE_TICKETS_CHANNEL_ID = 1532081527662313764
+#
+# DESHABILITADO POR DEFECTO. El `if` de abajo corta la corrida mientras los secrets no esten
+# cargados: sin ellos el cron fallaria cada 10 minutos y llenaria el historial de Actions de rojo.
+# Para activarlo: cargar los secrets y borrar el `if`.
+#
+# OJO si Nuzlocke comparte el foro de tickets con Routes: dos pollers sobre el mismo canal duplican
+# los issues, porque cada uno lleva su propio state.json. En ese caso NO activar este workflow —
+# hacer que el de Routes triage por tag y abra el issue en uno u otro repo.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intake-nuzlocke
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    # Guard: no corre hasta que exista el token. workflow_dispatch lo saltea para poder probar a mano.
+    if: ${{ github.event_name == 'workflow_dispatch' || vars.NUZLOCKE_INTAKE_ENABLED == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Poll Discord and file issues
+        working-directory: nuzlocke
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.NUZLOCKE_DISCORD_BOT_TOKEN }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ vars.NUZLOCKE_TICKETS_CHANNEL_ID }}
+          DISCORD_GUILD_ID: ${{ secrets.NUZLOCKE_DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.NUZLOCKE_ISSUES_REPO_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.NUZLOCKE_GH_ISSUES_REPO }}
+        run: node poll.mjs
+
+      - name: Persist dedup state
+        run: |
+          if [ -n "$(git status --porcelain nuzlocke/state.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add nuzlocke/state.json
+            git commit -m "chore(nuzlocke): update intake state [skip ci]"
+            git pull --rebase --autostash
+            git push
+          fi
