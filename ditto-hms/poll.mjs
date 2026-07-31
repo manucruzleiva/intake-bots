@@ -1,19 +1,31 @@
 // Discord -> GitHub Issues intake poller for Cobblemon Ditto HMs.
 //
-// Polls a Discord FORUM channel (the #bug-reports forum) over the REST API — no gateway/websocket, so it
+// Polls a Discord FORUM channel (the tickets forum) over the REST API — no gateway/websocket, so it
 // runs fine as a GitHub Actions cron. Each NEW forum post (thread) becomes a GitHub issue in the code repo;
-// the bot then replies "tracked" in the thread (never linking the private repo). Already-seen threads are
+// the bot then replies in the thread (never linking the private repo). Already-seen threads are
 // remembered in state.json so nothing is filed twice.
+//
+// The reply — and the issue's labels — follow the post's FORUM TAG (Bug / Crash / Idea / Feedback).
+// Asking for a crash report under someone's feature idea reads like a bot that did not look, so each
+// kind gets its own text and only the ones where logs help ask for logs. Tags are resolved by NAME at
+// runtime from the forum's own tag list: no ids are hardcoded, and renaming a tag in Discord does not
+// break anything as long as the word survives.
+//
+// The bot also closes the loop: once the issue is closed on GitHub it posts that back to the thread,
+// distinguishing "fixed" from "not planned". Without it the reporter never learns the outcome.
 //
 // Required env:
 //   DISCORD_BOT_TOKEN        bot token (needs the Message Content privileged intent + access to the forum)
-//   DISCORD_FORUM_CHANNEL_ID id of the bug-reports forum channel
+//   DISCORD_FORUM_CHANNEL_ID id of the tickets forum channel
 //   GH_TOKEN                 a PAT with `repo` scope on the issues repo (a fine-grained token works too)
 //   GH_ISSUES_REPO           "owner/repo" to file issues into (e.g. the private code repo)
 // Optional:
-//   DISCORD_GUILD_ID         guild id (speeds up the active-threads lookup; otherwise derived per thread)
-//   ISSUE_LABEL              label to add to filed issues (default "discord")
+//   DISCORD_GUILD_ID         guild id — in practice REQUIRED: without it the active-threads lookup is
+//                            skipped and only ARCHIVED posts are seen, so a fresh report waits for
+//                            Discord to archive it
+//   ISSUE_LABEL              label added to every filed issue (default "discord")
 //   STATE_FILE               path to the dedup state (default ./state.json)
+//   REPORTERS_FILE           path to the community-credit tally (default ./reporters.json)
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
@@ -28,6 +40,7 @@ const REPO = req("GH_ISSUES_REPO");
 const GUILD = process.env.DISCORD_GUILD_ID || "";
 const LABEL = process.env.ISSUE_LABEL || "discord";
 const STATE_FILE = process.env.STATE_FILE || "state.json";
+const REPORTERS_FILE = process.env.REPORTERS_FILE || "reporters.json";
 
 function req(name) {
 	const v = process.env[name];
@@ -75,22 +88,141 @@ async function github(path, body) {
 	return res.json();
 }
 
+async function githubGet(path) {
+	const res = await fetch(GH + path, {
+		headers: {
+			Authorization: `Bearer ${GH_TOKEN}`,
+			"User-Agent": UA,
+			Accept: "application/vnd.github+json",
+		},
+	});
+	if (!res.ok) {
+		throw new Error(`GitHub GET ${path} -> ${res.status} ${await res.text()}`);
+	}
+	return res.json();
+}
+
+// ── Post kinds ──────────────────────────────────────────────────────────────
+// Driven by the forum tag. `match` runs against the lowercased tag names, so "Bug", "bugs" and
+// "Bug report" all land on the same kind, and a tag nobody anticipated falls through to `other`
+// with a short, honest reply instead of a wrong one.
+const KINDS = {
+	crash: {
+		match: (t) => t.includes("crash"),
+		labels: ["bug", "crash"],
+		filed:
+			"🚨 **Tracked as a crash** — this one jumps the queue.\n\n" +
+			"If you can, attach the crash report (`crash-reports/crash-*.txt`) or `logs/latest.log`: the stack " +
+			"trace is what turns this from a hunt into a fix. Your mod list helps too, in case it is a conflict.",
+		fixed:
+			"✅ **Fixed.** The cause is gone on our side and the fix ships in the next release — update and give " +
+			"it a go. If it comes back, post here and we reopen this.",
+	},
+	bug: {
+		match: (t) => t.includes("bug") || t.includes("issue") || t.includes("problem"),
+		labels: ["bug"],
+		filed:
+			"🐛 **Tracked as a bug.**\n\n" +
+			"If it is not already above: your Minecraft and mod versions, the loader (Fabric or NeoForge), and " +
+			"the steps that trigger it. That is usually what separates a fix from a guess.",
+		fixed:
+			"✅ **Fixed.** It ships in the next release — update and give it a go. If it comes back, post here " +
+			"and we reopen this.",
+	},
+	idea: {
+		match: (t) => t.includes("idea") || t.includes("feature") || t.includes("suggestion") || t.includes("request"),
+		labels: ["enhancement"],
+		filed:
+			"💡 **Tracked as an idea.**\n\n" +
+			"It goes on the list to weigh against the roadmap — no promise on timing, and nothing else needed " +
+			"from you. If you have a picture of what you are imagining, it helps more than a description.",
+		fixed: "✅ **This one landed.** It ships in the next release. Thanks for the idea — it made the mod better.",
+	},
+	feedback: {
+		match: (t) => t.includes("feedback") || t.includes("thought") || t.includes("opinion"),
+		labels: [],
+		filed:
+			"💬 **Tracked as feedback.**\n\n" +
+			"Nothing to do on your side — it is read and recorded, and this is the kind of thing that actually " +
+			"steers what gets built next.",
+		fixed: "✅ **Wrapped up.** Thanks for taking the time to write it — it was read and it counted.",
+	},
+	other: {
+		match: () => false, // fallback only
+		labels: [],
+		filed: "✅ **Tracked.** It is on the list, and we post back here when there is news.",
+		fixed: "✅ **Closed** — this one is wrapped up.",
+	},
+};
+
+// Closing as "not planned" is not a fix, and saying "fixed" there would be a lie the reporter can
+// check. One honest text for every kind, with the door left open.
+const NOT_PLANNED =
+	"📕 **Closed without a change** — we are not taking this one forward for now.\n\n" +
+	"That is not a verdict on the report: if you disagree, or something new turns up, say so here and it " +
+	"can be reopened.";
+
+function classify(tagNames) {
+	const lowered = tagNames.map((t) => String(t).toLowerCase());
+	// Crash is checked first on purpose: a post tagged both Bug and Crash is a crash.
+	for (const key of ["crash", "bug", "idea", "feedback"]) {
+		if (lowered.some((t) => KINDS[key].match(t))) return key;
+	}
+	return "other";
+}
+
+/** id -> name for the forum's own tag list, so nothing about tags is hardcoded here. */
+async function forumTagNames() {
+	try {
+		const forum = await discord(`/channels/${FORUM}`);
+		const byId = new Map();
+		for (const t of forum.available_tags || []) byId.set(t.id, t.name);
+		if (byId.size) console.log(`Forum tags: ${[...byId.values()].join(", ")}`);
+		return byId;
+	} catch (e) {
+		console.warn("forum tags:", e.message);
+		return new Map();
+	}
+}
+
 function loadState() {
 	if (existsSync(STATE_FILE)) {
 		try {
-			return JSON.parse(readFileSync(STATE_FILE, "utf8"));
+			const s = JSON.parse(readFileSync(STATE_FILE, "utf8"));
+			// `tracked` (thread -> issue) arrived with the close-the-loop replies; states written before
+			// that only have `processed`, and those threads simply get no closing message.
+			return { processed: s.processed || [], tracked: s.tracked || {} };
 		} catch {
 			/* corrupt — start fresh */
 		}
 	}
-	return { processed: [] };
+	return { processed: [], tracked: {} };
 }
 
-/** All forum posts (threads) under the bug-reports forum: active + recently archived. */
+// Who reported what, for the community credits on the wiki. It is a plain tally kept in git so it has
+// history — the alternative is trawling Discord by hand at release time.
+function loadReporters() {
+	if (existsSync(REPORTERS_FILE)) {
+		try {
+			return JSON.parse(readFileSync(REPORTERS_FILE, "utf8"));
+		} catch {
+			/* corrupt — start fresh rather than lose the run */
+		}
+	}
+	return {};
+}
+
+function creditReporter(reporters, username, kind) {
+	if (!username || username === "unknown") return;
+	const r = (reporters[username] ||= { count: 0, kinds: {} });
+	r.count += 1;
+	r.kinds ||= {};
+	r.kinds[kind] = (r.kinds[kind] || 0) + 1;
+}
+
+/** All forum posts (threads) under the tickets forum: active + recently archived. */
 async function forumThreads() {
 	const threads = new Map();
-	// Active threads (guild-wide if we have the id, else the channel's own active set isn't exposed by REST,
-	// so the guild lookup is preferred). Both shapes return { threads: [...] }.
 	try {
 		const active = GUILD ? await discord(`/guilds/${GUILD}/threads/active`) : { threads: [] };
 		for (const t of active.threads || []) {
@@ -121,10 +253,11 @@ async function starterMessage(threadId) {
 }
 
 /** Build the GitHub issue body from the Discord post, inlining images and crash/text attachments. */
-async function buildBody(thread, msg) {
+async function buildBody(thread, msg, tagNames) {
 	const author = msg?.author ? `${msg.author.username}` : "unknown";
 	const lines = [];
-	lines.push(`**Reported on Discord** by \`${author}\` — forum post "${thread.name}".`);
+	const tags = tagNames.length ? ` — tagged ${tagNames.map((t) => `\`${t}\``).join(", ")}` : "";
+	lines.push(`**Reported on Discord** by \`${author}\` — forum post "${thread.name}"${tags}.`);
 	lines.push("");
 	lines.push(msg?.content?.trim() ? msg.content : "_(no description)_");
 	for (const att of msg?.attachments || []) {
@@ -147,27 +280,28 @@ async function buildBody(thread, msg) {
 	return lines.join("\n");
 }
 
-async function main() {
-	const state = loadState();
-	const seen = new Set(state.processed);
+/** File the issues for posts we have not seen yet. */
+async function fileNewThreads(state, seen, tagsById, reporters) {
 	const threads = await forumThreads();
 	let filed = 0;
 	for (const thread of threads) {
 		if (seen.has(thread.id)) continue;
 		try {
+			const tagNames = (thread.applied_tags || []).map((id) => tagsById.get(id)).filter(Boolean);
+			const kind = classify(tagNames);
+			const spec = KINDS[kind];
 			const msg = await starterMessage(thread.id);
 			const issue = await github(`/repos/${REPO}/issues`, {
 				title: `[Discord] ${thread.name}`.slice(0, 250),
-				body: await buildBody(thread, msg),
-				labels: [LABEL],
+				body: await buildBody(thread, msg, tagNames),
+				labels: [LABEL, ...spec.labels],
 			});
-			console.log(`Filed #${issue.number} for thread ${thread.id} ("${thread.name}")`);
+			console.log(`Filed #${issue.number} [${kind}] for thread ${thread.id} ("${thread.name}")`);
+			state.tracked[thread.id] = { issue: issue.number, kind };
+			creditReporter(reporters, msg?.author?.username, kind);
 			// Reply in the thread — NEVER link the private code repo.
 			try {
-				await discordPost(`/channels/${thread.id}/messages`, {
-					content: "🔍 Thanks for the report — we're **investigating** it. We'll post here when it's fixed in a release. "
-						+ "If you can, attach your **crash report** (`crash-reports/crash-*.txt`) — it has the stack trace we need.",
-				});
+				await discordPost(`/channels/${thread.id}/messages`, { content: spec.filed });
 			} catch (e) {
 				console.warn("reply failed:", e.message);
 			}
@@ -177,9 +311,60 @@ async function main() {
 			console.error(`thread ${thread.id} failed:`, e.message);
 		}
 	}
+	return filed;
+}
+
+/** Post back to the thread when its issue gets closed, once. */
+async function announceClosed(state) {
+	const pending = Object.entries(state.tracked).filter(([, v]) => v && v.issue && !v.closedAnnounced);
+	if (!pending.length) return 0;
+
+	// One list call instead of one GET per tracked issue: the crons run every 10 minutes and this is
+	// the only place that touches GitHub on a quiet run.
+	let closed;
+	try {
+		closed = await githubGet(`/repos/${REPO}/issues?state=closed&per_page=100&sort=updated&direction=desc`);
+	} catch (e) {
+		console.warn("closed issues:", e.message);
+		return 0;
+	}
+	const byNumber = new Map(closed.filter((i) => !i.pull_request).map((i) => [i.number, i]));
+
+	let announced = 0;
+	for (const [threadId, entry] of pending) {
+		const issue = byNumber.get(entry.issue);
+		if (!issue) continue;
+		const spec = KINDS[entry.kind] || KINDS.other;
+		const text = issue.state_reason === "not_planned" ? NOT_PLANNED : spec.fixed;
+		try {
+			await discordPost(`/channels/${threadId}/messages`, { content: text });
+			entry.closedAnnounced = true;
+			announced++;
+			console.log(`Announced close of #${entry.issue} in thread ${threadId}`);
+		} catch (e) {
+			// A locked thread can never take the message: retrying it every 10 minutes forever would be
+			// pure noise, so give up after a few tries and move on.
+			entry.closeAttempts = (entry.closeAttempts || 0) + 1;
+			if (entry.closeAttempts >= 3) entry.closedAnnounced = true;
+			console.warn(`close reply failed for thread ${threadId}:`, e.message);
+		}
+	}
+	return announced;
+}
+
+async function main() {
+	const state = loadState();
+	const seen = new Set(state.processed);
+	const reporters = loadReporters();
+	const tagsById = await forumTagNames();
+
+	const filed = await fileNewThreads(state, seen, tagsById, reporters);
+	const announced = await announceClosed(state);
+
 	state.processed = [...seen].slice(-1000); // cap the dedup list
 	writeFileSync(STATE_FILE, JSON.stringify(state, null, 2));
-	console.log(`Done. ${filed} new issue(s) filed; ${seen.size} threads tracked.`);
+	if (filed) writeFileSync(REPORTERS_FILE, JSON.stringify(reporters, null, 2) + "\n");
+	console.log(`Done. ${filed} new issue(s) filed; ${announced} close(s) announced; ${seen.size} threads tracked.`);
 }
 
 main().catch((e) => {
