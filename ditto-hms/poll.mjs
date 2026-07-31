@@ -26,6 +26,10 @@
 //   ISSUE_LABEL              label added to every filed issue (default "discord")
 //   STATE_FILE               path to the dedup state (default ./state.json)
 //   REPORTERS_FILE           path to the community-credit tally (default ./reporters.json)
+//   SKIP_BEFORE_ID           ignore posts older than this snowflake, once. Only needed when a bot
+//                            that tracked a high-water mark instead of a list is replaced by this
+//                            one: its last id becomes the cut-off, and everything under it is
+//                            recorded as already handled rather than filed a second time.
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
@@ -41,6 +45,7 @@ const GUILD = process.env.DISCORD_GUILD_ID || "";
 const LABEL = process.env.ISSUE_LABEL || "discord";
 const STATE_FILE = process.env.STATE_FILE || "state.json";
 const REPORTERS_FILE = process.env.REPORTERS_FILE || "reporters.json";
+const SKIP_BEFORE_ID = process.env.SKIP_BEFORE_ID || "";
 
 function req(name) {
 	const v = process.env[name];
@@ -285,6 +290,12 @@ async function fileNewThreads(state, seen, tagsById, reporters, threads) {
 	let filed = 0;
 	for (const thread of threads) {
 		if (seen.has(thread.id)) continue;
+		// Snowflakes are time-ordered, so "older than the previous bot's last id" means "already
+		// filed by it". They are marked as seen so the comparison only ever runs once per post.
+		if (SKIP_BEFORE_ID && BigInt(thread.id) <= BigInt(SKIP_BEFORE_ID)) {
+			seen.add(thread.id);
+			continue;
+		}
 		try {
 			const tagNames = (thread.applied_tags || []).map((id) => tagsById.get(id)).filter(Boolean);
 			const kind = classify(tagNames);

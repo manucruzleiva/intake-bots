@@ -1,33 +1,30 @@
 name: Intake — Picnic
 
-# Poller de Cobblemon Picnic. Es el único que además mantiene reporters.json (el tally por reportero
-# que la wiki lee para armar la página de créditos de la comunidad), así que persiste DOS archivos.
-# El script (picnic/poll-channels.mjs) no se modificó; sólo se namespacearon los secrets.
+# Poller de Cobblemon Picnic. Usa el MISMO poll.mjs que los otros tres: hasta 2026-07-31 tenia su
+# propio poll-channels.mjs, heredado de cuando el Discord tenia un canal de bugs y otro de features
+# y el TIPO del ticket salia del canal en el que se posteaba. Hoy hay un solo hilo de tickets por
+# proyecto y el tipo lo dan los tags del foro (Bug / Crash / Idea / Feedback), asi que ese diseño ya
+# no aplicaba: todo entraba etiquetado `bug`.
 #
-# Secrets:  PICNIC_DISCORD_TOKEN, PICNIC_GH_TOKEN (PAT con Issues: write)
+# Secrets:   PICNIC_DISCORD_TOKEN, PICNIC_GH_TOKEN (PAT que puede abrir issues en el repo del mod)
 # Variables: PICNIC_GH_REPO = manucruzleiva/cobblemon-picnic
 #            PICNIC_TICKETS_CHANNEL_ID = 1532081390508839083
+#            DISCORD_GUILD_ID  <- COMPARTIDA por los cuatro bots (hay un solo server)
 #
-# Unico de los cuatro que NO usa DISCORD_GUILD_ID: poll-channels.mjs lee canales de texto por id,
-# no threads de un foro, asi que no necesita el lookup guild-wide.
-#
-# El Discord paso a UN SOLO hilo de tickets por proyecto: ya no hay canal de features.
-#
-# Se setea SOLO BUG_CHANNEL_ID. FEATURE_CHANNEL_ID queda deliberadamente vacio: el script filtra
-# los canales sin id (`.filter((c) => c.id)`), asi que hace una sola pasada. Apuntar los dos al
-# mismo canal duplicaria cada ticket, porque el estado se guarda por `kind` y no por canal — el
-# mismo thread entraria como [Bug] y como [Feature] con lastId independientes.
-#
-# Efecto: todo ticket se etiqueta `bug` + `discord`. El triage a enhancement se hace en el issue.
+# SKIP_BEFORE_ID es el `lastId` que dejo el bot viejo en intake-state.json. Ese estado guardaba una
+# marca de agua, no la lista de posts, asi que no se puede convertir a la lista que usa poll.mjs:
+# los snowflakes son cronologicos, y todo lo anterior a esa marca ya lo habia importado el. Sin
+# esto, la primera corrida volveria a filar los posts archivados del foro.
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
 
 permissions:
   contents: write
 
+# Namespaceado: si los cuatro bots compartieran grupo se serializarían entre sí sin motivo.
 concurrency:
   group: intake-picnic
   cancel-in-progress: false
@@ -41,23 +38,25 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Poll channels and file issues
+      - name: Poll Discord and file issues
         working-directory: picnic
         env:
-          DISCORD_TOKEN: ${{ secrets.PICNIC_DISCORD_TOKEN }}
-          MOD_REPO_TOKEN: ${{ secrets.PICNIC_GH_TOKEN }}
-          MOD_REPO: ${{ vars.PICNIC_GH_REPO }}
-          # Un solo hilo de tickets. FEATURE_CHANNEL_ID NO se setea a proposito (ver cabecera).
-          BUG_CHANNEL_ID: ${{ vars.PICNIC_TICKETS_CHANNEL_ID }}
-        run: node poll-channels.mjs
+          DISCORD_BOT_TOKEN: ${{ secrets.PICNIC_DISCORD_TOKEN }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ vars.PICNIC_TICKETS_CHANNEL_ID }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.PICNIC_GH_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.PICNIC_GH_REPO }}
+          SKIP_BEFORE_ID: "1516437610648834058"
+        run: node poll.mjs
 
-      - name: Persist state + reporters
+      - name: Persist dedup state and credits
         run: |
-          git add picnic/intake-state.json picnic/reporters.json
-          if ! git diff --cached --quiet; then
+          if [ -n "$(git status --porcelain picnic/state.json picnic/reporters.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git commit -m "chore(picnic): update state + reporters [skip ci]"
+            git add picnic/state.json picnic/reporters.json
+            git commit -m "chore(picnic): update intake state [skip ci]"
+            # Los cuatro bots commitean al mismo branch: reintentar sobre lo que haya entrado.
             git pull --rebase --autostash
             git push
           fi

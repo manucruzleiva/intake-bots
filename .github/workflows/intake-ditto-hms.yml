@@ -50,12 +50,12 @@ jobs:
           GH_ISSUES_REPO: ${{ vars.DITTO_GH_REPO }}
         run: node poll.mjs
 
-      - name: Persist dedup state
+      - name: Persist dedup state and credits
         run: |
-          if [ -n "$(git status --porcelain ditto-hms/state.json)" ]; then
+          if [ -n "$(git status --porcelain ditto-hms/state.json ditto-hms/reporters.json)" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add ditto-hms/state.json
+            git add ditto-hms/state.json ditto-hms/reporters.json
             git commit -m "chore(ditto-hms): update intake state [skip ci]"
             # Los cuatro bots commitean al mismo branch: reintentar sobre lo que haya entrado.
             git pull --rebase --autostash

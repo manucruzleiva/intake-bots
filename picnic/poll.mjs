@@ -1,4 +1,4 @@
-// Discord -> GitHub Issues intake poller for Routes.
+// Discord -> GitHub Issues intake poller for Cobblemon Picnic.
 //
 // Polls a Discord FORUM channel (the tickets forum) over the REST API — no gateway/websocket, so it
 // runs fine as a GitHub Actions cron. Each NEW forum post (thread) becomes a GitHub issue in the code repo;
@@ -35,7 +35,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const D = "https://discord.com/api/v10";
 const GH = "https://api.github.com";
-const UA = "routes-intake (+https://modrinth.com/project/routes)";
+const UA = "cobblemon-picnic-intake (+https://modrinth.com/project/cobblemon-picnic)";
 
 const TOKEN = req("DISCORD_BOT_TOKEN");
 const FORUM = req("DISCORD_FORUM_CHANNEL_ID");
