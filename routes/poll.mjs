@@ -317,16 +317,31 @@ async function fileNewThreads(state, seen, tagsById, reporters, threads) {
 // so nothing would ever be posted back to them — and those are precisely the oldest, most likely to be
 // closed next. Their issues are recoverable: the title is "[Discord] <thread name>", which is how they
 // were filed. Matching is by title, once; after that they behave like any other tracked thread.
-async function backfillTracked(state, threads) {
+async function backfillTracked(state, threads, tagsById) {
+	// Anything still sitting on the `other` fallback gets re-read from the post's tags first. Tags get
+	// added or corrected after the fact, and a stale `other` only surfaces much later — as the blandest
+	// possible closing message, on the report that waited longest for it.
+	let reclassified = 0;
+	for (const thread of threads) {
+		const entry = state.tracked[thread.id];
+		if (!entry || entry.kind !== "other") continue;
+		const kind = classify((thread.applied_tags || []).map((id) => tagsById.get(id)).filter(Boolean));
+		if (kind !== "other") {
+			entry.kind = kind;
+			reclassified++;
+		}
+	}
+	if (reclassified) console.log(`Re-read the kind of ${reclassified} tracked thread(s) from their tags.`);
+
 	const missing = threads.filter((t) => !state.tracked[t.id]);
-	if (!missing.length) return 0;
+	if (!missing.length) return reclassified;
 
 	let issues;
 	try {
 		issues = await githubGet(`/repos/${REPO}/issues?state=all&labels=${encodeURIComponent(LABEL)}&per_page=100`);
 	} catch (e) {
 		console.warn("backfill:", e.message);
-		return 0;
+		return reclassified;
 	}
 	const byTitle = new Map();
 	for (const i of issues) {
@@ -338,14 +353,16 @@ async function backfillTracked(state, threads) {
 	for (const thread of missing) {
 		const issue = byTitle.get(`[Discord] ${thread.name}`.slice(0, 250));
 		if (!issue) continue;
-		const names = (issue.labels || []).map((l) => (typeof l === "string" ? l : l.name).toLowerCase());
-		const kind = names.includes("crash")
-			? "crash"
-			: names.includes("bug")
-				? "bug"
-				: names.includes("enhancement")
-					? "idea"
-					: "other";
+		// The post's own tag is the better source: these issues predate the kind labels, so reading
+		// their labels would call every one of them "other" and give them the blandest closing text.
+		const tagNames = (thread.applied_tags || []).map((id) => tagsById.get(id)).filter(Boolean);
+		let kind = classify(tagNames);
+		if (kind === "other") {
+			const names = (issue.labels || []).map((l) => (typeof l === "string" ? l : l.name).toLowerCase());
+			if (names.includes("crash")) kind = "crash";
+			else if (names.includes("bug")) kind = "bug";
+			else if (names.includes("enhancement")) kind = "idea";
+		}
 		state.tracked[thread.id] = { issue: issue.number, kind };
 		// Already-closed issues stay silent: announcing a months-old close now would be noise, and the
 		// reporter was told at the time or not at all.
@@ -402,7 +419,7 @@ async function main() {
 	const threads = await forumThreads();
 
 	const filed = await fileNewThreads(state, seen, tagsById, reporters, threads);
-	await backfillTracked(state, threads);
+	await backfillTracked(state, threads, tagsById);
 	const announced = await announceClosed(state);
 
 	state.processed = [...seen].slice(-1000); // cap the dedup list
