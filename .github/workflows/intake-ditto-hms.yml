@@ -52,10 +52,14 @@ jobs:
 
       - name: Persist dedup state and credits
         run: |
-          if [ -n "$(git status --porcelain ditto-hms/state.json ditto-hms/reporters.json)" ]; then
+          # reporters.json no existe hasta que se fila el primer issue, y `git add` de un path que
+          # no existe corta con exit 128. Se agrega lo que haya y se commitea solo si quedo algo.
+          for f in ditto-hms/state.json ditto-hms/reporters.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add ditto-hms/state.json ditto-hms/reporters.json
             git commit -m "chore(ditto-hms): update intake state [skip ci]"
             # Los cuatro bots commitean al mismo branch: reintentar sobre lo que haya entrado.
             git pull --rebase --autostash

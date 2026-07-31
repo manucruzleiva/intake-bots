@@ -51,10 +51,14 @@ jobs:
 
       - name: Persist dedup state and credits
         run: |
-          if [ -n "$(git status --porcelain picnic/state.json picnic/reporters.json)" ]; then
+          # reporters.json no existe hasta que se fila el primer issue, y `git add` de un path que
+          # no existe corta con exit 128. Se agrega lo que haya y se commitea solo si quedo algo.
+          for f in picnic/state.json picnic/reporters.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          if ! git diff --cached --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "github-actions[bot]@users.noreply.github.com"
-            git add picnic/state.json picnic/reporters.json
             git commit -m "chore(picnic): update intake state [skip ci]"
             # Los cuatro bots commitean al mismo branch: reintentar sobre lo que haya entrado.
             git pull --rebase --autostash
