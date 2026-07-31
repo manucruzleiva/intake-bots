@@ -10,5 +10,49 @@
     "1528760049395044362",
     "1529197739659890849"
   ],
-  "tracked": {}
+  "tracked": {
+    "1529197739659890849": {
+      "issue": 100,
+      "kind": "other",
+      "closedAnnounced": true
+    },
+    "1528760049395044362": {
+      "issue": 99,
+      "kind": "other",
+      "closedAnnounced": true
+    },
+    "1528498194479059064": {
+      "issue": 98,
+      "kind": "other",
+      "closedAnnounced": true
+    },
+    "1527790094692384878": {
+      "issue": 94,
+      "kind": "other",
+      "closedAnnounced": true
+    },
+    "1526557349517590588": {
+      "issue": 77,
+      "kind": "other"
+    },
+    "1525858716833026058": {
+      "issue": 76,
+      "kind": "other",
+      "closedAnnounced": true
+    },
+    "1525666104595185905": {
+      "issue": 75,
+      "kind": "other"
+    },
+    "1522268611669135440": {
+      "issue": 5,
+      "kind": "other",
+      "closedAnnounced": true
+    },
+    "1520177159581208668": {
+      "issue": 4,
+      "kind": "other",
+      "closedAnnounced": true
+    }
+  }
 }
