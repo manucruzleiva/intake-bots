@@ -281,8 +281,7 @@ async function buildBody(thread, msg, tagNames) {
 }
 
 /** File the issues for posts we have not seen yet. */
-async function fileNewThreads(state, seen, tagsById, reporters) {
-	const threads = await forumThreads();
+async function fileNewThreads(state, seen, tagsById, reporters, threads) {
 	let filed = 0;
 	for (const thread of threads) {
 		if (seen.has(thread.id)) continue;
@@ -312,6 +311,49 @@ async function fileNewThreads(state, seen, tagsById, reporters) {
 		}
 	}
 	return filed;
+}
+
+// Threads imported before the close-the-loop replies existed are in `processed` but not in `tracked`,
+// so nothing would ever be posted back to them — and those are precisely the oldest, most likely to be
+// closed next. Their issues are recoverable: the title is "[Discord] <thread name>", which is how they
+// were filed. Matching is by title, once; after that they behave like any other tracked thread.
+async function backfillTracked(state, threads) {
+	const missing = threads.filter((t) => !state.tracked[t.id]);
+	if (!missing.length) return 0;
+
+	let issues;
+	try {
+		issues = await githubGet(`/repos/${REPO}/issues?state=all&labels=${encodeURIComponent(LABEL)}&per_page=100`);
+	} catch (e) {
+		console.warn("backfill:", e.message);
+		return 0;
+	}
+	const byTitle = new Map();
+	for (const i of issues) {
+		if (i.pull_request) continue;
+		byTitle.set(i.title, i);
+	}
+
+	let linked = 0;
+	for (const thread of missing) {
+		const issue = byTitle.get(`[Discord] ${thread.name}`.slice(0, 250));
+		if (!issue) continue;
+		const names = (issue.labels || []).map((l) => (typeof l === "string" ? l : l.name).toLowerCase());
+		const kind = names.includes("crash")
+			? "crash"
+			: names.includes("bug")
+				? "bug"
+				: names.includes("enhancement")
+					? "idea"
+					: "other";
+		state.tracked[thread.id] = { issue: issue.number, kind };
+		// Already-closed issues stay silent: announcing a months-old close now would be noise, and the
+		// reporter was told at the time or not at all.
+		if (issue.state === "closed") state.tracked[thread.id].closedAnnounced = true;
+		linked++;
+	}
+	if (linked) console.log(`Backfilled ${linked} thread(s) to their existing issue.`);
+	return linked;
 }
 
 /** Post back to the thread when its issue gets closed, once. */
@@ -357,8 +399,10 @@ async function main() {
 	const seen = new Set(state.processed);
 	const reporters = loadReporters();
 	const tagsById = await forumTagNames();
+	const threads = await forumThreads();
 
-	const filed = await fileNewThreads(state, seen, tagsById, reporters);
+	const filed = await fileNewThreads(state, seen, tagsById, reporters, threads);
+	await backfillTracked(state, threads);
 	const announced = await announceClosed(state);
 
 	state.processed = [...seen].slice(-1000); // cap the dedup list
