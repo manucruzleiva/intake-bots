@@ -1,57 +1,63 @@
 name: Intake — Ditto HMs
 
-# Poller de Cobblemon Ditto HMs. Es el único que guarda el estado en el cache de Actions en vez de
-# commitearlo al repo; se respetó ese comportamiento al consolidar (sólo cambió la ruta, que ahora
-# lleva el prefijo del proyecto). El script (ditto-hms/bot/intake.js) no se modificó.
+# Poller de Cobblemon Ditto HMs. Usa el MISMO poll.mjs que los otros bots: hasta 2026-07-31 este
+# proyecto tenia su propio bot (bot/intake.js, CommonJS, estado en el cache de Actions) que pegaba a
+# `GET /channels/{id}/threads`, un endpoint que NO existe en Discord. Respondia 405, el catch se lo
+# tragaba y la corrida terminaba en verde sin importar nada: por eso los issues de este repo estan
+# todos escritos a mano. Ahora los cuatro bots son el mismo script y el estado se commitea al repo.
 #
-# Secrets:   DITTO_DISCORD_TOKEN, DITTO_GH_TOKEN
+# Secrets:   DITTO_DISCORD_TOKEN, DITTO_GH_TOKEN (PAT que puede abrir issues en el repo del mod)
 # Variables: DITTO_GH_REPO = manucruzleiva/cobblemon-ditto-hms
 #            DITTO_TICKETS_CHANNEL_ID = 1532081100749406218
 #            DISCORD_GUILD_ID  <- COMPARTIDA por los cuatro bots (hay un solo server)
 #
-# El repo destino era un literal en este archivo mientras los otros tres lo tomaban de una variable;
-# ahora sale de DITTO_GH_REPO como el resto. Para este bot DISCORD_GUILD_ID es OBLIGATORIO: intake.js
-# aborta si falta, y ademas arma con el el permalink a Discord que va en el cuerpo del issue.
+# DISCORD_GUILD_ID no es opcional en la practica: sin el, `/guilds/{id}/threads/active` no se llama
+# y el bot SOLO ve threads archivados, asi que un reporte recien abierto no entra hasta que Discord
+# lo archive.
 #
-# El Discord paso a UN SOLO hilo de tickets por proyecto: ya no hay canal de features. Se setea solo
-# el id de bugs; el script hace `if (FEATURE_CHANNEL)` asi que sin ese env hace una sola pasada.
-# Apuntar los dos al mismo canal duplicaria cada ticket.
+# El Discord tiene UN solo hilo de tickets por proyecto: no hay canal de features, y por eso aca no
+# se setea ningun segundo canal.
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
-  workflow_dispatch:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
 
+permissions:
+  contents: write
+
+# Namespaceado: si los cuatro bots compartieran grupo se serializarían entre sí sin motivo.
 concurrency:
   group: intake-ditto-hms
   cancel-in-progress: false
 
 jobs:
-  intake:
+  poll:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Restore state cache
-        uses: actions/cache@v4
-        with:
-          path: ditto-hms/bot/state.json
-          key: intake-ditto-hms-state-${{ github.run_id }}
-          restore-keys: intake-ditto-hms-state-
-
-      - name: Run intake bot
+      - name: Poll Discord and file issues
         working-directory: ditto-hms
         env:
-          DISCORD_TOKEN: ${{ secrets.DITTO_DISCORD_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DITTO_DISCORD_TOKEN }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ vars.DITTO_TICKETS_CHANNEL_ID }}
           DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
-          # Un solo hilo de tickets. DISCORD_FEATURE_CHANNEL_ID NO se setea a proposito.
-          DISCORD_BUG_CHANNEL_ID: ${{ vars.DITTO_TICKETS_CHANNEL_ID }}
-          GITHUB_TOKEN: ${{ secrets.DITTO_GH_TOKEN }}
-          GITHUB_REPO: ${{ vars.DITTO_GH_REPO }}
-        run: node bot/intake.js
+          GH_TOKEN: ${{ secrets.DITTO_GH_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.DITTO_GH_REPO }}
+        run: node poll.mjs
+
+      - name: Persist dedup state
+        run: |
+          if [ -n "$(git status --porcelain ditto-hms/state.json)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add ditto-hms/state.json
+            git commit -m "chore(ditto-hms): update intake state [skip ci]"
+            # Los cuatro bots commitean al mismo branch: reintentar sobre lo que haya entrado.
+            git pull --rebase --autostash
+            git push
+          fi
