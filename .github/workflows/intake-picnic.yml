@@ -4,9 +4,12 @@ name: Intake — Picnic
 # que la wiki lee para armar la página de créditos de la comunidad), así que persiste DOS archivos.
 # El script (picnic/poll-channels.mjs) no se modificó; sólo se namespacearon los secrets.
 #
-# Secrets:  PICNIC_DISCORD_TOKEN, PICNIC_MOD_REPO_TOKEN (PAT con Issues: write)
-# Variables: PICNIC_MOD_REPO = manucruzleiva/cobblemon-picnic
+# Secrets:  PICNIC_DISCORD_TOKEN, PICNIC_GH_TOKEN (PAT con Issues: write)
+# Variables: PICNIC_GH_REPO = manucruzleiva/cobblemon-picnic
 #            PICNIC_TICKETS_CHANNEL_ID = 1532081390508839083
+#
+# Unico de los cuatro que NO usa DISCORD_GUILD_ID: poll-channels.mjs lee canales de texto por id,
+# no threads de un foro, asi que no necesita el lookup guild-wide.
 #
 # El Discord paso a UN SOLO hilo de tickets por proyecto: ya no hay canal de features.
 #
@@ -42,8 +45,8 @@ jobs:
         working-directory: picnic
         env:
           DISCORD_TOKEN: ${{ secrets.PICNIC_DISCORD_TOKEN }}
-          MOD_REPO_TOKEN: ${{ secrets.PICNIC_MOD_REPO_TOKEN }}
-          MOD_REPO: ${{ vars.PICNIC_MOD_REPO }}
+          MOD_REPO_TOKEN: ${{ secrets.PICNIC_GH_TOKEN }}
+          MOD_REPO: ${{ vars.PICNIC_GH_REPO }}
           # Un solo hilo de tickets. FEATURE_CHANNEL_ID NO se setea a proposito (ver cabecera).
           BUG_CHANNEL_ID: ${{ vars.PICNIC_TICKETS_CHANNEL_ID }}
         run: node poll-channels.mjs

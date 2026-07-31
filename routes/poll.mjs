@@ -1,4 +1,4 @@
-// Discord → GitHub Issues intake poller for Cobblemon Routes.
+// Discord → GitHub Issues intake poller for Routes.
 //
 // Polls a Discord FORUM channel (the #bug-reports forum) over the REST API — no gateway/websocket, so it
 // runs fine as a GitHub Actions cron. Each NEW forum post (thread) becomes a GitHub issue in the code repo;
@@ -19,7 +19,7 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const D = "https://discord.com/api/v10";
 const GH = "https://api.github.com";
-const UA = "cobblemon-routes-intake (+https://modrinth.com/project/cobblemon-routes)";
+const UA = "routes-intake (+https://modrinth.com/project/routes)";
 
 const TOKEN = req("DISCORD_BOT_TOKEN");
 const FORUM = req("DISCORD_FORUM_CHANNEL_ID");

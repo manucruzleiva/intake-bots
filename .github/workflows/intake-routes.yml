@@ -1,14 +1,18 @@
 name: Intake — Routes
 
-# Poller de Cobblemon Routes. El script (routes/poll.mjs) NO se tocó al consolidar: sigue esperando
+# Poller de Routes. El script (routes/poll.mjs) NO se tocó al consolidar: sigue esperando
 # los mismos nombres de env vars que cuando vivía en cobblemon-routes-intake. Lo único que cambia es
 # de qué secret sale cada uno — acá están namespaceados por proyecto (ROUTES_*) porque los cuatro
 # bots comparten repo.
 #
-# Secrets:   ROUTES_DISCORD_BOT_TOKEN, ROUTES_DISCORD_GUILD_ID (opcional),
-#            ROUTES_ISSUES_REPO_TOKEN (PAT con scope repo)
-# Variables: ROUTES_GH_ISSUES_REPO = manucruzleiva/routes
+# Secrets:   ROUTES_DISCORD_TOKEN, ROUTES_GH_TOKEN (PAT que puede abrir issues en el repo del mod)
+# Variables: ROUTES_GH_REPO = manucruzleiva/routes
 #            ROUTES_TICKETS_CHANNEL_ID = 1519377359290110137
+#            DISCORD_GUILD_ID  <- COMPARTIDA por los cuatro bots (hay un solo server)
+#
+# DISCORD_GUILD_ID no es opcional en la practica: sin el, `/guilds/{id}/threads/active` no se llama
+# y el bot SOLO ve threads archivados, asi que un reporte recien abierto no entra hasta que Discord
+# lo archive. El comentario viejo del script decia "otherwise derived per thread" y es falso.
 #
 # Este poller ya trabajaba sobre UN solo canal foro, asi que el cambio del Discord a un unico hilo
 # de tickets no lo afecta: solo se renombro la variable a TICKETS para que los cuatro proyectos usen
@@ -39,11 +43,11 @@ jobs:
       - name: Poll Discord and file issues
         working-directory: routes
         env:
-          DISCORD_BOT_TOKEN: ${{ secrets.ROUTES_DISCORD_BOT_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.ROUTES_DISCORD_TOKEN }}
           DISCORD_FORUM_CHANNEL_ID: ${{ vars.ROUTES_TICKETS_CHANNEL_ID }}
-          DISCORD_GUILD_ID: ${{ secrets.ROUTES_DISCORD_GUILD_ID }}
-          GH_TOKEN: ${{ secrets.ROUTES_ISSUES_REPO_TOKEN }}
-          GH_ISSUES_REPO: ${{ vars.ROUTES_GH_ISSUES_REPO }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.ROUTES_GH_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.ROUTES_GH_REPO }}
         run: node poll.mjs
 
       - name: Persist dedup state

@@ -1,9 +1,9 @@
 {
-  "name": "cobblemon-routes-discord-intake",
+  "name": "cobblemon-nuzlocke-discord-intake",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Polls the Cobblemon Routes Discord bug-reports forum and files GitHub issues.",
+  "description": "Polls the Routes Discord bug-reports forum and files GitHub issues.",
   "scripts": {
     "poll": "node poll.mjs"
   },

@@ -4,7 +4,7 @@ Nombre de display **Cobblemon Nuzlocke & Soul Link**; identificadores técnicos 
 (`cobblemon-nuzlocke`, mod id `cobblemon_nuzlocke`) — de ahí el nombre de esta carpeta.
 
 Todavía no hay bot acá, **a propósito**: el mod `cobblemon-nuzlocke` aún no existe como repo. Sale
-del split de Cobblemon Routes descrito en
+del split de Routes descrito en
 [#122](https://github.com/manucruzleiva/routes/issues/122), y hasta que ese repo exista no hay dónde
 abrir los issues.
 
@@ -18,7 +18,7 @@ un repo inexistente fallaría cada 5 minutos y llenaría el historial de Actions
    Discord), y Nuzlocke va a recibir sobre todo reportes de bugs con logs.
 2. Crear `.github/workflows/intake-nuzlocke.yml` copiando `intake-routes.yml` y cambiando el prefijo
    de secrets `ROUTES_` → `NUZLOCKE_` y el `working-directory` a `nuzlocke`.
-3. Cargar los secrets `NUZLOCKE_*` y la variable `NUZLOCKE_GH_ISSUES_REPO`.
+3. Cargar los secrets `NUZLOCKE_*` y la variable `NUZLOCKE_GH_REPO`.
 4. Crear los canales foro de Discord para el mod nuevo.
 
 ## Decisión de alcance pendiente

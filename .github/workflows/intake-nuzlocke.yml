@@ -5,10 +5,11 @@ name: Intake — Nuzlocke & Soul Link
 # <details> antes de que expire el link del CDN de Discord, y Nuzlocke va a recibir sobre todo
 # reportes de bugs con logs.
 #
-# Secrets:   NUZLOCKE_DISCORD_BOT_TOKEN, NUZLOCKE_DISCORD_GUILD_ID (opcional),
-#            NUZLOCKE_ISSUES_REPO_TOKEN (PAT con scope repo — el repo del mod es privado)
-# Variables: NUZLOCKE_GH_ISSUES_REPO = manucruzleiva/cobblemon-nuzlocke
+# Secrets:   NUZLOCKE_DISCORD_TOKEN, NUZLOCKE_GH_TOKEN (el repo del mod es privado)
+# Variables: NUZLOCKE_GH_REPO = manucruzleiva/cobblemon-nuzlocke
 #            NUZLOCKE_TICKETS_CHANNEL_ID = 1532081527662313764
+#            NUZLOCKE_INTAKE_ENABLED = true   (el guard de abajo)
+#            DISCORD_GUILD_ID  <- COMPARTIDA por los cuatro bots (hay un solo server)
 #
 # DESHABILITADO POR DEFECTO. El `if` de abajo corta la corrida mientras los secrets no esten
 # cargados: sin ellos el cron fallaria cada 10 minutos y llenaria el historial de Actions de rojo.
@@ -44,11 +45,11 @@ jobs:
       - name: Poll Discord and file issues
         working-directory: nuzlocke
         env:
-          DISCORD_BOT_TOKEN: ${{ secrets.NUZLOCKE_DISCORD_BOT_TOKEN }}
+          DISCORD_BOT_TOKEN: ${{ secrets.NUZLOCKE_DISCORD_TOKEN }}
           DISCORD_FORUM_CHANNEL_ID: ${{ vars.NUZLOCKE_TICKETS_CHANNEL_ID }}
-          DISCORD_GUILD_ID: ${{ secrets.NUZLOCKE_DISCORD_GUILD_ID }}
-          GH_TOKEN: ${{ secrets.NUZLOCKE_ISSUES_REPO_TOKEN }}
-          GH_ISSUES_REPO: ${{ vars.NUZLOCKE_GH_ISSUES_REPO }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.NUZLOCKE_GH_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.NUZLOCKE_GH_REPO }}
         run: node poll.mjs
 
       - name: Persist dedup state

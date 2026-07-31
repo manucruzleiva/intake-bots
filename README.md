@@ -12,7 +12,7 @@ gratis e ilimitado en repos públicos y metered en privados — los mods son pri
 
 | Carpeta | Proyecto | Repo destino de los issues | Script |
 |---|---|---|---|
-| [`routes/`](routes/) | Cobblemon Routes | `manucruzleiva/cobblemon-routes` | `poll.mjs` |
+| [`routes/`](routes/) | Routes | `manucruzleiva/routes` | `poll.mjs` |
 | [`picnic/`](picnic/) | Cobblemon Picnic | `manucruzleiva/cobblemon-picnic` | `poll-channels.mjs` |
 | [`ditto-hms/`](ditto-hms/) | Cobblemon Ditto HMs | `manucruzleiva/cobblemon-ditto-hms` | `intake.js` |
 | [`nuzlocke/`](nuzlocke/) | Cobblemon Nuzlocke | `manucruzleiva/cobblemon-nuzlocke` | pendiente — ver #122 |
@@ -67,13 +67,26 @@ hecha** — los bots viejos siguen corriendo en sus repos originales hasta que s
 
 | Nombre | Tipo | Notas |
 |---|---|---|
-| `<PROYECTO>_DISCORD_TOKEN` | secret | Token del bot de Discord |
-| `<PROYECTO>_DISCORD_GUILD_ID` | secret | ID del server |
-| `<PROYECTO>_INTAKE_GITHUB_TOKEN` | secret | PAT con scope `repo` sobre el repo del mod |
-| `<PROYECTO>_TICKETS_CHANNEL_ID` | **variable** | Canal foro de tickets — un id de canal no es sensible |
+| `DISCORD_GUILD_ID` | **variable** | **Compartida** — hay un solo server, y un guild id no es sensible |
+| `<P>_DISCORD_TOKEN` | secret | Token del bot de Discord |
+| `<P>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
+| `<P>_TICKETS_CHANNEL_ID` | **variable** | Hilo de tickets — un id de canal no es sensible |
+| `<P>_GH_REPO` | **variable** | `owner/repo` destino |
 
-donde `<PROYECTO>` ∈ `ROUTES`, `PICNIC`, `DITTO_HMS`, `NUZLOCKE`. Los nombres exactos de env var que
-espera cada script varían (no se unificaron los pollers); cada workflow hace el mapeo.
+donde `<P>` ∈ `ROUTES`, `PICNIC`, `DITTO`, `NUZLOCKE`. Los nombres exactos de env var que espera cada
+script varían (no se unificaron los pollers); cada workflow hace el mapeo.
+
+> **Unificados el 2026-07-30.** Había **tres** nombres distintos para el token de GitHub
+> (`_ISSUES_REPO_TOKEN`, `_MOD_REPO_TOKEN`, `_INTAKE_GITHUB_TOKEN`) y **dos** para el de Discord
+> (`_DISCORD_TOKEN`, `_DISCORD_BOT_TOKEN`); el repo destino salía de una variable en tres bots y de un
+> literal en el de ditto; y el prefijo de ditto era `DITTO_HMS_`. Se pudo renombrar sin migrar nada
+> porque el repo todavía estaba en 0 secrets y 0 variables.
+
+> ⚠️ **`DISCORD_GUILD_ID` no es opcional**, aunque `routes/poll.mjs` lo diga. Sin él,
+> `/guilds/{id}/threads/active` no se llama y el bot **sólo ve threads archivados**: un reporte recién
+> abierto no entra hasta que Discord lo archive, o nunca si la gente lo sigue respondiendo. El
+> comentario del script dice *"otherwise derived per thread"* y nada lo deriva. En `ditto-hms` es
+> directamente obligatorio: `intake.js` aborta si falta. Sólo `picnic` no lo usa.
 
 ## Cutover pendiente
 

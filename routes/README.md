@@ -1,4 +1,4 @@
-# Cobblemon Routes — Discord → GitHub Issues intake
+# Routes — Discord → GitHub Issues intake
 
 A tiny zero-dependency poller (Node ≥ 20) that watches the **#bug-reports forum** on Discord and files a
 GitHub issue for each new forum post, then replies "tracked ✅" in the thread. It dedups via `state.json`,
