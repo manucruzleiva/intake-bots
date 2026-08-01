@@ -13,5 +13,11 @@
     "count": 1,
     "bugs": 0,
     "features": 1
+  },
+  "whoschussyisthis": {
+    "count": 1,
+    "kinds": {
+      "feedback": 1
+    }
   }
 }
