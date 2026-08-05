@@ -44,6 +44,9 @@ Source: [`picnic/reporters.json`](picnic/reporters.json)
 | Reporter | Reports | Bugs | Features |
 |---|---|---|---|
 | xed3355 | 4 | 2 | 2 |
+| kurosock | 1 | 1 | 0 |
+| airierurchin | 1 | 1 | 0 |
+| shiero | 1 | 0 | 1 |
 
 ## Ditto HMs
 

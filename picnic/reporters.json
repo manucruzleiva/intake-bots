@@ -3,5 +3,20 @@
     "count": 4,
     "bugs": 2,
     "features": 2
+  },
+  "kurosock": {
+    "count": 1,
+    "bugs": 1,
+    "features": 0
+  },
+  "airierurchin": {
+    "count": 1,
+    "bugs": 1,
+    "features": 0
+  },
+  "shiero": {
+    "count": 1,
+    "bugs": 0,
+    "features": 1
   }
 }
