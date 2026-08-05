@@ -3,6 +3,10 @@
 Who has reported bugs or suggested features, per project. **This file and the `reporters.json` next
 to each bot are the memory**; the wiki pages under `/mod-wiki/<project>/credits/` are the display copy.
 
+**The author is never credited here.** These pages thank the *community*; shiero filing a ticket on
+their own mod does not earn a line on their own wiki. The pollers enforce it — `AUTHOR_USERNAMES`
+(default `shiero`) is skipped by `creditReporter`, so a stray author ticket never reaches a tally.
+
 No script generates anything. The tallies used to be rendered into each wiki at build time by a
 `gen_credits.py`; that was dropped (see `Reference/Publishing Standard` in the project notes). Keeping
 the record in git instead means it survives, has history, and does not depend on a build step reaching
@@ -46,7 +50,6 @@ Source: [`picnic/reporters.json`](picnic/reporters.json)
 | xed3355 | 4 | 2 | 2 |
 | kurosock | 1 | 1 | 0 |
 | airierurchin | 1 | 1 | 0 |
-| shiero | 1 | 0 | 1 |
 
 ## Ditto HMs
 

@@ -46,6 +46,9 @@ const LABEL = process.env.ISSUE_LABEL || "discord";
 const STATE_FILE = process.env.STATE_FILE || "state.json";
 const REPORTERS_FILE = process.env.REPORTERS_FILE || "reporters.json";
 const SKIP_BEFORE_ID = process.env.SKIP_BEFORE_ID || "";
+// Community credit is for the COMMUNITY. shiero is the author, so their own tickets never earn a
+// line on the credits page — they'd be thanking themselves on their own wiki.
+const AUTHOR_USERNAMES = (process.env.AUTHOR_USERNAMES || "shiero").split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 
 function req(name) {
 	const v = process.env[name];
@@ -219,6 +222,7 @@ function loadReporters() {
 
 function creditReporter(reporters, username, kind) {
 	if (!username || username === "unknown") return;
+	if (AUTHOR_USERNAMES.includes(username.toLowerCase())) return; // the author is not a community reporter
 	const r = (reporters[username] ||= { count: 0, kinds: {} });
 	r.count += 1;
 	r.kinds ||= {};
