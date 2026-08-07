@@ -57,7 +57,8 @@
     },
     "1533176770642313400": {
       "issue": 129,
-      "kind": "feedback"
+      "kind": "feedback",
+      "closeAttempts": 1
     }
   }
 }
