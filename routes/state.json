@@ -34,7 +34,8 @@
     },
     "1526557349517590588": {
       "issue": 77,
-      "kind": "other"
+      "kind": "other",
+      "closeAttempts": 1
     },
     "1525858716833026058": {
       "issue": 76,
@@ -43,7 +44,8 @@
     },
     "1525666104595185905": {
       "issue": 75,
-      "kind": "other"
+      "kind": "other",
+      "closeAttempts": 1
     },
     "1522268611669135440": {
       "issue": 5,
