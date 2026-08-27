@@ -1,0 +1,69 @@
+name: Intake — Raid Icons
+
+# Poller de Cobblemon Raid Icons. Usa el MISMO poll.mjs que los otros cuatro bots; lo único propio es
+# el User-Agent.
+#
+# Secrets:   RAID_ICONS_DISCORD_TOKEN, RAID_ICONS_GH_TOKEN (PAT que puede abrir issues en el repo)
+# Variables: RAID_ICONS_GH_REPO = manucruzleiva/cobblemon-raid-icons
+#            RAID_ICONS_TICKETS_CHANNEL_ID  <- todavía NO existe el canal
+#            DISCORD_GUILD_ID  <- COMPARTIDA por todos los bots (hay un solo server)
+#
+# DISCORD_GUILD_ID no es opcional en la practica: sin el, `/guilds/{id}/threads/active` no se llama
+# y el bot SOLO ve threads archivados, asi que un reporte recien abierto no entra hasta que Discord
+# lo archive.
+#
+# El Discord tiene UN solo hilo de tickets por proyecto: no hay canal de features, y por eso aca no
+# se setea ningun segundo canal.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Namespaceado: si los bots compartieran grupo se serializarían entre sí sin motivo.
+concurrency:
+  group: intake-raid-icons
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    # El foro de tickets de este mod todavia no existe. Sin este guard el cron fallaria cada diez
+    # minutos contra un canal vacio; con el, el job se salta a si mismo hasta que se cree el canal y
+    # se setee la variable. Borrar esta linea NO es necesario despues: la condicion se vuelve cierta
+    # sola en cuanto RAID_ICONS_TICKETS_CHANNEL_ID tenga valor.
+    if: ${{ vars.RAID_ICONS_TICKETS_CHANNEL_ID != '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Poll Discord and file issues
+        working-directory: raid-icons
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.RAID_ICONS_DISCORD_TOKEN }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ vars.RAID_ICONS_TICKETS_CHANNEL_ID }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets.RAID_ICONS_GH_TOKEN }}
+          GH_ISSUES_REPO: ${{ vars.RAID_ICONS_GH_REPO }}
+        run: node poll.mjs
+
+      - name: Persist dedup state and credits
+        run: |
+          # reporters.json no existe hasta que se fila el primer issue, y `git add` de un path que
+          # no existe corta con exit 128. Se agrega lo que haya y se commitea solo si quedo algo.
+          for f in raid-icons/state.json raid-icons/reporters.json; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          if ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(raid-icons): update intake state [skip ci]"
+            # Todos los bots commitean al mismo branch: reintentar sobre lo que haya entrado.
+            git pull --rebase --autostash
+            git push
+          fi

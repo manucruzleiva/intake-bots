@@ -16,6 +16,7 @@ gratis e ilimitado en repos públicos y metered en privados — los mods son pri
 | [`picnic/`](picnic/) | Cobblemon Picnic | `manucruzleiva/cobblemon-picnic` | `poll-channels.mjs` |
 | [`ditto-hms/`](ditto-hms/) | Cobblemon Ditto HMs | `manucruzleiva/cobblemon-ditto-hms` | `intake.js` |
 | [`nuzlocke/`](nuzlocke/) | Cobblemon Nuzlocke | `manucruzleiva/cobblemon-nuzlocke` | pendiente — ver #122 |
+| [`raid-icons/`](raid-icons/) | Cobblemon Raid Icons | `manucruzleiva/cobblemon-raid-icons` | `poll.mjs` |
 
 Cada proyecto tiene su propio workflow en [`.github/workflows/`](.github/workflows/) (GitHub sólo
 lee workflows desde ahí, no desde subcarpetas), su propio estado y sus propios secrets.
@@ -31,8 +32,14 @@ proyecto. Los canales son:
 | picnic | `1532081390508839083` | `1532081457462513734` |
 | ditto-hms | `1532081100749406218` | `1532081291963531574` |
 | nuzlocke | `1532081527662313764` | `1532081610034253904` |
+| raid-icons | *(sin crear)* | *(sin crear)* |
 
 Server: https://discord.gg/SwcwXcCN4k
+
+**Raid Icons todavía no tiene canales.** Su workflow existe y está en el cron como los demás, pero se
+salta a sí mismo mientras `RAID_ICONS_TICKETS_CHANNEL_ID` esté vacía: un cron cada diez minutos contra
+un canal inexistente es una corrida roja cada diez minutos. Se crea el foro, se setea la variable, y
+el guard se vuelve cierto solo.
 
 **Los pollers de picnic y ditto-hms siguen esperando dos ids** (bugs + features) porque no se tocó su
 código. Los workflows setean **sólo el de bugs** y dejan el de features vacío a propósito: los dos
@@ -73,7 +80,7 @@ hecha** — los bots viejos siguen corriendo en sus repos originales hasta que s
 | `<P>_TICKETS_CHANNEL_ID` | **variable** | Hilo de tickets — un id de canal no es sensible |
 | `<P>_GH_REPO` | **variable** | `owner/repo` destino |
 
-donde `<P>` ∈ `ROUTES`, `PICNIC`, `DITTO`, `NUZLOCKE`. Los nombres exactos de env var que espera cada
+donde `<P>` ∈ `ROUTES`, `PICNIC`, `DITTO`, `NUZLOCKE`, `RAID_ICONS`. Los nombres exactos de env var que espera cada
 script varían (no se unificaron los pollers); cada workflow hace el mapeo.
 
 > **Unificados el 2026-07-30.** Había **tres** nombres distintos para el token de GitHub
