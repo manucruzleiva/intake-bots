@@ -34,6 +34,9 @@ proyecto. Los canales son:
 | nuzlocke | `1532081527662313764` | `1532081610034253904` |
 | raid-icons | *(sin crear)* | *(sin crear)* |
 
+Raid Icons ya tiene fichas de tienda (Modrinth `S01tPZTk`, CurseForge `1669611`); lo que le
+falta son los canales.
+
 Server: https://discord.gg/SwcwXcCN4k
 
 **Raid Icons todavía no tiene canales.** Su workflow existe y está en el cron como los demás, pero se

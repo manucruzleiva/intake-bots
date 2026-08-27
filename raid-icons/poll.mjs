@@ -35,9 +35,9 @@ import { readFileSync, writeFileSync, existsSync } from "node:fs";
 
 const D = "https://discord.com/api/v10";
 const GH = "https://api.github.com";
-// No Modrinth project yet, so the User-Agent points at the poller's own repo. Swap it for the
-// store URL the day the project exists.
-const UA = "cobblemon-raid-icons-intake (+https://github.com/manucruzleiva/intake-bots)";
+// By project id, not slug: the Modrinth project is still a draft and has no public slug yet, and an
+// id cannot be renamed out from under a link.
+const UA = "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)";
 
 const TOKEN = req("DISCORD_BOT_TOKEN");
 const FORUM = req("DISCORD_FORUM_CHANNEL_ID");
