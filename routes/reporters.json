@@ -19,5 +19,17 @@
     "kinds": {
       "feedback": 1
     }
+  },
+  "blacqsheep": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    }
+  },
+  "loadout0647": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    }
   }
 }
