@@ -56,11 +56,26 @@ function req(name) {
 		console.error(`Missing required env ${name}`);
 		process.exit(1);
 	}
-	return v;
+	// A BOM and surrounding whitespace are stripped, because both have already shipped inside a
+	// GitHub secret here: PowerShell pipes UTF-8 WITH a byte-order mark, so a token loaded that way
+	// arrives as "\uFEFFMTIz...". A header value cannot hold U+FEFF at all - fetch throws
+	// "character at index 4 has a value of 65279" before the request leaves the machine - and that
+	// is what took intake down while every run stayed green. Fixing the secret is still the real
+	// fix; this is so a bad paste degrades into a working run instead of a silent outage.
+	return v.replace(/^\uFEFF/, "").trim();
 }
 
 async function discord(path) {
-	const res = await fetch(D + path, { headers: { Authorization: `Bot ${TOKEN}`, "User-Agent": UA } });
+	let res;
+	try {
+		res = await fetch(D + path, { headers: { Authorization: `Bot ${TOKEN}`, "User-Agent": UA } });
+	} catch (e) {
+		// The request never left. A malformed header, a DNS failure, a dead network - none of them
+		// are the partial failure the callers below are written to tolerate, and every one of them
+		// means this run cannot do its job. Fatal, like a 401.
+		e.fatal = true;
+		throw e;
+	}
 	if (!res.ok) {
 		const err = new Error(`Discord ${path} -> ${res.status} ${await res.text()}`);
 		// 401 and 403 are not partial failures: they mean this run cannot do its job at all. The
