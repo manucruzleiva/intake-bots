@@ -64,7 +64,13 @@ function req(name) {
 async function discord(path) {
 	const res = await fetch(D + path, { headers: { Authorization: `Bot ${TOKEN}`, "User-Agent": UA } });
 	if (!res.ok) {
-		throw new Error(`Discord ${path} -> ${res.status} ${await res.text()}`);
+		const err = new Error(`Discord ${path} -> ${res.status} ${await res.text()}`);
+		// 401 and 403 are not partial failures: they mean this run cannot do its job at all. The
+		// callers below swallow everything else on purpose - a channel with no tags, a thread deleted
+		// mid-run - but swallowing these turns "the bot has no credentials" into "there was nothing
+		// new", and those are indistinguishable from outside. Intake was down eleven days that way.
+		if (res.status === 401 || res.status === 403) err.fatal = true;
+		throw err;
 	}
 	return res.json();
 }
@@ -190,6 +196,7 @@ async function forumTagNames() {
 		if (byId.size) console.log(`Forum tags: ${[...byId.values()].join(", ")}`);
 		return byId;
 	} catch (e) {
+		if (e.fatal) throw e;
 		console.warn("forum tags:", e.message);
 		return new Map();
 	}
@@ -240,6 +247,7 @@ async function forumThreads() {
 			if (t.parent_id === FORUM) threads.set(t.id, t);
 		}
 	} catch (e) {
+		if (e.fatal) throw e;
 		console.warn("active threads:", e.message);
 	}
 	// Recently archived public threads under the forum (catches posts closed between runs).
@@ -247,6 +255,7 @@ async function forumThreads() {
 		const archived = await discord(`/channels/${FORUM}/threads/archived/public?limit=25`);
 		for (const t of archived.threads || []) threads.set(t.id, t);
 	} catch (e) {
+		if (e.fatal) throw e;
 		console.warn("archived threads:", e.message);
 	}
 	return [...threads.values()];

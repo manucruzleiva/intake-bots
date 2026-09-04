@@ -6,9 +6,9 @@ inlines image attachments, and folds `.txt`/`.log`/`.json` (crash reports) into 
 the Discord CDN link expires. It **never links the private code repo** in Discord.
 
 ## Why a separate public repo
-GitHub Actions cron is **free/unlimited on public repos** but metered on private ones. Host this poller in a
-**public** repo (the wiki repo, or a new `cobblemon-routes-intake` repo) and point it at the code repo for
-issues. Copy `intake.workflow.yml` to that repo's `.github/workflows/discord-intake.yml`.
+GitHub Actions cron is **free/unlimited on public repos** but metered on private ones, and this poller runs
+every 5-10 minutes. That is why every intake bot lives here, in one public repo, instead of inside the
+private mod repo it files issues against. The workflow is `.github/workflows/intake-routes.yml`.
 
 ## One-time setup
 1. **Discord application/bot** (https://discord.com/developers/applications):
