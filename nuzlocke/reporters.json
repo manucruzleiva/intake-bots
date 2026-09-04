@@ -1,8 +1,8 @@
 {
   "killquota": {
-    "count": 1,
+    "count": 2,
     "kinds": {
-      "bug": 1
+      "bug": 2
     }
   }
 }
