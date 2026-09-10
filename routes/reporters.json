@@ -31,5 +31,11 @@
     "kinds": {
       "bug": 1
     }
+  },
+  "hetherite": {
+    "count": 1,
+    "kinds": {
+      "crash": 1
+    }
   }
 }
