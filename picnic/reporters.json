@@ -13,5 +13,11 @@
     "count": 1,
     "bugs": 1,
     "features": 0
+  },
+  "babblingfishes": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    }
   }
 }
