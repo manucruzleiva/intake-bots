@@ -19,5 +19,11 @@
     "kinds": {
       "bug": 1
     }
+  },
+  "kirch8349": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    }
   }
 }
