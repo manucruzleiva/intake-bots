@@ -6,11 +6,13 @@
   "tracked": {
     "1547824273962573864": {
       "issue": 21,
-      "kind": "bug"
+      "kind": "bug",
+      "closedAnnounced": true
     },
     "1548479508166869052": {
       "issue": 23,
-      "kind": "bug"
+      "kind": "bug",
+      "closedAnnounced": true
     }
   }
 }
