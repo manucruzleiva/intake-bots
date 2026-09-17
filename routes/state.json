@@ -70,15 +70,18 @@
     },
     "1536758661417017425": {
       "issue": 200,
-      "kind": "bug"
+      "kind": "bug",
+      "closedAnnounced": true
     },
     "1533282997023932576": {
       "issue": 201,
-      "kind": "bug"
+      "kind": "bug",
+      "closedAnnounced": true
     },
     "1547577247840346142": {
       "issue": 220,
-      "kind": "crash"
+      "kind": "crash",
+      "closedAnnounced": true
     }
   }
 }
