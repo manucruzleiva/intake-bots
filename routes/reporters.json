@@ -37,5 +37,11 @@
     "kinds": {
       "crash": 1
     }
+  },
+  "carrotc": {
+    "count": 1,
+    "kinds": {
+      "feedback": 1
+    }
   }
 }
