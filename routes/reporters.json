@@ -49,5 +49,11 @@
     "kinds": {
       "bug": 1
     }
+  },
+  "nexstargaze": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    }
   }
 }
