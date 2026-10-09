@@ -92,11 +92,13 @@
     },
     "1556977508568531057": {
       "issue": 260,
-      "kind": "bug"
+      "kind": "bug",
+      "closedAnnounced": true
     },
     "1557157070824939631": {
       "issue": 261,
-      "kind": "bug"
+      "kind": "bug",
+      "closedAnnounced": true
     }
   }
 }
