@@ -14,11 +14,25 @@ name: Intake
 #
 # Los gates (`gate` en projects.json) se resuelven en lib/matrix.mjs, porque un `if:` de job no ve la
 # matrix. Un proyecto con el gate cerrado queda en la matrix y su fila dice por qué no corrió.
+#
+# La cadencia real la pone intake-pacer.yml, no el cron: GitHub encola el `schedule` de un repo
+# público según su carga y las corridas llegaban con horas de separación. Al terminar, el job `next`
+# deja un pacer en espera (wait timer de 10 min del environment `intake-pacing`), y ese pacer vuelve
+# a disparar este workflow con trigger=scheduler. El `schedule` queda como red: si la cadena se
+# corta, la próxima corrida que llegue por cron la revive.
+
+run-name: Intake (${{ inputs.trigger || github.event_name }})
 
 on:
   schedule:
     - cron: "*/10 * * * *"
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: "manual, o scheduler cuando lo dispara intake-pacer.yml (los gates valen como en un schedule)"
+        type: choice
+        options: [manual, scheduler]
+        default: manual
 
 permissions:
   contents: write
@@ -41,6 +55,7 @@ jobs:
         env:
           REPO_VARS: ${{ toJSON(vars) }}
           EVENT_NAME: ${{ github.event_name }}
+          TRIGGER: ${{ inputs.trigger }}
         run: node lib/matrix.mjs
 
   poll:
@@ -60,8 +75,13 @@ jobs:
         run: |
           echo "Skipped $DIR: $REASON"
 
+      # La punta de la rama, no github.sha: una corrida que esperó en la cola de `concurrency` lleva
+      # el SHA de cuando se disparó, de antes de que la anterior pusheara su state.json, y con ese
+      # ledger viejo volvería a filar los mismos hilos.
       - uses: actions/checkout@v7
         if: ${{ matrix.run }}
+        with:
+          ref: ${{ github.ref }}
       - uses: actions/setup-node@v7
         if: ${{ matrix.run }}
         with:
@@ -103,4 +123,47 @@ jobs:
             sleep $((i * 3))
           done
           echo "::error::could not push $DIR state after 5 attempts"
+          exit 1
+
+  next:
+    # Corre falle lo que falle arriba: una fila rota no puede cortar la cadena.
+    needs: poll
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    steps:
+      - name: Keep one pacer waiting
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          # Una sola cadena: si ya hay un pacer esperando, éste no agrega otro. Sólo cuentan los que
+          # todavía no arrancaron; uno in_progress es el que disparó esta corrida, o está a punto de
+          # disparar la siguiente, y de las dos corridas que resulten la segunda ya ve el nuevo.
+          waiting=""
+          for i in 1 2 3 4 5; do
+            if waiting=$(gh api "repos/$REPO/actions/workflows/intake-pacer.yml/runs?per_page=20" \
+                --jq '[.workflow_runs[] | select(.status == "queued" or .status == "waiting" or .status == "pending" or .status == "requested")] | length'); then
+              break
+            fi
+            waiting=""
+            sleep $((i * 5))
+          done
+          if [ -z "$waiting" ]; then
+            echo "::error::could not list intake-pacer runs; the chain stops until the next scheduled run"
+            exit 1
+          fi
+          if [ "$waiting" -gt 0 ]; then
+            echo "A pacer is already waiting ($waiting); nothing to do."
+            exit 0
+          fi
+          for i in 1 2 3 4 5; do
+            if gh workflow run intake-pacer.yml --repo "$REPO" --ref "$GITHUB_REF_NAME"; then
+              echo "Pacer dispatched."
+              exit 0
+            fi
+            sleep $((i * 5))
+          done
+          echo "::error::could not dispatch intake-pacer; the chain stops until the next scheduled run"
           exit 1

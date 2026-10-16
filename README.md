@@ -5,7 +5,10 @@ código correspondiente. Vive en un repo **público** porque GitHub Actions es g
 repos públicos y metered en privados — los mods son privados, el bot no.
 
 ```
-foro de tickets ──(cron */10)──▶  intake.yml (una fila de matrix por proyecto)  ──▶  issue en el repo del mod
+foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──▶  issue en el repo del mod
+                         │  ▲
+                    next ▼  │ dispatch trigger=scheduler
+                     intake-pacer.yml (espera 10 min en el environment intake-pacing)
 ```
 
 ## Layout
@@ -15,7 +18,8 @@ foro de tickets ──(cron */10)──▶  intake.yml (una fila de matrix por p
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` y resuelve los gates |
 | [`projects.json`](projects.json) | Un objeto por proyecto: lo único que hay que tocar para dar uno de alta |
-| [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow |
+| [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow de intake |
+| [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
 | `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad (aparece con el primer issue filado) |
 | [`CREDITS.md`](CREDITS.md) | El registro de créditos, copiado a mano a la wiki |
@@ -47,7 +51,7 @@ hace falta un workflow nuevo.
 
 | Gate | Corre cuando | Quién lo usa |
 |---|---|---|
-| `enabled-var` | `<PREFIX>_INTAKE_ENABLED == 'true'`, o siempre en un `workflow_dispatch` | nuzlocke |
+| `enabled-var` | `<PREFIX>_INTAKE_ENABLED == 'true'`, o siempre en un `workflow_dispatch` manual (el del pacer no cuenta) | nuzlocke |
 | `channel-set` | `<PREFIX>_TICKETS_CHANNEL_ID` tiene valor | raid-icons, mid-battle-exp, champions-training |
 
 Un proyecto con el gate cerrado sigue en la matrix: su fila sale verde con un único step que dice por
@@ -98,8 +102,32 @@ Server: https://discord.gg/SwcwXcCN4k
 - Cada fila commitea sólo su `state.json`/`reporters.json` con `[skip ci]`. Como todas pushean al
   mismo branch en el mismo segundo, el push reintenta sobre un `git pull --rebase` hasta cinco veces:
   un state que no llega al repo es un lote de issues duplicados en la corrida siguiente.
-- `concurrency: intake` serializa corridas enteras: un dispatch manual espera al cron en curso.
-- El cron pide cada 10 minutos; GitHub lo espacia bastante más en la práctica.
+- `concurrency: intake` serializa corridas enteras: un dispatch manual espera a la corrida en curso.
+- El checkout del poll es la punta de la rama (`ref: ${{ github.ref }}`), no `github.sha`: una
+  corrida que esperó en la cola lleva el SHA de antes del push de la anterior y, con ese
+  `state.json`, volvería a filar los mismos hilos.
+
+### La cadencia
+
+El `schedule` de un repo público lo encola GitHub según su carga: el `*/10` llegaba con horas de
+separación (mediana 276 min el 2026-10-16). La cadencia la pone una cadena de dispatches, que sí
+arrancan en segundos:
+
+1. Al terminar, el job `next` de `intake.yml` deja un `intake-pacer.yml` en espera, salvo que ya
+   haya uno esperando. Corre con `if: always()`: una fila rota no corta la cadena.
+2. El pacer espera en el environment `intake-pacing`, con un **wait timer de 10 minutos**: la espera
+   no ocupa runner. Después dispara `intake.yml` con `trigger=scheduler`.
+3. Los dos dispatch usan el `GITHUB_TOKEN` (con él, `workflow_dispatch` sí crea una corrida nueva) y
+   reintentan cinco veces.
+
+Si la cadena se corta igual, la próxima corrida que llegue por `schedule` o por un dispatch manual
+la revive sola. El environment se crea una vez:
+
+```bash
+gh api -X PUT repos/manucruzleiva/intake-bots/environments/intake-pacing -F wait_timer=10
+```
+
+Sin él, GitHub lo crea al primer job **sin** wait timer y la cadena gira sin pausa.
 
 ## Probar a mano
 
@@ -107,4 +135,5 @@ Server: https://discord.gg/SwcwXcCN4k
 gh workflow run intake.yml --repo manucruzleiva/intake-bots
 ```
 
-El log de cada fila termina en `Done. N new issue(s) filed; M close(s) announced; K threads tracked.`
+Arranca también la cadena del pacer, si estaba cortada. El log de cada fila termina en
+`Done. N new issue(s) filed; F follow-up comment(s); M close(s) announced; K threads tracked.`

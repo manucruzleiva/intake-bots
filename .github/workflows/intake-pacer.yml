@@ -1,0 +1,43 @@
+name: Intake pacer
+
+# Le pone cadencia a intake.yml. El `schedule` de un repo público lo encola GitHub según su carga
+# (medido 2026-10-16: mediana 276 min entre corridas), pero un `workflow_dispatch` arranca en
+# segundos, y uno disparado con el GITHUB_TOKEN sí crea una corrida nueva.
+#
+# El job espera en el environment `intake-pacing`, que tiene un wait timer de 10 minutos: la espera
+# no ocupa runner ni gasta minutos. Después dispara intake.yml con trigger=scheduler, y el job `next`
+# de esa corrida deja otro pacer esperando. El environment se crea una vez, por API:
+#   gh api -X PUT repos/manucruzleiva/intake-bots/environments/intake-pacing -F wait_timer=10
+# Si no existe, GitHub lo crea solo al primer job y SIN wait timer: la cadena giraría sin pausa.
+
+run-name: Intake pacer
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+
+concurrency:
+  group: intake-pacer
+  cancel-in-progress: false
+
+jobs:
+  fire:
+    runs-on: ubuntu-latest
+    environment: intake-pacing
+    steps:
+      - name: Dispatch the intake
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for i in 1 2 3 4 5; do
+            if gh workflow run intake.yml --repo "$REPO" --ref "$GITHUB_REF_NAME" -f trigger=scheduler; then
+              echo "Intake dispatched."
+              exit 0
+            fi
+            sleep $((i * 5))
+          done
+          echo "::error::could not dispatch intake.yml; the chain stops until the next scheduled run"
+          exit 1
