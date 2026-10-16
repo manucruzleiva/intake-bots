@@ -11,7 +11,8 @@
     },
     "1560639421374795826": {
       "issue": 11,
-      "kind": "other"
+      "kind": "other",
+      "closedAnnounced": true
     }
   }
 }
