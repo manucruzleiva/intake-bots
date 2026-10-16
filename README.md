@@ -49,7 +49,7 @@ de "not planned".
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
 | `gate` | Opcional. `enabled-var` o `channel-set` (ver abajo) |
-| `announce` | El anuncio de release: `channelId`, `content` (la línea de encabezado; `{version}` se reemplaza), `color` y `footer` del embed |
+| `announce` | El anuncio de release: `channelId`, `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones. Los dos de changelog se derivan de las tiendas: Modrinth `/changelog`, y CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). Una tienda que falta no lleva botón |
 
 **Dar de alta un proyecto:** cargar sus secrets y variables, crear la carpeta, agregar el objeto. No
 hace falta un workflow nuevo.
