@@ -20,8 +20,12 @@ name: Intake
 # deja un pacer en espera (wait timer de 10 min del environment `intake-pacing`), y ese pacer vuelve
 # a disparar este workflow con trigger=scheduler. El `schedule` queda como red: si la cadena se
 # corta, la próxima corrida que llegue por cron la revive.
+#
+# El job `health` (lib/health.mjs) cierra cada corrida: mira las filas de las últimas corridas y
+# mantiene abierto el issue "Intake unhealthy" mientras algo esté roto. Lo que este job no puede ver
+# es que la cadena se corte, porque se corta con ella: eso lo mira healthcheck.yml.
 
-run-name: Intake (${{ inputs.trigger || github.event_name }})
+run-name: Intake (${{ inputs.break && format('break {0}', inputs.break) || inputs.trigger || github.event_name }})
 
 on:
   schedule:
@@ -33,6 +37,10 @@ on:
         type: choice
         options: [manual, scheduler]
         default: manual
+      break:
+        description: "Prueba del healthcheck: <dir>:discord (token de Discord inválido), <dir>:github (GH_TOKEN inválido) o <dir>:forum (id de foro inexistente) para esa fila. Vacío = nada"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -90,18 +98,23 @@ jobs:
       - name: Poll Discord and file issues
         if: ${{ matrix.run }}
         working-directory: ${{ matrix.dir }}
+        # `inputs.break` rompe a propósito una fila, para probar el healthcheck sin tocar un secret: los
+        # secrets no se pueden leer de vuelta, así que uno pisado no se restaura.
         env:
-          DISCORD_BOT_TOKEN: ${{ secrets[format('{0}_DISCORD_TOKEN', matrix.prefix)] }}
-          DISCORD_FORUM_CHANNEL_ID: ${{ vars[format('{0}_TICKETS_CHANNEL_ID', matrix.prefix)] }}
+          DISCORD_BOT_TOKEN: ${{ inputs.break == format('{0}:discord', matrix.dir) && 'healthcheck-test-invalid-token' || secrets[format('{0}_DISCORD_TOKEN', matrix.prefix)] }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || vars[format('{0}_TICKETS_CHANNEL_ID', matrix.prefix)] }}
           DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
-          GH_TOKEN: ${{ secrets[format('{0}_GH_TOKEN', matrix.prefix)] }}
+          GH_TOKEN: ${{ inputs.break == format('{0}:github', matrix.dir) && 'healthcheck-test-invalid-token' || secrets[format('{0}_GH_TOKEN', matrix.prefix)] }}
           GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}
           INTAKE_USER_AGENT: ${{ matrix.ua }}
           SKIP_BEFORE_ID: ${{ matrix.skipBeforeId }}
         run: node ../lib/poller.mjs
 
+      # También cuando el poll salió rojo: una corrida degradada (ver "Exit code" en poller.mjs)
+      # escribe el state de lo que sí hizo, y sin guardarlo la siguiente volvería a filarlo. Un error
+      # fatal no escribe nada, así que acá no hay diff y el paso sale sin commitear.
       - name: Persist dedup state and credits
-        if: ${{ matrix.run }}
+        if: ${{ matrix.run && !cancelled() }}
         env:
           DIR: ${{ matrix.dir }}
         run: |
@@ -124,6 +137,29 @@ jobs:
           done
           echo "::error::could not push $DIR state after 5 attempts"
           exit 1
+
+  health:
+    needs: poll
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+    # Con healthcheck.yml: los dos tocan el mismo issue, y dos a la vez lo abrirían dos veces.
+    concurrency:
+      group: intake-health
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Check intake health
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_VARS: ${{ toJSON(vars) }}
+        run: node lib/health.mjs
 
   next:
     # Corre falle lo que falle arriba: una fila rota no puede cortar la cadena.

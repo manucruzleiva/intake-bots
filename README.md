@@ -16,10 +16,13 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | Ruta | Qué es |
 |---|---|
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
-| [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` y resuelve los gates |
+| [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
+| [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
+| [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
 | [`projects.json`](projects.json) | Un objeto por proyecto: lo único que hay que tocar para dar uno de alta |
 | [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow de intake |
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
+| [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
 | `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad (aparece con el primer issue filado) |
 | [`CREDITS.md`](CREDITS.md) | El registro de créditos, copiado a mano a la wiki |
@@ -128,6 +131,34 @@ gh api -X PUT repos/manucruzleiva/intake-bots/environments/intake-pacing -F wait
 ```
 
 Sin él, GitHub lo crea al primer job **sin** wait timer y la cadena gira sin pausa.
+
+## El healthcheck
+
+La falla que importa no es una corrida roja sino una **verde que no importa nada**. Por eso el poller
+sale con exit 1 también cuando terminó sin hacer parte de su trabajo (no pudo listar el foro, no pudo
+filar un hilo, GitHub le rechazó una lectura), y `lib/health.mjs` lee esas filas:
+
+| Chequeo | Problema cuando |
+|---|---|
+| Cadena | la última corrida de `intake.yml` tiene más de 30 min |
+| Proyecto | sus últimas 2 filas ejecutadas fallaron (una sola es un blip y sale en amarillo) |
+| Sin vigilar | su gate lo tiene apagado: se lista, pero no es un problema |
+
+Corre en dos lados: como job `health` al final de cada intake (cada ~10 min) y desde
+`healthcheck.yml` por `schedule`, que es el único que ve que la cadena se cortó. El aviso es **un
+issue, "Intake unhealthy"**, que abre el bot: las corridas del pacer las dispara el `GITHUB_TOKEN` y
+GitHub no le avisa a nadie cuando fallan. Mientras los problemas sigan iguales sólo se edita (sin
+notificar), cuando cambian se comenta, y se cierra solo cuando todo vuelve a estar sano.
+
+`healthcheck.yml` además re-habilita `intake.yml` y a sí mismo en cada corrida, para que el apagado
+de los `schedule` tras 60 días sin actividad no los alcance.
+
+Para probarlo sin tocar un secret, `intake.yml` tiene el input `break`: `<dir>:discord`,
+`<dir>:github` o `<dir>:forum` rompen esa fila sola en esa corrida.
+
+```bash
+gh workflow run intake.yml --repo manucruzleiva/intake-bots -f break=raid-icons:forum
+```
 
 ## Probar a mano
 

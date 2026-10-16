@@ -1,0 +1,55 @@
+name: Intake healthcheck
+
+# El mismo lib/health.mjs que corre al final de cada intake, pero desde afuera de la cadena: es el
+# único que ve que la cadena del pacer se cortó, porque el job `health` de intake.yml se corta con
+# ella. Llega por `schedule`, así que GitHub lo encola con horas de atraso (ver intake-pacer.yml):
+# alcanza para una cadena muerta, que sin él sólo se notaría porque los reportes tardan horas.
+#
+# Una corrida roja por `schedule` le manda mail a quien tocó el cron por última vez; el aviso de
+# siempre es el issue "Intake unhealthy" que abre health.mjs.
+#
+# GitHub apaga los workflows con `schedule` de un repo público tras 60 días sin actividad, y éste no
+# puede apagarse sin que nadie lo note. Cada corrida re-habilita intake.yml y a sí mismo por API, que
+# reinicia ese contador (el truco de keepalive-workflow): mientras alguno de los dos corra, ninguno
+# llega a los 60 días.
+
+run-name: Intake healthcheck
+
+on:
+  schedule:
+    - cron: "23 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  actions: write
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    # Con el job `health` de intake.yml: los dos tocan el mismo issue.
+    concurrency:
+      group: intake-health
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Keep the scheduled workflows enabled
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for wf in intake.yml healthcheck.yml; do
+            gh api -X PUT "repos/$REPO/actions/workflows/$wf/enable" \
+              || echo "::warning::could not re-enable $wf"
+          done
+
+      - name: Check intake health
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO_VARS: ${{ toJSON(vars) }}
+        run: node lib/health.mjs
