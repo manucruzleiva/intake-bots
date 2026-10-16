@@ -3,47 +3,89 @@
     "dir": "routes",
     "name": "Routes",
     "prefix": "ROUTES",
-    "ua": "routes-intake (+https://modrinth.com/project/routes)"
+    "ua": "routes-intake (+https://modrinth.com/project/routes)",
+    "announce": {
+      "channelId": "1522425693265203331",
+      "content": "# 🗺️✨ Routes v{version} is here! ✨\n⬇️ **[Modrinth](https://modrinth.com/mod/routes)**  ·  ⬇️ **[CurseForge](https://www.curseforge.com/projects/1584243)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/routes/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 5027455,
+      "footer": "Safe travels on the routes! 🧭"
+    }
   },
   {
     "dir": "picnic",
     "name": "Cobblemon Picnic",
     "prefix": "PICNIC",
     "ua": "cobblemon-picnic-intake (+https://modrinth.com/project/cobblemon-picnic)",
-    "skipBeforeId": "1516437610648834058"
+    "skipBeforeId": "1516437610648834058",
+    "announce": {
+      "channelId": "1532081457462513734",
+      "content": "# 🧺✨ Cobblemon Picnic v{version} is here! ✨\n⬇️ **[Modrinth](https://modrinth.com/mod/cobblemon-picnic)** · **[CurseForge](https://www.curseforge.com/minecraft/mc-mods/cobblemon-picnic)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/picnic/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 16769126,
+      "footer": "Thanks for picnicking with us! 🍞"
+    }
   },
   {
     "dir": "ditto-hms",
     "name": "Cobblemon Ditto HMs",
     "prefix": "DITTO",
-    "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)"
+    "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)",
+    "announce": {
+      "channelId": "1532081291963531574",
+      "content": "# 🟣✨ Cobblemon Ditto HMs v{version} is here! ✨\n⬇️ **[Modrinth](https://modrinth.com/mod/cobblemon-ditto-hms)**  ·  ⬇️ **[CurseForge](https://www.curseforge.com/projects/1587850)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/ditto-hms/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 10233776,
+      "footer": "Transform. Learn. Explore! 🧬"
+    }
   },
   {
     "dir": "nuzlocke",
     "name": "Cobblemon Nuzlocke & Soul Link",
     "prefix": "NUZLOCKE",
     "ua": "cobblemon-nuzlocke-intake (+https://modrinth.com/project/cobblemon-nuzlocke-soullink)",
-    "gate": "enabled-var"
+    "gate": "enabled-var",
+    "announce": {
+      "channelId": "1532081610034253904",
+      "content": "# ☠️🔗 Cobblemon Nuzlocke & Soul Link v{version} is here!\n⬇️ **[Modrinth](https://modrinth.com/mod/cobblemon-nuzlocke-soul-link)**  ·  ⬇️ **[CurseForge](https://www.curseforge.com/projects/1630816)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/nuzlocke/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 3092790,
+      "footer": "Requires Routes 1.2.119+. Good luck out there. 🍀"
+    }
   },
   {
     "dir": "raid-icons",
     "name": "Cobblemon Raid Icons",
     "prefix": "RAID_ICONS",
     "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
-    "gate": "channel-set"
+    "gate": "channel-set",
+    "announce": {
+      "channelId": "1545050328435662858",
+      "content": "# 💎🗺️ Cobblemon Raid Icons v{version} is here! ✨\n⬇️ **[Modrinth](https://modrinth.com/mod/S01tPZTk)** · **[CurseForge](https://www.curseforge.com/projects/1669611)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/raid-icons/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 5814783,
+      "footer": "Client-side - install it and play anywhere."
+    }
   },
   {
     "dir": "mid-battle-exp",
     "name": "Cobblemon Mid-Battle EXP",
     "prefix": "MID_BATTLE_EXP",
     "ua": "cobblemon-mid-battle-exp-intake (+https://modrinth.com/project/ShgrcSQY)",
-    "gate": "channel-set"
+    "gate": "channel-set",
+    "announce": {
+      "channelId": "1560084267969679471",
+      "content": "# ⚔️✨ Cobblemon Mid-Battle EXP v{version} is here! ✨\n⬇️ **[Modrinth](https://modrinth.com/mod/cobblemon-mid-battle-exp)**  ·  ⬇️ **[CurseForge](https://www.curseforge.com/projects/1701359)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/mid-battle-exp/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 10233776,
+      "footer": "Grow in the middle of the fight. ⚔️"
+    }
   },
   {
     "dir": "champions-training",
     "name": "Cobblemon Champions Training",
     "prefix": "CHAMPIONS",
     "ua": "cobblemon-champions-training-intake (+https://modrinth.com/project/PlTQXswh)",
-    "gate": "channel-set"
+    "gate": "channel-set",
+    "announce": {
+      "channelId": "1545050120280604703",
+      "content": "# 🏆✨ Cobblemon Champions Training v{version} is here! ✨\n⬇️ **[Modrinth](https://modrinth.com/mod/cobblemon-champions-training)**  ·  ⬇️ **[CurseForge](https://www.curseforge.com/projects/1676756)**  ·  📖 **[Wiki](https://manucruzleiva.github.io/mod-wiki/champions/)**  ·  💛 **[Sponsor shiero](https://github.com/sponsors/manucruzleiva)**",
+      "color": 10233776,
+      "footer": "Train it yourself. 🏆"
+    }
   }
 ]
