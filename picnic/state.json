@@ -7,12 +7,14 @@
     "1547824273962573864": {
       "issue": 21,
       "kind": "bug",
-      "closedAnnounced": true
+      "closedAnnounced": true,
+      "lastMsg": "1549871597119213630"
     },
     "1548479508166869052": {
       "issue": 23,
       "kind": "bug",
-      "closedAnnounced": true
+      "closedAnnounced": true,
+      "lastMsg": "1549871598637420548"
     }
   }
 }
