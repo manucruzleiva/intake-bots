@@ -4,5 +4,11 @@
     "kinds": {
       "bug": 2
     }
+  },
+  "walkman_n": {
+    "count": 1,
+    "kinds": {
+      "idea": 1
+    }
   }
 }
