@@ -22,82 +22,95 @@
       "issue": 100,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1529213086593060976"
+      "lastMsg": "1529213086593060976",
+      "archived": true
     },
     "1528760049395044362": {
       "issue": 99,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1528783390935879893"
+      "lastMsg": "1528783390935879893",
+      "archived": true
     },
     "1528498194479059064": {
       "issue": 98,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1528499587143303338"
+      "lastMsg": "1528499587143303338",
+      "archived": true
     },
     "1527790094692384878": {
       "issue": 94,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1527795103861702766"
+      "lastMsg": "1527795103861702766",
+      "archived": true
     },
     "1526557349517590588": {
       "issue": 77,
       "kind": "other",
       "closeAttempts": 3,
       "closedAnnounced": true,
-      "lastMsg": "1526583844373795007"
+      "lastMsg": "1526583844373795007",
+      "archived": true
     },
     "1525858716833026058": {
       "issue": 76,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1525900180862537810"
+      "lastMsg": "1525900180862537810",
+      "archived": true
     },
     "1525666104595185905": {
       "issue": 75,
       "kind": "other",
       "closeAttempts": 3,
       "closedAnnounced": true,
-      "lastMsg": "1525886036339724498"
+      "lastMsg": "1525886036339724498",
+      "archived": true
     },
     "1522268611669135440": {
       "issue": 5,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1522616329012641943"
+      "lastMsg": "1522616329012641943",
+      "archived": true
     },
     "1520177159581208668": {
       "issue": 4,
       "kind": "other",
       "closedAnnounced": true,
-      "lastMsg": "1522616323492806657"
+      "lastMsg": "1522616323492806657",
+      "archived": true
     },
     "1533176770642313400": {
       "issue": 129,
       "kind": "feedback",
       "closeAttempts": 3,
       "closedAnnounced": true,
-      "lastMsg": "1535424879434932285"
+      "lastMsg": "1535424879434932285",
+      "archived": true
     },
     "1536758661417017425": {
       "issue": 200,
       "kind": "bug",
       "closedAnnounced": true,
-      "lastMsg": "1550032161346953257"
+      "lastMsg": "1550032161346953257",
+      "archived": true
     },
     "1533282997023932576": {
       "issue": 201,
       "kind": "bug",
       "closedAnnounced": true,
-      "lastMsg": "1550032162147799061"
+      "lastMsg": "1550032162147799061",
+      "archived": true
     },
     "1547577247840346142": {
       "issue": 220,
       "kind": "crash",
       "closedAnnounced": true,
-      "lastMsg": "1550032162995052635"
+      "lastMsg": "1550032162995052635",
+      "archived": true
     },
     "1554658672821403729": {
       "issue": 259,
@@ -108,13 +121,15 @@
       "issue": 260,
       "kind": "bug",
       "closedAnnounced": true,
-      "lastMsg": "1558056082851631126"
+      "lastMsg": "1558056082851631126",
+      "archived": true
     },
     "1557157070824939631": {
       "issue": 261,
       "kind": "bug",
       "closedAnnounced": true,
-      "lastMsg": "1558412448741195838"
+      "lastMsg": "1558412448741195838",
+      "archived": true
     }
   }
 }
