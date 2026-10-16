@@ -1,0 +1,35 @@
+[
+  {
+    "dir": "routes",
+    "name": "Routes",
+    "prefix": "ROUTES",
+    "ua": "routes-intake (+https://modrinth.com/project/routes)"
+  },
+  {
+    "dir": "picnic",
+    "name": "Cobblemon Picnic",
+    "prefix": "PICNIC",
+    "ua": "cobblemon-picnic-intake (+https://modrinth.com/project/cobblemon-picnic)",
+    "skipBeforeId": "1516437610648834058"
+  },
+  {
+    "dir": "ditto-hms",
+    "name": "Cobblemon Ditto HMs",
+    "prefix": "DITTO",
+    "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)"
+  },
+  {
+    "dir": "nuzlocke",
+    "name": "Cobblemon Nuzlocke & Soul Link",
+    "prefix": "NUZLOCKE",
+    "ua": "cobblemon-nuzlocke-intake (+https://modrinth.com/project/cobblemon-nuzlocke-soullink)",
+    "gate": "enabled-var"
+  },
+  {
+    "dir": "raid-icons",
+    "name": "Cobblemon Raid Icons",
+    "prefix": "RAID_ICONS",
+    "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
+    "gate": "channel-set"
+  }
+]

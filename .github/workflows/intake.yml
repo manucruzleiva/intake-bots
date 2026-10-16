@@ -1,0 +1,102 @@
+name: Intake
+
+# Un solo poller (lib/poller.mjs) para todos los proyectos de projects.json. Cada proyecto es una fila
+# de la matrix: corre desde su carpeta, así que su state.json y su reporters.json no se mueven.
+#
+# Secrets y variables van namespaceados por el `prefix` de projects.json:
+#   Secrets:   <PREFIX>_DISCORD_TOKEN, <PREFIX>_GH_TOKEN (PAT que puede abrir issues en el repo del mod)
+#   Variables: <PREFIX>_GH_REPO, <PREFIX>_TICKETS_CHANNEL_ID
+#              DISCORD_GUILD_ID  <- COMPARTIDA (hay un solo server)
+#
+# DISCORD_GUILD_ID no es opcional en la práctica: sin él, `/guilds/{id}/threads/active` no se llama
+# y el bot SÓLO ve threads archivados, así que un reporte recién abierto no entra hasta que Discord
+# lo archive.
+#
+# Los gates (`gate` en projects.json) se resuelven en lib/matrix.mjs, porque un `if:` de job no ve la
+# matrix. Un proyecto con el gate cerrado queda en la matrix y su fila dice por qué no corrió.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: intake
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - id: matrix
+        env:
+          REPO_VARS: ${{ toJSON(vars) }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: node lib/matrix.mjs
+
+  poll:
+    needs: plan
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      # Un proyecto roto no cancela a los demás.
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - name: Gate closed
+        if: ${{ !matrix.run }}
+        run: echo "Skipped ${{ matrix.dir }}: ${{ matrix.reason }}"
+
+      - uses: actions/checkout@v7
+        if: ${{ matrix.run }}
+      - uses: actions/setup-node@v7
+        if: ${{ matrix.run }}
+        with:
+          node-version: "24"
+
+      - name: Poll Discord and file issues
+        if: ${{ matrix.run }}
+        working-directory: ${{ matrix.dir }}
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets[format('{0}_DISCORD_TOKEN', matrix.prefix)] }}
+          DISCORD_FORUM_CHANNEL_ID: ${{ vars[format('{0}_TICKETS_CHANNEL_ID', matrix.prefix)] }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          GH_TOKEN: ${{ secrets[format('{0}_GH_TOKEN', matrix.prefix)] }}
+          GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}
+          INTAKE_USER_AGENT: ${{ matrix.ua }}
+          SKIP_BEFORE_ID: ${{ matrix.skipBeforeId }}
+        run: node ../lib/poller.mjs
+
+      - name: Persist dedup state and credits
+        if: ${{ matrix.run }}
+        env:
+          DIR: ${{ matrix.dir }}
+        run: |
+          # reporters.json no existe hasta que se fila el primer issue, y `git add` de un path que
+          # no existe corta con exit 128. Se agrega lo que haya y se commitea sólo si quedó algo.
+          for f in "$DIR/state.json" "$DIR/reporters.json"; do
+            if [ -f "$f" ]; then git add "$f"; fi
+          done
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore($DIR): update intake state [skip ci]"
+          # Todas las filas de la matrix pushean al mismo branch en el mismo segundo. Un push que
+          # pierde la carrera deja el state sin guardar y la corrida siguiente vuelve a filar los
+          # mismos issues, así que se reintenta sobre lo que haya entrado. Cada fila toca sólo su
+          # carpeta: el rebase no puede chocar.
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash && git push; then exit 0; fi
+            sleep $((i * 3))
+          done
+          echo "::error::could not push $DIR state after 5 attempts"
+          exit 1
