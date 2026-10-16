@@ -1,4 +1,11 @@
 {
-  "processed": [],
-  "tracked": {}
+  "processed": [
+    "1560636323151216683"
+  ],
+  "tracked": {
+    "1560636323151216683": {
+      "issue": 10,
+      "kind": "other"
+    }
+  }
 }
