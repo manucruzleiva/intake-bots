@@ -5,8 +5,11 @@ name: Intake
 #
 # Secrets y variables van namespaceados por el `prefix` de projects.json:
 #   Secrets:   <PREFIX>_DISCORD_TOKEN, <PREFIX>_GH_TOKEN (PAT que puede abrir issues en el repo del mod)
-#   Variables: <PREFIX>_GH_REPO, <PREFIX>_TICKETS_CHANNEL_ID
+#   Variables: <PREFIX>_GH_REPO, <PREFIX>_TICKETS_CHANNEL_ID (su foro viejo)
 #              DISCORD_GUILD_ID  <- COMPARTIDA (hay un solo server)
+#              TICKETS_FORUM_ID  <- COMPARTIDA: el foro único. Cada fila se queda con los posts que llevan
+#                                   su `tag` de projects.json; los que no llevan ninguno los atiende
+#                                   el job `unrouted` (lib/unrouted.mjs), con el secret DISCORD_TOKEN
 #
 # DISCORD_GUILD_ID no es opcional en la práctica: sin él, `/guilds/{id}/threads/active` no se llama
 # y el bot SÓLO ve threads archivados, así que un reporte recién abierto no entra hasta que Discord
@@ -107,6 +110,8 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ inputs.break == format('{0}:discord', matrix.dir) && 'healthcheck-test-invalid-token' || secrets[format('{0}_DISCORD_TOKEN', matrix.prefix)] }}
           DISCORD_FORUM_CHANNEL_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || vars[format('{0}_TICKETS_CHANNEL_ID', matrix.prefix)] }}
           DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          DISCORD_SHARED_FORUM_ID: ${{ vars.TICKETS_FORUM_ID }}
+          MOD_TAG: ${{ matrix.tag }}
           GH_TOKEN: ${{ inputs.break == format('{0}:github', matrix.dir) && 'healthcheck-test-invalid-token' || secrets[format('{0}_GH_TOKEN', matrix.prefix)] }}
           GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}
           INTAKE_USER_AGENT: ${{ matrix.ua }}
@@ -139,6 +144,40 @@ jobs:
             sleep $((i * 3))
           done
           echo "::error::could not push $DIR state after 5 attempts"
+          exit 1
+
+  # Los posts del foro único sin tag de mod no son de ninguna fila: les pide el tag, una vez.
+  unrouted:
+    if: ${{ vars.TICKETS_FORUM_ID != '' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.ref }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Ask untagged posts for their mod
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          TICKETS_FORUM_ID: ${{ vars.TICKETS_FORUM_ID }}
+        run: node lib/unrouted.mjs
+      # Igual que el state de cada fila, y por lo mismo: sin unrouted.json, el post se pregunta dos veces.
+      - name: Persist asked posts
+        if: ${{ !cancelled() }}
+        run: |
+          if [ ! -f unrouted.json ]; then exit 0; fi
+          git add unrouted.json
+          if git diff --cached --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(unrouted): update asked posts [skip ci]"
+          for i in 1 2 3 4 5; do
+            if git pull --rebase --autostash && git push; then exit 0; fi
+            sleep $((i * 3))
+          done
+          echo "::error::could not push unrouted.json after 5 attempts"
           exit 1
 
   health:

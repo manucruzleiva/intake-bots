@@ -3,6 +3,7 @@
     "dir": "routes",
     "name": "Routes",
     "prefix": "ROUTES",
+    "tag": "Routes",
     "ua": "routes-intake (+https://modrinth.com/project/routes)",
     "announce": {
       "channelId": "1522425693265203331",
@@ -21,6 +22,7 @@
     "dir": "picnic",
     "name": "Cobblemon Picnic",
     "prefix": "PICNIC",
+    "tag": "Picnic",
     "ua": "cobblemon-picnic-intake (+https://modrinth.com/project/cobblemon-picnic)",
     "skipBeforeId": "1516437610648834058",
     "announce": {
@@ -40,6 +42,7 @@
     "dir": "ditto-hms",
     "name": "Cobblemon Ditto HMs",
     "prefix": "DITTO",
+    "tag": "Ditto HMs",
     "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)",
     "announce": {
       "channelId": "1532081291963531574",
@@ -58,6 +61,7 @@
     "dir": "nuzlocke",
     "name": "Cobblemon Nuzlocke & Soul Link",
     "prefix": "NUZLOCKE",
+    "tag": "Nuzlocke",
     "ua": "cobblemon-nuzlocke-intake (+https://modrinth.com/project/cobblemon-nuzlocke-soullink)",
     "gate": "enabled-var",
     "announce": {
@@ -77,6 +81,7 @@
     "dir": "raid-icons",
     "name": "Cobblemon Raid Icons",
     "prefix": "RAID_ICONS",
+    "tag": "Raid Icons",
     "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
     "gate": "channel-set",
     "announce": {
@@ -96,6 +101,7 @@
     "dir": "mid-battle-exp",
     "name": "Cobblemon Mid-Battle EXP",
     "prefix": "MID_BATTLE_EXP",
+    "tag": "Mid-Battle EXP",
     "ua": "cobblemon-mid-battle-exp-intake (+https://modrinth.com/project/ShgrcSQY)",
     "gate": "channel-set",
     "announce": {
@@ -115,6 +121,7 @@
     "dir": "champions-training",
     "name": "Cobblemon Champions Training",
     "prefix": "CHAMPIONS",
+    "tag": "Champions Training",
     "ua": "cobblemon-champions-training-intake (+https://modrinth.com/project/PlTQXswh)",
     "gate": "channel-set",
     "announce": {

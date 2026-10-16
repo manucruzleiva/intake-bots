@@ -1,7 +1,7 @@
 # Intake Bots
 
-Un solo poller que vigila el foro de tickets de cada mod en Discord y abre un issue en el repo de
-código correspondiente. Vive en un repo **público** porque GitHub Actions es gratis e ilimitado en
+Un solo poller que vigila los foros de tickets de Discord (el único, con un tag por mod, y el viejo de
+cada mod) y abre un issue en el repo de código correspondiente. Vive en un repo **público** porque GitHub Actions es gratis e ilimitado en
 repos públicos y metered en privados — los mods son privados, el bot no.
 
 ```
@@ -16,6 +16,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | Ruta | Qué es |
 |---|---|
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
+| [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
 | [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
@@ -29,6 +30,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
 | [`.github/workflows/server.yml`](.github/workflows/server.yml) | A mano: hace que el guild coincida con `server.json` (`dry_run` por defecto, `prune` apagado) |
 | [`.github/workflows/announce.yml`](.github/workflows/announce.yml) | Reutilizable (`workflow_call`): el job `announce` del `publish.yml` de cada mod lo llama para anunciar el release |
+| `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
 | `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad (aparece con el primer issue filado) |
 | [`CREDITS.md`](CREDITS.md) | El registro de créditos, copiado a mano a la wiki |
@@ -42,6 +44,21 @@ y los `.txt`/`.log`/`.json` adjuntos se pliegan en un `<details>` antes de que e
 de Discord. Cuando el issue se cierra en GitHub, el bot lo avisa en el thread, distinguiendo "fixed"
 de "not planned".
 
+### El foro único
+
+`#tickets` (`TICKETS_FORUM_ID`) recibe los posts de todos los mods: cada post lleva un **tag de tipo**
+y un **tag de mod**. Cada fila lee ese foro además del suyo viejo y se queda sólo con los posts que
+llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
+
+- **Un post con dos mods** se vuelve un issue en cada repo, y cada body nombra a los otros. Responde
+  al filar sólo el primero en el orden de `projects.json`; cada mensaje posterior (cierre, release)
+  lleva el nombre del mod adelante.
+- **Un post sin tag de mod** no es de ninguna fila. El job `unrouted` le pide el tag una vez y lo anota
+  en `unrouted.json`; cuando el tag aparece, la fila dueña lo fila en su corrida siguiente. *Require
+  tag* no lo evita: exige *algún* tag, y uno de tipo alcanza.
+- Los foros viejos se siguen leyendo: los cierres de sus hilos se siguen anunciando ahí.
+- Discord permite 20 tags por foro: 4 de tipo dejan lugar a 16 mods.
+
 ## projects.json
 
 | Campo | |
@@ -49,12 +66,14 @@ de "not planned".
 | `dir` | Carpeta del proyecto: ahí corre el poller y ahí viven su `state.json` y su `reporters.json` |
 | `name` | Nombre de la fila en Actions |
 | `prefix` | Prefijo de sus secrets y variables (`DITTO`, no `DITTO_HMS`) |
+| `tag` | Su tag de mod en el foro único. Tiene que existir con ese nombre en `server.json`; si falta en el foro, la fila sale roja |
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
 | `gate` | Opcional. `enabled-var` o `channel-set` (ver abajo) |
 | `announce` | El anuncio de release: `channelId`, `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas) |
 
-**Dar de alta un proyecto:** cargar sus secrets y variables, crear la carpeta, agregar el objeto. No
+**Dar de alta un proyecto:** cargar sus secrets y variables, crear la carpeta, agregar el objeto y su
+tag de mod en el foro `tickets` de `server.json`. No
 hace falta un workflow nuevo.
 
 ### Gates
@@ -79,7 +98,8 @@ archivados del foro.
 | Nombre | Tipo | |
 |---|---|---|
 | `DISCORD_GUILD_ID` | variable | **Compartida**: hay un solo server |
-| `DISCORD_TOKEN` | secret | El bot único, para `server.yml` |
+| `DISCORD_TOKEN` | secret | El bot único, para `server.yml` y el job `unrouted` |
+| `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
 | `<PREFIX>_DISCORD_TOKEN` | secret | Token del bot de Discord |
 | `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
 | `<PREFIX>_TICKETS_CHANNEL_ID` | variable | Foro de tickets |

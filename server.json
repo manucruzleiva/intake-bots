@@ -86,6 +86,39 @@
               "deny": ["SendMessages"]
             }
           }
+        },
+        {
+          "name": "tickets",
+          "id": "1560781769752445028",
+          "type": "forum",
+          "topic": "One post per bug, crash, idea or piece of feedback. Pick what kind of post it is AND which mod it is about: a post with no mod tag waits until it has one.\n\nFor a bug or a crash: your Minecraft version, the mod's version, the loader (Fabric or NeoForge), and logs/latest.log or the crash report.",
+          "require_tag": true,
+          "available_tags": [
+            { "name": "Bug", "emoji_name": "🐛" },
+            { "name": "Crash", "emoji_name": "💥" },
+            { "name": "Feedback", "emoji_name": "💬" },
+            { "name": "Idea", "emoji_name": "💡" },
+            { "name": "Routes", "emoji_name": "🗺️" },
+            { "name": "Picnic", "emoji_name": "🧺" },
+            { "name": "Ditto HMs", "emoji_name": "💿" },
+            { "name": "Nuzlocke", "emoji_name": "🔗" },
+            { "name": "Raid Icons", "emoji_name": "📍" },
+            { "name": "Mid-Battle EXP", "emoji_name": "🍬" },
+            { "name": "Champions Training", "emoji_name": "🏆" }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "❤️"
+          },
+          "default_auto_archive_duration": 10080,
+          "default_forum_layout": 1,
+          "overwrites": {
+            "@everyone": {
+              "deny": ["ViewChannel"]
+            },
+            "Computah": {
+              "allow": ["ViewChannel", "SendMessages", "ManageThreads"]
+            }
+          }
         }
       ]
     },
