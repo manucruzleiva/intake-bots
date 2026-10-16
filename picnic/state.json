@@ -8,13 +8,15 @@
       "issue": 21,
       "kind": "bug",
       "closedAnnounced": true,
-      "lastMsg": "1549871597119213630"
+      "lastMsg": "1549871597119213630",
+      "archived": true
     },
     "1548479508166869052": {
       "issue": 23,
       "kind": "bug",
       "closedAnnounced": true,
-      "lastMsg": "1549871598637420548"
+      "lastMsg": "1549871598637420548",
+      "archived": true
     }
   }
 }
