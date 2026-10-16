@@ -24,6 +24,9 @@ name: Intake
 # El job `health` (lib/health.mjs) cierra cada corrida: mira las filas de las últimas corridas y
 # mantiene abierto el issue "Intake unhealthy" mientras algo esté roto. Lo que este job no puede ver
 # es que la cadena se corte, porque se corta con ella: eso lo mira healthcheck.yml.
+#
+# El mismo veredicto sale a GitHub Pages (job `pages`): lib/status-page.html + el status.json que
+# escribe health.mjs. La página se marca stale sola cuando ese status.json pasa los 30 min.
 
 run-name: Intake (${{ inputs.break && format('break {0}', inputs.break) || inputs.trigger || github.event_name }})
 
@@ -150,6 +153,8 @@ jobs:
     concurrency:
       group: intake-health
       cancel-in-progress: false
+    outputs:
+      page: ${{ steps.page.outcome }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -159,7 +164,33 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO_VARS: ${{ toJSON(vars) }}
+          HEALTH_PAGE_DIR: _site
         run: node lib/health.mjs
+      # La página se sube también cuando el chequeo sale rojo, que es cuando más importa. Sólo falta
+      # si health.mjs se cayó antes de escribirla; entonces la página vieja envejece y se marca stale.
+      - id: page
+        if: ${{ !cancelled() && hashFiles('_site/status.json') != '' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  pages:
+    needs: health
+    if: ${{ always() && needs.health.outputs.page == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    # Con healthcheck.yml, que publica la misma página.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5
 
   next:
     # Corre falle lo que falle arriba: una fila rota no puede cortar la cadena.

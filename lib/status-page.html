@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intake Status</title>
+<!--
+  Deployed to GitHub Pages by the intake workflows, next to the status.json that lib/health.mjs
+  writes. Everything is decided here, in the viewer's browser: the page is only redeployed by a run
+  that is alive, so it has to notice on its own when its data stopped coming.
+-->
+<style>
+	:root {
+		--bg: #f6f7f9;
+		--card: #ffffff;
+		--text: #1b1f24;
+		--muted: #5b6470;
+		--line: #dde1e6;
+		--ok: #1a7f37;
+		--ok-bg: #e6f4ea;
+		--warn: #9a6700;
+		--warn-bg: #fff4d6;
+		--fail: #cf222e;
+		--fail-bg: #ffebe9;
+		--off: #6e7781;
+		--off-bg: #eef0f2;
+		--link: #0969da;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			--bg: #0d1117;
+			--card: #161b22;
+			--text: #e6edf3;
+			--muted: #8d96a0;
+			--line: #30363d;
+			--ok: #3fb950;
+			--ok-bg: #12261a;
+			--warn: #d29922;
+			--warn-bg: #2b2111;
+			--fail: #f85149;
+			--fail-bg: #2d1416;
+			--off: #8d96a0;
+			--off-bg: #1f242b;
+			--link: #4493f8;
+		}
+	}
+	:root[data-theme="dark"] {
+		--bg: #0d1117;
+		--card: #161b22;
+		--text: #e6edf3;
+		--muted: #8d96a0;
+		--line: #30363d;
+		--ok: #3fb950;
+		--ok-bg: #12261a;
+		--warn: #d29922;
+		--warn-bg: #2b2111;
+		--fail: #f85149;
+		--fail-bg: #2d1416;
+		--off: #8d96a0;
+		--off-bg: #1f242b;
+		--link: #4493f8;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		background: var(--bg);
+		color: var(--text);
+		font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	}
+	main { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+	h1 { font-size: 20px; margin: 0 0 16px; }
+	a { color: var(--link); }
+	.verdict {
+		border-radius: 10px;
+		padding: 16px 18px;
+		margin-bottom: 16px;
+		border: 1px solid var(--line);
+		background: var(--card);
+	}
+	.verdict > strong { font-size: 17px; display: block; }
+	.verdict.ok { background: var(--ok-bg); border-color: var(--ok); }
+	.verdict.fail { background: var(--fail-bg); border-color: var(--fail); }
+	.verdict.stale { background: var(--warn-bg); border-color: var(--warn); }
+	.verdict ul { margin: 8px 0 0; padding-left: 20px; }
+	.meta { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
+	.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+	.row {
+		display: grid;
+		grid-template-columns: 1fr auto;
+		gap: 2px 12px;
+		padding: 12px 16px;
+		border-top: 1px solid var(--line);
+	}
+	.row:first-child { border-top: 0; }
+	.name { font-weight: 600; }
+	.pill {
+		justify-self: end;
+		align-self: start;
+		font-size: 13px;
+		font-weight: 600;
+		padding: 2px 10px;
+		border-radius: 999px;
+		white-space: nowrap;
+	}
+	.pill.ok { color: var(--ok); background: var(--ok-bg); }
+	.pill.warn { color: var(--warn); background: var(--warn-bg); }
+	.pill.fail { color: var(--fail); background: var(--fail-bg); }
+	.pill.off { color: var(--off); background: var(--off-bg); }
+	.detail { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
+	.stale-data .row { opacity: 0.55; }
+	code { font-size: 13px; }
+	footer { color: var(--muted); font-size: 13px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+	<h1>Intake status</h1>
+	<div id="verdict" class="verdict"><strong>Loading…</strong></div>
+	<div id="rows" class="card" hidden></div>
+	<footer>
+		Discord ticket forums → GitHub issues, checked by <code>lib/health.mjs</code> at the end of every
+		intake run and hourly from the healthcheck. This page re-reads its data every minute.
+	</footer>
+</main>
+<script>
+	const $ = (id) => document.getElementById(id);
+	const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+	// The problem texts are the issue's markdown: bold, links and code only.
+	const md = (s) => esc(s)
+		.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+		.replace(/`([^`]+)`/g, "<code>$1</code>")
+		.replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g, '<a href="$2">$1</a>');
+	const ago = (min) => min < 1 ? "just now" : min < 120 ? `${min} min ago` : `${Math.round(min / 60)} h ago`;
+	const LABEL = { ok: "Healthy", warn: "One failed poll", fail: "Failing", off: "Not watched" };
+
+	function render(s) {
+		// Ages in status.json are as of generated_at; add what has passed since, so they stay true.
+		const elapsed = Math.max(0, Math.round((Date.now() - Date.parse(s.generated_at)) / 60000));
+		const stale = elapsed > s.stale_after_min;
+		const v = $("verdict");
+		const meta = `<p class="meta">Checked ${ago(elapsed)} (${esc(new Date(s.generated_at).toLocaleString())}) by the ${esc(s.source)} run.`
+			+ (s.chain ? ` Last intake run: <a href="${esc(s.chain.url)}">${ago(s.chain.age_min + elapsed)}</a> (${esc(s.chain.event)}).` : "")
+			+ "</p>";
+		if (stale) {
+			v.className = "verdict stale";
+			v.innerHTML = `<strong>Stale — the intake chain may be down</strong>`
+				+ `<p class="meta">No run has published a check in ${ago(elapsed).replace(" ago", "")} (limit ${s.stale_after_min} min). `
+				+ `The rows below are the last ones it published, ${s.healthy ? "when intake was healthy" : "when intake was already unhealthy"}.</p>`
+				+ meta;
+		} else if (s.healthy) {
+			v.className = "verdict ok";
+			v.innerHTML = "<strong>Intake is healthy</strong>" + meta;
+		} else {
+			v.className = "verdict fail";
+			v.innerHTML = `<strong>Intake is unhealthy — ${s.problems.length} problem(s)</strong>`
+				+ "<ul>" + s.problems.map((p) => `<li>${md(p)}</li>`).join("") + "</ul>" + meta;
+		}
+
+		const rows = $("rows");
+		rows.hidden = false;
+		rows.classList.toggle("stale-data", stale);
+		rows.innerHTML = s.rows.map((r) => {
+			let detail;
+			if (r.level === "off") detail = esc(r.note);
+			else {
+				detail = r.since === null ? `No good poll in the last ${s.runs_read} runs` : `Last good poll ${ago(r.since + elapsed)}`;
+				if (r.note) detail += ` · ${esc(r.note)}`;
+				if (r.url) detail += ` · <a href="${esc(r.url)}">job</a>`;
+			}
+			return `<div class="row"><span class="name">${esc(r.name)}</span>`
+				+ `<span class="pill ${esc(r.level)}">${LABEL[r.level] || esc(r.state)}</span>`
+				+ `<span class="detail">${detail}</span></div>`;
+		}).join("");
+		document.title = stale ? "Intake Status — stale" : s.healthy ? "Intake Status" : "Intake Status — unhealthy";
+	}
+
+	let last = null;
+	async function load() {
+		try {
+			const res = await fetch("status.json", { cache: "no-store" });
+			if (!res.ok) throw new Error(`status.json -> ${res.status}`);
+			last = await res.json();
+		} catch (e) {
+			// Keep the last data and let its age speak; without any, say so.
+			if (!last) {
+				$("verdict").className = "verdict stale";
+				$("verdict").innerHTML = `<strong>Could not load the status</strong><p class="meta">${esc(e.message)}</p>`;
+				return;
+			}
+		}
+		render(last);
+	}
+	load();
+	setInterval(load, 60000);
+</script>
+</body>
+</html>

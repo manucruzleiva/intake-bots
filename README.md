@@ -19,6 +19,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
 | [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
+| [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` |
 | [`projects.json`](projects.json) | Un objeto por proyecto: lo único que hay que tocar para dar uno de alta |
 | [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow de intake |
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
@@ -149,6 +150,24 @@ Corre en dos lados: como job `health` al final de cada intake (cada ~10 min) y d
 issue, "Intake unhealthy"**, que abre el bot: las corridas del pacer las dispara el `GITHUB_TOKEN` y
 GitHub no le avisa a nadie cuando fallan. Mientras los problemas sigan iguales sólo se edita (sin
 notificar), cuando cambian se comenta, y se cierra solo cuando todo vuelve a estar sano.
+
+### La página de estado
+
+https://manucruzleiva.github.io/intake-bots/ muestra el mismo veredicto sin abrir Actions. La
+publican los dos lados del healthcheck (job `pages` de `intake.yml` y de `healthcheck.yml`):
+`health.mjs` escribe `status.json` en `_site/` cuando tiene `HEALTH_PAGE_DIR`, al lado de
+[`lib/status-page.html`](lib/status-page.html), y `actions/deploy-pages` lo sube. No se commitea nada.
+
+La página sólo se re-publica desde una corrida viva, así que **decide sola si sus datos están
+viejos**: compara el `generated_at` de `status.json` con el reloj de quien la mira, y pasados 30 min
+muestra "Stale — the intake chain may be down" en lugar del último veredicto. Re-lee el JSON cada
+minuto. No guarda historial: un deploy estático no tiene dónde.
+
+Pages se habilitó una vez, en modo workflow:
+
+```bash
+gh api -X POST repos/manucruzleiva/intake-bots/pages -f build_type=workflow
+```
 
 `healthcheck.yml` además re-habilita `intake.yml` y a sí mismo en cada corrida, para que el apagado
 de los `schedule` tras 60 días sin actividad no los alcance.

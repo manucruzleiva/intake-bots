@@ -32,6 +32,8 @@ jobs:
     concurrency:
       group: intake-health
       cancel-in-progress: false
+    outputs:
+      page: ${{ steps.page.outcome }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -52,4 +54,29 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           REPO_VARS: ${{ toJSON(vars) }}
+          HEALTH_PAGE_DIR: _site
         run: node lib/health.mjs
+      # Ésta es la que publica una cadena muerta: el job `health` de intake.yml se corta con ella.
+      - id: page
+        if: ${{ !cancelled() && hashFiles('_site/status.json') != '' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  pages:
+    needs: check
+    if: ${{ always() && needs.check.outputs.page == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    # Con el job `pages` de intake.yml, que publica la misma página.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v5
