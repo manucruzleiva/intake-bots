@@ -48,7 +48,7 @@ hace falta un workflow nuevo.
 | Gate | Corre cuando | Quién lo usa |
 |---|---|---|
 | `enabled-var` | `<PREFIX>_INTAKE_ENABLED == 'true'`, o siempre en un `workflow_dispatch` | nuzlocke |
-| `channel-set` | `<PREFIX>_TICKETS_CHANNEL_ID` tiene valor | raid-icons |
+| `channel-set` | `<PREFIX>_TICKETS_CHANNEL_ID` tiene valor | raid-icons, mid-battle-exp, champions-training |
 
 Un proyecto con el gate cerrado sigue en la matrix: su fila sale verde con un único step que dice por
 qué no corrió.
@@ -87,7 +87,9 @@ Server: https://discord.gg/SwcwXcCN4k
 | picnic | `PICNIC` | `1532081390508839083` | `1532081457462513734` |
 | ditto-hms | `DITTO` | `1532081100749406218` | `1532081291963531574` |
 | nuzlocke | `NUZLOCKE` | `1532081527662313764` | `1532081610034253904` |
-| raid-icons | `RAID_ICONS` | `1545050296240046090` | — |
+| raid-icons | `RAID_ICONS` | `1545050296240046090` | `1545050328435662858` |
+| mid-battle-exp | `MID_BATTLE_EXP` | `1560084088239554711` | `1560084267969679471` |
+| champions-training | `CHAMPIONS` | `1544709874661851296` | `1545050120280604703` |
 
 ## El workflow
 

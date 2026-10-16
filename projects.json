@@ -31,5 +31,19 @@
     "prefix": "RAID_ICONS",
     "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
     "gate": "channel-set"
+  },
+  {
+    "dir": "mid-battle-exp",
+    "name": "Cobblemon Mid-Battle EXP",
+    "prefix": "MID_BATTLE_EXP",
+    "ua": "cobblemon-mid-battle-exp-intake (+https://modrinth.com/project/ShgrcSQY)",
+    "gate": "channel-set"
+  },
+  {
+    "dir": "champions-training",
+    "name": "Cobblemon Champions Training",
+    "prefix": "CHAMPIONS",
+    "ua": "cobblemon-champions-training-intake (+https://modrinth.com/project/PlTQXswh)",
+    "gate": "channel-set"
   }
 ]
