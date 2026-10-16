@@ -38,7 +38,12 @@
         "@everyone": {
           "deny": ["SendMessages"]
         }
-      }
+      },
+      "messages": [
+        {
+          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the mod, not the person.\n2. **One report per post.** Open it in the mod's tickets forum and pick the tags that fit.\n3. **Logs as files, not pasted.** Attach `latest.log` or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod, or repack it in a modpack, against its license.\n5. **English in shared channels**, so everyone can follow along."
+        }
+      ]
     },
     {
       "name": "moderator-only",

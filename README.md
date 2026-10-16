@@ -22,7 +22,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/announce.mjs`](lib/announce.mjs) | El anuncio de un release en Discord. Lo corre `announce.yml`; `--print` muestra el payload sin postear |
 | [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` |
 | [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
-| [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, AutoMod, welcome screen y onboarding |
+| [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, mensajes fijos del bot (`#rules`), AutoMod, welcome screen y onboarding |
 | [`projects.json`](projects.json) | Un objeto por proyecto: lo único que hay que tocar para dar uno de alta |
 | [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow de intake |
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
@@ -123,6 +123,12 @@ gh workflow run server.yml --repo manucruzleiva/intake-bots -f dry_run=false    
   opcional y sólo fija el match: primero por id, después por nombre, y si no hay ninguno se crea.
 - **El orden del archivo es el orden del server**: roles de arriba abajo, canales de arriba abajo
   dentro de su categoría. Los permisos van por nombre (`SendMessages`); un bit sin nombre, `bit47`.
+- **Un canal de texto puede declarar `messages`**: los posts del bot en él, del más viejo al más
+  nuevo, con `content` y `embeds` de la API. El n-ésimo declarado es el n-ésimo post del bot: se
+  edita en el lugar si difiere, se postea si falta, y uno de más es `? extra`. Los mensajes de
+  humanos no se tocan, y sólo se leen los canales que declaran la clave (los anuncios de release
+  del mismo bot quedan afuera). Mira los últimos 100 mensajes: es para canales sin escritura, como
+  `#rules`.
 - **Nada se borra sin `prune`.** Lo que sobra sale en el diff como `? extra` y se deja, para que un
   typo no cueste un canal. Con `prune`, borrar un foro borra todos sus threads: leé el dry run antes.
 - **Un rol por encima del de `Computah` no se puede editar**: Discord rechaza el cambio aunque el
