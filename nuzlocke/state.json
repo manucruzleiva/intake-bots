@@ -8,16 +8,19 @@
     "1544585269024526377": {
       "issue": 71,
       "kind": "bug",
-      "closedAnnounced": true
+      "closedAnnounced": true,
+      "lastMsg": "1547466258671341638"
     },
     "1545349377218838579": {
       "issue": 72,
       "kind": "bug",
-      "closedAnnounced": true
+      "closedAnnounced": true,
+      "lastMsg": "1547602789973237771"
     },
     "1560534975684677702": {
       "issue": 136,
-      "kind": "idea"
+      "kind": "idea",
+      "lastMsg": "1560587512848580680"
     }
   }
 }
