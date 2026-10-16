@@ -21,10 +21,13 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
 | [`lib/announce.mjs`](lib/announce.mjs) | El anuncio de un release en Discord. Lo corre `announce.yml`; `--print` muestra el payload sin postear |
 | [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` |
+| [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
+| [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, AutoMod, welcome screen y onboarding |
 | [`projects.json`](projects.json) | Un objeto por proyecto: lo único que hay que tocar para dar uno de alta |
 | [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow de intake |
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
 | [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
+| [`.github/workflows/server.yml`](.github/workflows/server.yml) | A mano: hace que el guild coincida con `server.json` (`dry_run` por defecto, `prune` apagado) |
 | [`.github/workflows/announce.yml`](.github/workflows/announce.yml) | Reutilizable (`workflow_call`): el job `announce` del `publish.yml` de cada mod lo llama para anunciar el release |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
 | `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad (aparece con el primer issue filado) |
@@ -76,6 +79,7 @@ archivados del foro.
 | Nombre | Tipo | |
 |---|---|---|
 | `DISCORD_GUILD_ID` | variable | **Compartida**: hay un solo server |
+| `DISCORD_TOKEN` | secret | El bot único, para `server.yml` |
 | `<PREFIX>_DISCORD_TOKEN` | secret | Token del bot de Discord |
 | `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
 | `<PREFIX>_TICKETS_CHANNEL_ID` | variable | Foro de tickets |
@@ -101,6 +105,34 @@ Server: https://discord.gg/SwcwXcCN4k
 | raid-icons | `RAID_ICONS` | `1545050296240046090` | `1545050328435662858` |
 | mid-battle-exp | `MID_BATTLE_EXP` | `1560084088239554711` | `1560084267969679471` |
 | champions-training | `CHAMPIONS` | `1544709874661851296` | `1545050120280604703` |
+
+## El server como código
+
+[`server.json`](server.json) declara el server de Discord entero, y `server.yml` hace que el guild
+coincida. Cada cambio de layout es un commit revisado, no un click que nadie recuerda.
+
+```bash
+gh workflow run server.yml --repo manucruzleiva/intake-bots                      # dry run: el diff en el job summary
+gh workflow run server.yml --repo manucruzleiva/intake-bots -f dry_run=false     # aplicar
+```
+
+- **Lo declarado se gestiona; lo que falta, no.** Un canal sin `topic` conserva el que tiene, y
+  `"welcome_screen": null` no se toca nunca. Los campos llevan el nombre de la API de Discord.
+- **Todo se referencia por nombre** (roles en los overwrites, canales en `guild`, AutoMod y
+  onboarding), así que un archivo puede nombrar un canal que la misma corrida crea. El `id` es
+  opcional y sólo fija el match: primero por id, después por nombre, y si no hay ninguno se crea.
+- **El orden del archivo es el orden del server**: roles de arriba abajo, canales de arriba abajo
+  dentro de su categoría. Los permisos van por nombre (`SendMessages`); un bit sin nombre, `bit47`.
+- **Nada se borra sin `prune`.** Lo que sobra sale en el diff como `? extra` y se deja, para que un
+  typo no cueste un canal. Con `prune`, borrar un foro borra todos sus threads: leé el dry run antes.
+- **Un rol por encima del de `Computah` no se puede editar**: Discord rechaza el cambio aunque el
+  bot sea Administrator, y el diff lo avisa con `!`. Se arrastra `Computah` arriba a mano.
+- **Adoptar un cambio hecho a mano:** `node lib/server.mjs --export --file server.json` vuelca el
+  guild vivo con la misma forma, y el diff de git muestra qué cambió.
+
+Signos del diff: `+` crear, `~` cambiar, `→` mover de categoría, `↕` reordenar, `?` sobra y se
+deja, `-` borrar (sólo con `prune`), `!` aviso. Una segunda corrida sobre un guild ya reconciliado
+dice `nothing to do`.
 
 ## El workflow
 

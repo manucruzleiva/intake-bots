@@ -1,0 +1,48 @@
+name: Discord server
+
+# El server de Discord como código: server.json lo declara entero y lib/server.mjs hace que el guild
+# coincida. Sólo a mano, y en dry run por defecto: la corrida imprime el diff en el job summary y no
+# toca nada hasta que se la dispara con dry_run=false.
+#
+# Nada que no esté en server.json se borra salvo con prune=true; sin él, lo que sobra sale en el
+# diff como "extra" y se deja. Antes de un prune, leé el dry run: borrar un foro borra sus threads.
+#
+#   Secret:   DISCORD_TOKEN      el bot único del server (Administrator)
+#   Variable: DISCORD_GUILD_ID   la misma que usan los pollers
+
+run-name: Discord server (${{ inputs.dry_run && 'dry run' || 'apply' }}${{ inputs.prune && ' + prune' || '' }})
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only print the diff"
+        type: boolean
+        default: true
+      prune:
+        description: "Delete what server.json does not declare"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: discord-server
+  cancel-in-progress: false
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Reconcile the guild with server.json
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          APPLY: ${{ !inputs.dry_run && '--apply' || '' }}
+          PRUNE: ${{ inputs.prune && '--prune' || '' }}
+        run: node lib/server.mjs $APPLY $PRUNE
