@@ -7,12 +7,14 @@
     "1560636323151216683": {
       "issue": 10,
       "kind": "other",
-      "closedAnnounced": true
+      "closedAnnounced": true,
+      "test": true
     },
     "1560639421374795826": {
       "issue": 11,
       "kind": "other",
-      "closedAnnounced": true
+      "closedAnnounced": true,
+      "test": true
     }
   }
 }
