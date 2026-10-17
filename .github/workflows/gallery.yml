@@ -1,0 +1,47 @@
+name: Store gallery
+
+# La galería de tienda, para todos los mods: el job `gallery` de cada publish.yml lo llama con
+# `uses: manucruzleiva/intake-bots/.github/workflows/gallery.yml@main`, en el release y en el dispatch
+# sync_description_only.
+#
+# La fuente es art/gallery/gallery.json del repo del CALLER (su checkout, como en announce.yml), y la
+# lógica vive en lib/gallery.mjs: deja la galería de Modrinth igual a las entradas del manifiesto que
+# no son placeholder. Un repo sin manifiesto se saltea con un aviso, así cada mod lo adopta a su ritmo.
+# CurseForge no tiene endpoint de imágenes: el run lista qué subir ahí a mano.
+
+on:
+  workflow_call:
+    inputs:
+      modrinth_project_id:
+        description: "The mod's Modrinth project id (its MODRINTH_PROJECT_ID variable)"
+        required: true
+        type: string
+    secrets:
+      MODRINTH_TOKEN:
+        # Sin token el run sólo imprime el plan, con un aviso.
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  gallery:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/checkout@v7
+        with:
+          repository: manucruzleiva/intake-bots
+          ref: main
+          path: .intake
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Sync the Modrinth gallery from art/gallery/
+        env:
+          MODRINTH_TOKEN: ${{ secrets.MODRINTH_TOKEN }}
+          PROJECT_ID: ${{ inputs.modrinth_project_id }}
+        run: node .intake/lib/gallery.mjs "$PROJECT_ID"
