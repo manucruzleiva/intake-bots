@@ -3,7 +3,8 @@
     "count": 4,
     "bugs": 2,
     "features": 2,
-    "id": "659620144842014730"
+    "id": "659620144842014730",
+    "bugCatcher": true
   },
   "kurosock": {
     "count": 1,
@@ -20,13 +21,15 @@
     "kinds": {
       "bug": 1
     },
-    "id": "180534492958556160"
+    "id": "180534492958556160",
+    "bugCatcher": true
   },
   "kirch8349": {
     "count": 1,
     "kinds": {
       "bug": 1
     },
-    "id": "954568121459544108"
+    "id": "954568121459544108",
+    "bugCatcher": true
   }
 }
