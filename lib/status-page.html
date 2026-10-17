@@ -68,7 +68,9 @@
 		font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 	}
 	main { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
-	h1 { font-size: 20px; margin: 0 0 16px; }
+	header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 16px; }
+	h1 { font-size: 20px; margin: 0; }
+	header a { font-size: 14px; }
 	a { color: var(--link); }
 	.verdict {
 		border-radius: 10px;
@@ -114,7 +116,7 @@
 </head>
 <body>
 <main>
-	<h1>Intake status</h1>
+	<header><h1>Intake status</h1><a href="stats/">Download stats →</a></header>
 	<div id="verdict" class="verdict"><strong>Loading…</strong></div>
 	<div id="rows" class="card" hidden></div>
 	<footer>

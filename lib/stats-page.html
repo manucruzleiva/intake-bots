@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Download Stats</title>
+<!--
+  Deployed to GitHub Pages by the intake workflows, at stats/ next to the status page. lib/health.mjs
+  writes it with mods.json (each mod's dir, name and Modrinth slug or id); the workflows copy in
+  downloads.json and, when it exists, modrinth-daily.json from the `stats` branch.
+
+  Per day, a mod's downloads are the deltas between its snapshots (lib/stats.mjs). A delta is spread
+  over the time between the two snapshots, so a gap (a skipped cron, a quiet mod) is never a spike.
+  Where modrinth-daily.json has a series for the mod, its Modrinth half comes from there instead,
+  and the snapshots only cover the days after the series ends.
+-->
+<style>
+	:root {
+		--bg: #f6f7f9;
+		--card: #ffffff;
+		--text: #1b1f24;
+		--muted: #5b6470;
+		--line: #dde1e6;
+		--grid: #eceef1;
+		--link: #0969da;
+		--active: #1b1f24;
+		--active-text: #ffffff;
+		/* Categorical slots, in a fixed order: a mod's color is its place in projects.json. */
+		--s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+		--s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+	}
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme="light"]) {
+			--bg: #0d1117;
+			--card: #161b22;
+			--text: #e6edf3;
+			--muted: #8d96a0;
+			--line: #30363d;
+			--grid: #222831;
+			--link: #4493f8;
+			--active: #e6edf3;
+			--active-text: #0d1117;
+			--s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+			--s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+		}
+	}
+	:root[data-theme="dark"] {
+		--bg: #0d1117;
+		--card: #161b22;
+		--text: #e6edf3;
+		--muted: #8d96a0;
+		--line: #30363d;
+		--grid: #222831;
+		--link: #4493f8;
+		--active: #e6edf3;
+		--active-text: #0d1117;
+		--s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+		--s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		background: var(--bg);
+		color: var(--text);
+		font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+	}
+	main { max-width: 860px; margin: 0 auto; padding: 32px 16px 48px; }
+	header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 16px; }
+	h1 { font-size: 20px; margin: 0; }
+	h2 { font-size: 15px; margin: 0 0 4px; }
+	header a { font-size: 14px; }
+	a { color: var(--link); }
+	.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+	.ranges { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-bottom: 16px; background: var(--card); }
+	.ranges button {
+		font: inherit; font-size: 14px; color: var(--text); background: none; border: 0;
+		border-left: 1px solid var(--line); padding: 6px 14px; cursor: pointer;
+	}
+	.ranges:empty { display: none; }
+	.ranges button:first-child { border-left: 0; }
+	.ranges button[aria-pressed="true"] { background: var(--active); color: var(--active-text); }
+	.total { font-size: 32px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+	.meta { color: var(--muted); font-size: 13px; margin: 4px 0 0; }
+	.legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 12px; }
+	.legend button {
+		font: inherit; font-size: 13px; color: var(--text); background: none; cursor: pointer;
+		border: 1px solid var(--line); border-radius: 999px; padding: 2px 10px 2px 8px;
+		display: inline-flex; align-items: center; gap: 6px;
+	}
+	.legend button[aria-pressed="false"] { color: var(--muted); }
+	.legend button[aria-pressed="false"] .swatch { background: none !important; box-shadow: inset 0 0 0 1.5px var(--muted); }
+	.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; display: inline-block; }
+	.chart { position: relative; }
+	.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+	.chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+	.empty { color: var(--muted); font-size: 14px; padding: 32px 0; text-align: center; }
+	.tip {
+		position: absolute; top: 0; pointer-events: none; z-index: 1;
+		background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+		box-shadow: 0 4px 16px rgb(0 0 0 / 0.12); padding: 8px 10px; font-size: 13px; min-width: 180px;
+	}
+	.tip strong { display: block; margin-bottom: 4px; }
+	.tip div { display: flex; align-items: center; gap: 6px; }
+	.tip span.v { margin-left: auto; padding-left: 12px; font-variant-numeric: tabular-nums; }
+	.tip .sum { border-top: 1px solid var(--line); margin-top: 4px; padding-top: 4px; font-weight: 600; }
+	.table-wrap { overflow-x: auto; }
+	table { width: 100%; border-collapse: collapse; font-size: 14px; }
+	th, td { padding: 8px 6px; text-align: right; border-top: 1px solid var(--line); white-space: nowrap; font-variant-numeric: tabular-nums; }
+	th { color: var(--muted); font-weight: 600; font-size: 13px; border-top: 0; }
+	th:first-child, td:first-child { text-align: left; white-space: normal; }
+	td:first-child { display: flex; align-items: center; gap: 8px; }
+	tfoot td { font-weight: 600; }
+	footer { color: var(--muted); font-size: 13px; margin-top: 16px; }
+	code { font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+	<header><h1>Download stats</h1><a href="../">← Intake status</a></header>
+	<div class="ranges" id="ranges" role="group" aria-label="Range"></div>
+	<section class="card">
+		<div class="meta" id="range-label">Downloads</div>
+		<div class="total" id="total">…</div>
+		<p class="meta" id="change"></p>
+	</section>
+	<section class="card">
+		<h2>Downloads per day</h2>
+		<p class="meta">Modrinth and CurseForge combined, every mod stacked. Click a mod to hide it.</p>
+		<div class="legend" id="legend"></div>
+		<div class="chart" id="chart"></div>
+	</section>
+	<section class="card">
+		<h2>Per mod</h2>
+		<div class="table-wrap"><table id="table"></table></div>
+	</section>
+	<footer id="footer">
+		Store totals recorded by every catalog run (<code>lib/stats.mjs</code>) on the <code>stats</code> branch.
+		Downloads between two snapshots are spread evenly over the time between them.
+	</footer>
+</main>
+<script>
+	const $ = (id) => document.getElementById(id);
+	const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+	const DAY = 86400000;
+	const dayOf = (ms) => Math.floor(ms / DAY);
+	const RANGES = [["7d", "7 days", 7], ["30d", "30 days", 30], ["90d", "90 days", 90], ["all", "All time", null]];
+	const SLOTS = 8;
+	const num = (n) => Math.round(n).toLocaleString("en-US");
+	const date = (day, opts = { month: "short", day: "numeric" }) => new Date(day * DAY).toLocaleDateString("en-US", { ...opts, timeZone: "UTC" });
+	const color = (i) => i < SLOTS ? `var(--s${i + 1})` : "var(--muted)";
+
+	/** Adds `delta`, gained somewhere in [t0, t1], to the days that span covers (only from `from` on). */
+	function spread(series, t0, t1, delta, from) {
+		if (!(delta > 0)) return; // a store recount can lower a total; that is not a day of downloads
+		if (t1 === t0) { if (t1 >= from) series[dayOf(t1)] = (series[dayOf(t1)] || 0) + delta; return; }
+		for (let d = dayOf(Math.max(t0, from)); d * DAY < t1; d++) {
+			const lo = Math.max(t0, from, d * DAY), hi = Math.min(t1, (d + 1) * DAY);
+			if (hi > lo) series[d] = (series[d] || 0) + delta * (hi - lo) / (t1 - t0);
+		}
+	}
+
+	/** Each mod's downloads per UTC day per store, and its latest totals. */
+	function build(mods, rows, daily) {
+		const out = mods.map((m, i) => ({ ...m, color: color(i), mr: {}, cf: {}, latest: null }));
+		const byDir = new Map(out.map((m) => [m.dir, m]));
+		const sorted = [...rows].sort((a, b) => Date.parse(a.at) - Date.parse(b.at));
+		const prev = new Map();
+		let lo = Infinity, hi = -Infinity, last = null;
+		const start = daily && dayOf(Date.parse(daily.start));
+		for (const m of out) {
+			const s = daily && (daily.days[m.dir] || daily.days[m.modrinth]);
+			m.from = -Infinity;
+			if (!Array.isArray(s)) continue;
+			s.forEach((n, i) => { if (n > 0) m.mr[start + i] = n; });
+			m.from = (start + s.length) * DAY;
+			m.daily = true;
+			lo = Math.min(lo, start);
+			hi = Math.max(hi, start + s.length - 1);
+		}
+		for (const r of sorted) {
+			const m = byDir.get(r.mod);
+			if (!m) continue; // a mod since dropped from projects.json
+			const t = Date.parse(r.at), p = prev.get(r.mod);
+			if (p) {
+				const t0 = Date.parse(p.at);
+				if (p.modrinth != null && r.modrinth != null) spread(m.mr, t0, t, r.modrinth - p.modrinth, m.from);
+				if (p.curseforge != null && r.curseforge != null) spread(m.cf, t0, t, r.curseforge - p.curseforge, -Infinity);
+			}
+			prev.set(r.mod, r);
+			m.latest = r;
+			lo = Math.min(lo, dayOf(t));
+			hi = Math.max(hi, dayOf(t));
+			last = Math.max(last ?? 0, t);
+		}
+		return { mods: out, lo, hi, last, daily };
+	}
+
+	const sum = (series, a, b) => { let n = 0; for (let d = a; d <= b; d++) n += series[d] || 0; return n; };
+
+	/** The table's numbers for a range: per-day sums, or the stores' own totals for all time. */
+	function figures(m, range) {
+		if (!range) return { mr: m.latest?.modrinth ?? null, cf: m.latest?.curseforge ?? null };
+		const on = (store) => m.latest ? m.latest[store] != null : false;
+		return {
+			mr: on("modrinth") || m.daily ? sum(m.mr, range.a, range.b) : null,
+			cf: on("curseforge") ? sum(m.cf, range.a, range.b) : null,
+		};
+	}
+
+	let data = null;
+	let rangeKey = "30d";
+	const hidden = new Set();
+
+	function currentRange() {
+		const len = RANGES.find((r) => r[0] === rangeKey)[2];
+		if (!len) return null;
+		return { a: data.hi - len + 1, b: data.hi, len };
+	}
+
+	function render() {
+		const range = currentRange();
+		const [, label] = RANGES.find((r) => r[0] === rangeKey);
+		$("ranges").innerHTML = RANGES.map(([k, l]) => `<button type="button" data-range="${k}" aria-pressed="${k === rangeKey}">${l}</button>`).join("");
+		const rows = data.mods.map((m) => ({ m, ...figures(m, range) })).map((r) => ({ ...r, total: (r.mr ?? 0) + (r.cf ?? 0) }));
+		const total = rows.reduce((n, r) => n + r.total, 0);
+
+		$("range-label").textContent = range ? `Downloads, last ${label} (${date(range.a)} – ${date(range.b)})` : "Downloads, all time";
+		$("total").textContent = num(total);
+		if (!range) {
+			$("change").textContent = `Tracked per day since ${date(data.lo, { month: "short", day: "numeric", year: "numeric" })}.`;
+		} else if (range.a - range.len < data.lo) {
+			$("change").textContent = `No change shown: the history starts ${date(data.lo, { month: "short", day: "numeric", year: "numeric" })}, short of the previous ${label}.`;
+		} else {
+			const before = data.mods.reduce((n, m) => n + sum(m.mr, range.a - range.len, range.a - 1) + sum(m.cf, range.a - range.len, range.a - 1), 0);
+			const diff = total - before;
+			const pct = before ? ` (${diff >= 0 ? "+" : ""}${(diff / before * 100).toFixed(1)}%)` : "";
+			$("change").textContent = `${diff >= 0 ? "▲" : "▼"} ${diff >= 0 ? "+" : "−"}${num(Math.abs(diff))}${pct} against the previous ${label} (${num(before)}).`;
+		}
+
+		$("legend").innerHTML = data.mods.map((m, i) =>
+			`<button type="button" data-mod="${esc(m.dir)}" aria-pressed="${!hidden.has(m.dir)}"><span class="swatch" style="background:${m.color}"></span>${esc(m.name)}</button>`).join("");
+		drawChart(range);
+
+		const sortedRows = [...rows].sort((a, b) => b.total - a.total);
+		const cell = (n) => n == null ? '<span title="Not on this store">—</span>' : num(n);
+		$("table").innerHTML = "<thead><tr><th>Mod</th><th>Modrinth</th><th>CurseForge</th><th>Total</th><th>Share</th></tr></thead><tbody>"
+			+ sortedRows.map((r) => `<tr><td><span class="swatch" style="background:${r.m.color}"></span>${esc(r.m.name)}</td>`
+				+ `<td>${cell(r.mr)}</td><td>${cell(r.cf)}</td><td>${num(r.total)}</td>`
+				+ `<td>${total ? (r.total / total * 100).toFixed(1) + "%" : "—"}</td></tr>`).join("")
+			+ `</tbody><tfoot><tr><td>All mods</td><td>${num(rows.reduce((n, r) => n + (r.mr ?? 0), 0))}</td>`
+			+ `<td>${num(rows.reduce((n, r) => n + (r.cf ?? 0), 0))}</td><td>${num(total)}</td><td>${total ? "100%" : "—"}</td></tr></tfoot>`;
+	}
+
+	/** 0 → step for 4–5 gridlines: 1, 2 or 5 times a power of ten. */
+	function niceStep(max) {
+		const raw = max / 4, p = 10 ** Math.floor(Math.log10(raw));
+		return [1, 2, 5, 10].map((k) => k * p).find((s) => s >= raw);
+	}
+
+	function drawChart(range) {
+		const box = $("chart");
+		const a = range ? Math.max(range.a, data.lo) : data.lo, b = data.hi;
+		const n = b - a + 1;
+		if (n < 2) {
+			box.innerHTML = `<p class="empty">Not enough history yet: the first snapshot is from ${date(data.lo, { month: "short", day: "numeric", year: "numeric" })}. `
+				+ "The chart fills in as catalog runs record more.</p>";
+			return;
+		}
+		const shown = data.mods.filter((m) => !hidden.has(m.dir));
+		const days = Array.from({ length: n }, (_, i) => a + i);
+		const values = shown.map((m) => days.map((d) => (m.mr[d] || 0) + (m.cf[d] || 0)));
+		const stackTop = days.map((_, i) => values.reduce((s, v) => s + v[i], 0));
+		const max = Math.max(1, ...stackTop);
+		const step = niceStep(max), top = Math.ceil(max / step) * step;
+
+		const W = Math.max(280, box.clientWidth), H = W < 500 ? 200 : 260;
+		const ml = 44, mr = 8, mt = 8, mb = 22, iw = W - ml - mr, ih = H - mt - mb;
+		const x = (i) => ml + i * iw / (n - 1);
+		const y = (v) => mt + ih - v / top * ih;
+
+		let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Downloads per day, ${esc(date(a))} to ${esc(date(b))}; the table below has the numbers">`;
+		for (let v = 0; v <= top; v += step) {
+			svg += `<line x1="${ml}" x2="${W - mr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`
+				+ `<text x="${ml - 6}" y="${y(v) + 4}" text-anchor="end">${v >= 1000 ? +(v / 1000).toFixed(1) + "K" : v}</text>`;
+		}
+		const ticks = Math.min(n, W < 500 ? 4 : 7);
+		for (let k = 0; k < ticks; k++) {
+			const i = Math.round(k * (n - 1) / (ticks - 1));
+			svg += `<text x="${x(i)}" y="${H - 4}" text-anchor="${k === 0 ? "start" : k === ticks - 1 ? "end" : "middle"}">${esc(date(days[i]))}</text>`;
+		}
+		const base = days.map(() => 0);
+		values.forEach((v, k) => {
+			const upper = base.map((b0, i) => b0 + v[i]);
+			const line = upper.map((u, i) => `${x(i).toFixed(1)},${y(u).toFixed(1)}`).join(" L");
+			const floor = base.map((b0, i) => `${x(i).toFixed(1)},${y(b0).toFixed(1)}`).reverse().join(" L");
+			// Solid bands with a surface-colored seam on top, so neighbours never blend.
+			svg += `<path d="M${line} L${floor} Z" fill="${shown[k].color}" fill-opacity="0.9"/>`
+				+ `<path d="M${line}" fill="none" stroke="var(--card)" stroke-width="1.5" stroke-linejoin="round"/>`;
+			upper.forEach((u, i) => { base[i] = u; });
+		});
+		svg += `<line id="cross" y1="${mt}" y2="${mt + ih}" stroke="var(--muted)" stroke-dasharray="3 3" visibility="hidden"/>`
+			+ `<rect x="${ml}" y="${mt}" width="${iw}" height="${ih}" fill="transparent" id="hit"/></svg>`;
+		box.innerHTML = svg + '<div class="tip" id="tip" hidden></div>';
+
+		const hit = $("hit"), cross = $("cross"), tip = $("tip");
+		hit.addEventListener("pointermove", (e) => {
+			const r = box.querySelector("svg").getBoundingClientRect();
+			const px = (e.clientX - r.left) * W / r.width;
+			const i = Math.max(0, Math.min(n - 1, Math.round((px - ml) / (iw / (n - 1)))));
+			cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+			const lines = shown.map((m, k) => ({ m, v: values[k][i] })).reverse()
+				.map(({ m, v }) => `<div><span class="swatch" style="background:${m.color}"></span>${esc(m.name)}<span class="v">${num(v)}</span></div>`);
+			tip.innerHTML = `<strong>${esc(date(days[i], { weekday: "short", month: "short", day: "numeric", year: "numeric" }))}</strong>`
+				+ lines.join("") + `<div class="sum">Total<span class="v">${num(stackTop[i])}</span></div>`;
+			tip.hidden = false;
+			const left = x(i) * r.width / W, w = tip.offsetWidth;
+			tip.style.left = `${left + 12 + w > r.width ? Math.max(0, left - 12 - w) : left + 12}px`;
+		});
+		hit.addEventListener("pointerleave", () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); });
+	}
+
+	$("ranges").addEventListener("click", (e) => {
+		const k = e.target.closest("button")?.dataset.range;
+		if (!k) return;
+		rangeKey = k;
+		history.replaceState(null, "", `#${k}`);
+		render();
+	});
+	$("legend").addEventListener("click", (e) => {
+		const dir = e.target.closest("button")?.dataset.mod;
+		if (!dir) return;
+		hidden.has(dir) ? hidden.delete(dir) : hidden.add(dir);
+		render();
+	});
+	let frame = 0;
+	addEventListener("resize", () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => data && drawChart(currentRange())); });
+
+	async function json(path, optional) {
+		const res = await fetch(path, { cache: "no-store" });
+		if (res.ok) return res.json();
+		if (optional && res.status === 404) return null;
+		throw new Error(`${path} → ${res.status}`);
+	}
+
+	async function load() {
+		if (RANGES.some((r) => `#${r[0]}` === location.hash)) rangeKey = location.hash.slice(1);
+		try {
+			const [mods, rows, daily] = await Promise.all([json("mods.json"), json("downloads.json", true), json("modrinth-daily.json", true).catch(() => null)]);
+			const usable = daily && typeof daily.start === "string" && daily.days && typeof daily.days === "object" ? daily : null;
+			if (!rows?.length && !usable) {
+				$("total").textContent = "No data yet";
+				$("change").textContent = "The stats branch has no download snapshots yet; the next catalog run records the first.";
+				$("chart").innerHTML = '<p class="empty">Nothing to draw yet.</p>';
+				return;
+			}
+			data = build(mods, rows || [], usable);
+			if (data.last) {
+				$("footer").insertAdjacentHTML("beforeend", ` Last snapshot: ${esc(new Date(data.last).toLocaleString())}.`);
+			}
+			if (usable) {
+				$("footer").insertAdjacentHTML("beforeend", ` Modrinth per day comes from Modrinth's analytics up to ${esc(date(dayOf(Date.parse(usable.start)) + Math.max(0, ...Object.values(usable.days).map((s) => s.length)) - 1))}.`);
+			}
+			render();
+		} catch (e) {
+			$("total").textContent = "Could not load the stats";
+			$("change").textContent = e.message;
+		}
+	}
+	load();
+</script>
+</body>
+</html>

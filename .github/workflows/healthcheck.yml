@@ -57,6 +57,17 @@ jobs:
           HEALTH_PAGE_DIR: _site
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
         run: node lib/health.mjs
+      # Igual en intake.yml. Sin la rama, la página de stats dice que no hay datos.
+      - name: Add the download snapshots to the stats page
+        if: ${{ !cancelled() && hashFiles('_site/status.json') != '' }}
+        run: |
+          if git fetch --depth=1 origin stats; then
+            for f in downloads.json modrinth-daily.json; do
+              git show "FETCH_HEAD:stats/$f" > "_site/stats/$f" 2>/dev/null || rm -f "_site/stats/$f"
+            done
+          else
+            echo "::warning::could not fetch the stats branch; the stats page goes up without data"
+          fi
       # Ésta es la que publica una cadena muerta: el job `health` de intake.yml se corta con ella.
       - id: page
         if: ${{ !cancelled() && hashFiles('_site/status.json') != '' }}
