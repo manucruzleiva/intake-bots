@@ -28,6 +28,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
 | [`lib/announce.mjs`](lib/announce.mjs) | El anuncio de un release en Discord. Lo corre `announce.yml`; `--print` muestra el payload sin postear |
 | [`lib/catalog.mjs`](lib/catalog.mjs) | El catálogo de `#mods`: una card por proyecto con los datos vivos de Modrinth y CurseForge, editada en el lugar. `--dry-run` imprime sin escribir |
+| [`lib/stats.mjs`](lib/stats.mjs) | Los snapshots de descargas: con lo que bajó el catálogo, agrega una fila por mod cuyo total se movió a `stats/downloads.json` de la rama `stats` |
 | [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` |
 | [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
 | [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, mensajes fijos del bot (`#rules`), AutoMod, welcome screen y onboarding |
@@ -36,7 +37,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
 | [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
 | [`.github/workflows/server.yml`](.github/workflows/server.yml) | A mano: hace que el guild coincida con `server.json` (`dry_run` por defecto, `prune` apagado) |
-| [`.github/workflows/catalog.yml`](.github/workflows/catalog.yml) | Cada hora: corre `lib/catalog.mjs`. Aparte de `intake.yml`, para que una tienda caída no toque la cadena |
+| [`.github/workflows/catalog.yml`](.github/workflows/catalog.yml) | Cada hora: corre `lib/catalog.mjs` y pushea el snapshot de descargas a la rama `stats`. Aparte de `intake.yml`, para que una tienda caída no toque la cadena |
 | [`.github/workflows/announce.yml`](.github/workflows/announce.yml) | Reutilizable (`workflow_call`): el job `announce` del `publish.yml` de cada mod lo llama para anunciar el release |
 | `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
@@ -272,6 +273,11 @@ en el lugar cada hora, sólo cuando cambia lo que muestra:
   la corrida siguiente.
 - Un error que no es una respuesta (un 5xx, cfwidget todavía buscando el proyecto) deja esa card como
   estaba y la corrida sale en rojo.
+- **Descargas en el tiempo**: la misma corrida guarda los totales en `stats/downloads.json` de la
+  rama orphan `stats` (nunca en `main`), una fila `{ at, mod, modrinth, curseforge }` por mod cuyo
+  número se movió desde su última fila. `mod` es el `dir`, y una tienda donde el mod no está va en
+  `null`. Un mod que esta corrida no pudo bajar no lleva fila. La rama se crea sola la primera vez:
+  `git show origin/stats:stats/downloads.json`.
 
 Un mod nuevo en `projects.json` agrega su card al final. Reordenar `projects.json` reescribe las
 cards, no las mueve. `server.json` declara `#mods` **sin** `messages`, para que `server.mjs` no
