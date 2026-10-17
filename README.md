@@ -219,12 +219,10 @@ archivados del foro.
 | Nombre | Tipo | |
 |---|---|---|
 | `DISCORD_GUILD_ID` | variable | **Compartida**: hay un solo server |
-| `DISCORD_TOKEN` | secret | El bot único, para `server.yml`, `catalog.yml` y el job `unrouted` |
+| `DISCORD_TOKEN` | secret | **Compartido**: el bot único, para cada fila del intake, `server.yml`, `catalog.yml` y el job `unrouted` |
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
-| `<PREFIX>_DISCORD_TOKEN` | secret | Token del bot de Discord |
-| `GH_TOKEN` | secret | El mismo PAT, sin prefijo: `catalog.yml` lee con él el `DESCRIPTION_SHORT.txt` de cada repo de mod |
-| `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
-| `<PREFIX>_TICKETS_CHANNEL_ID` | variable | Foro de tickets |
+| `GH_TOKEN` | secret | **Compartido**: el PAT con el que cada fila abre issues en el repo de su mod y `catalog.yml` lee el `DESCRIPTION_SHORT.txt` |
+| `<PREFIX>_TICKETS_CHANNEL_ID` | variable | El foro viejo del mod, que se sigue leyendo por los hilos que ya existen |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
 | `LINEAR_API_KEY` | secret | **Compartido**: key personal de Linear (`intake-bots`, Write, team COB) con la que las filas triagean los espejos y `health.mjs` el de "Intake unhealthy" |
 
