@@ -33,8 +33,7 @@
       "issue": 34,
       "kind": "bug",
       "lastMsg": "1561047476272898119",
-      "awaitingReply": true,
-      "linearSince": "2026-10-17T16:04:36.140Z"
+      "awaitingReply": true
     }
   },
   "lastRelease": "v3.0.0",
