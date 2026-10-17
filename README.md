@@ -294,6 +294,12 @@ gh workflow run server.yml --repo manucruzleiva/intake-bots -f dry_run=false    
   y en el orden del foro, y en un foro con *require tag* son obligatorios también para el bot (40067).
   `#tickets` lo usa para el ejemplo de cómo reportar: los cuatro tags de tipo, un starter que explica
   la información crucial y una plantilla por tipo. El poller y `unrouted` saltean los hilos fijados.
+- **`emojis` declara los emojis de aplicación del bot** (`{ name, file }`, con `file` relativo a la
+  raíz): son de la app, sirven en cualquier server y no gastan slot del guild. El que falta se sube, y
+  el que existe se reconoce por nombre y nunca se vuelve a subir, porque Discord no deja comparar la
+  imagen: para cambiar un logo, se renombra o se borra el viejo a mano. Los botones de Modrinth y
+  CurseForge (`app` en `BUTTON_ROWS` de `lib/announce.mjs`) muestran el emoji de ese nombre, y `⬇️`
+  con un `::warning::` mientras la app no lo tenga.
 - **Un cambio de categoría va de a un canal**: Discord rechaza un PATCH de posiciones que mueve más de
   uno (40009), así que cada `→ move` es su propia llamada y el PATCH masivo sólo ordena.
 - **Nada se borra sin `prune`.** Lo que sobra sale en el diff como `? extra` y se deja, para que un
