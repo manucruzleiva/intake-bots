@@ -108,6 +108,24 @@
           "type": "text"
         },
         {
+          "name": "showcase",
+          "id": "1560895112257601667",
+          "type": "text",
+          "topic": "Screenshots, videos and builds made with the mods."
+        },
+        {
+          "name": "modpacks",
+          "id": "1560895114149363844",
+          "type": "text",
+          "topic": "Putting these mods in a pack? Ask about compatibility here and share the pack when it is out."
+        },
+        {
+          "name": "help",
+          "id": "1560895124886650892",
+          "type": "text",
+          "topic": "Quick questions about installing or using the mods. Bugs, crashes and ideas go to <#1560781769752445028>."
+        },
+        {
           "name": "faq",
           "id": "1532088850422305019",
           "type": "text",
@@ -690,11 +708,21 @@
       "exempt_channels": []
     }
   ],
-  "welcome_screen": null,
+  "welcome_screen": {
+    "enabled": true,
+    "description": "Feedback and support for shiero's Cobblemon mods. Pick your mods for release pings, then start here.",
+    "welcome_channels": [
+      { "channel": "rules", "description": "Read before you post", "emoji_name": "📜" },
+      { "channel": "faq", "description": "Install, versions and logs", "emoji_name": "❓" },
+      { "channel": "mods", "description": "Every mod and its downloads", "emoji_name": "🧩" },
+      { "channel": "tickets", "description": "Report a bug or share an idea", "emoji_name": "🎫" },
+      { "channel": "announcements", "description": "Release notes for every mod", "emoji_name": "📣" }
+    ]
+  },
   "onboarding": {
-    "enabled": false,
+    "enabled": true,
     "mode": 0,
-    "default_channels": ["rules"],
+    "default_channels": ["rules", "faq", "mods", "announcements", "general", "showcase", "modpacks", "help", "tickets"],
     "prompts": [
       {
         "title": "Which mods do you want release pings for?",
