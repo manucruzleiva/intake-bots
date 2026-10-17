@@ -82,7 +82,7 @@
       },
       "messages": [
         {
-          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the mod, not the person.\n2. **One report per post.** Open it in the mod's tickets forum and pick the tags that fit.\n3. **Logs as files, not pasted.** Attach `latest.log` or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod, or repack it in a modpack, against its license.\n5. **English in shared channels**, so everyone can follow along."
+          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the mod, not the person.\n2. **One report per post.** Open it in <#1560781769752445028> with the mod's tag and the type that fits.\n3. **Logs as files, not pasted.** Attach `latest.log` or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod, or repack it in a modpack, against its license.\n5. **English in shared channels**, so everyone can follow along."
         }
       ]
     },
@@ -115,7 +115,24 @@
             "@everyone": {
               "deny": ["SendMessages"]
             }
-          }
+          },
+          "messages": [
+            {
+              "content": "### 📦 How do I install a mod?\nDownload the file for **your loader** (Fabric or NeoForge) from Modrinth or CurseForge, drop it into your instance's `mods/` folder, and add the dependencies its page lists.\n→ [Each mod's Getting Started](<https://manucruzleiva.github.io/mod-wiki/#the-mods>)"
+            },
+            {
+              "content": "### 🧩 Which Minecraft and loader versions are supported?\n<#1560884963967246506> lists every mod's current version, Minecraft version and loaders, read live from the stores. Pick the file that matches your loader.\n→ [Each mod's requirements](<https://manucruzleiva.github.io/mod-wiki/#the-mods>)"
+            },
+            {
+              "content": "### 🐛 How do I report a bug?\nOpen a post in <#1560781769752445028> with **the mod's tag** and a **type** (Bug, Crash, Idea, Feedback). Say what you did, what you expected and what happened, plus your mod version and loader. The bot files it and replies in your post.\n→ [Reporting bugs & ideas](<https://manucruzleiva.github.io/mod-wiki/reporting/>)"
+            },
+            {
+              "content": "### 📄 Where are `latest.log` and the crash reports?\nIn your game folder: `logs/latest.log` and `crash-reports/`. In a launcher, open the profile's folder (Modrinth App: ⋮ → **Open folder**). Attach the file to your post, or share an mclo.gs link.\n→ [Where to find your logs](<https://manucruzleiva.github.io/mod-wiki/reporting/#where-to-find-your-logs>)"
+            },
+            {
+              "content": "### 📝 Where is the changelog?\nEvery release is announced in <#1560858633049215047> with a summary, and its title links the full changelog. Each mod's whole history is on its Modrinth page, under **Changelog**.\n→ [Each mod's page](<https://manucruzleiva.github.io/mod-wiki/#the-mods>)"
+            }
+          ]
         },
         {
           "name": "mods",
