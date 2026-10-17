@@ -6,8 +6,9 @@
 <title>Download Stats</title>
 <!--
   Deployed to GitHub Pages by the intake workflows, at stats/ next to the status page. lib/health.mjs
-  writes it with mods.json (each mod's dir, name and Modrinth slug or id); the workflows copy in
-  downloads.json and, when it exists, modrinth-daily.json from the `stats` branch.
+  writes it with mods.json (each mod's dir, name and Modrinth slug or id) and costs.json (the
+  monthly development cost, kept by hand at the repo root); the workflows copy in downloads.json
+  and, when it exists, modrinth-daily.json from the `stats` branch.
 
   Per day, a mod's downloads are the deltas between its snapshots (lib/stats.mjs). A delta is spread
   over the time between the two snapshots, so a gap (a skipped cron, a quiet mod) is never a spike.
@@ -110,6 +111,8 @@
 	th:first-child, td:first-child { text-align: left; white-space: normal; }
 	td:first-child { display: flex; align-items: center; gap: 8px; }
 	tfoot td { font-weight: 600; }
+	.figures { display: flex; flex-wrap: wrap; gap: 8px 40px; margin: 8px 0 16px; }
+	.chart text.value { fill: var(--text); font-size: 12px; }
 	footer { color: var(--muted); font-size: 13px; margin-top: 16px; }
 	code { font-size: 13px; }
 </style>
@@ -132,6 +135,14 @@
 	<section class="card">
 		<h2>Per mod</h2>
 		<div class="table-wrap"><table id="table"></table></div>
+	</section>
+	<section class="card" id="cost" hidden>
+		<h2>Development cost</h2>
+		<div class="figures">
+			<div><div class="meta" id="cost-month-label">This month</div><div class="total" id="cost-month"></div></div>
+			<div><div class="meta" id="cost-total-label">In total</div><div class="total" id="cost-total"></div></div>
+		</div>
+		<div class="chart" id="cost-chart"></div>
 	</section>
 	<footer id="footer">
 		Store totals recorded by every catalog run (<code>lib/stats.mjs</code>) on the <code>stats</code> branch.
@@ -319,6 +330,87 @@
 		hit.addEventListener("pointerleave", () => { tip.hidden = true; cross.setAttribute("visibility", "hidden"); });
 	}
 
+	const monthKey = (y, m) => `${y}-${String(m + 1).padStart(2, "0")}`;
+	const monthName = (k, opts = { month: "long", year: "numeric" }) => {
+		const [y, m] = k.split("-").map(Number);
+		return new Date(Date.UTC(y, m - 1)).toLocaleDateString("en-US", { ...opts, timeZone: "UTC" });
+	};
+	const usd = (n) => "$" + n.toLocaleString("en-US", { maximumFractionDigits: 2 });
+
+	/** Every month from costs.json's first to the current one; a month without an entry repeats the last. */
+	function months(entries, now = new Date()) {
+		const known = entries.filter((e) => /^\d{4}-(0[1-9]|1[0-2])$/.test(e?.month) && Number.isFinite(e.usd))
+			.sort((a, b) => a.month.localeCompare(b.month));
+		if (!known.length) return [];
+		const end = monthKey(now.getUTCFullYear(), now.getUTCMonth());
+		let [y, m] = known[0].month.split("-").map(Number);
+		m -= 1;
+		const out = [];
+		for (let i = 0, cost = 0; ; ) {
+			const k = monthKey(y, m);
+			if (k > end) break;
+			while (i < known.length && known[i].month <= k) cost = known[i++].usd;
+			out.push({ month: k, usd: cost });
+			if (++m === 12) { m = 0; y++; }
+		}
+		return out;
+	}
+
+	let costMonths = [];
+	function renderCost() {
+		if (!costMonths.length) return;
+		const now = costMonths[costMonths.length - 1];
+		$("cost").hidden = false;
+		$("cost-month-label").textContent = `This month (${monthName(now.month)})`;
+		$("cost-month").textContent = usd(now.usd);
+		$("cost-total-label").textContent = `Since ${monthName(costMonths[0].month)}`;
+		$("cost-total").textContent = usd(costMonths.reduce((n, c) => n + c.usd, 0));
+		drawCost();
+	}
+
+	function drawCost() {
+		const box = $("cost-chart"), n = costMonths.length;
+		const max = Math.max(1, ...costMonths.map((c) => c.usd));
+		const step = niceStep(max), top = Math.ceil(max / step) * step;
+		const W = Math.max(280, box.clientWidth), H = 180;
+		const ml = 44, mr = 8, mt = 18, mb = 22, iw = W - ml - mr, ih = H - mt - mb;
+		const band = iw / n, bw = Math.max(4, Math.min(48, band * 0.6));
+		const y = (v) => mt + ih - v / top * ih;
+		// Every bar wears its amount while they fit; past a year the tooltip carries it alone.
+		const labels = n <= 12;
+		let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Development cost per month, ${esc(monthName(costMonths[0].month))} to ${esc(monthName(costMonths[n - 1].month))}">`;
+		for (let v = 0; v <= top; v += step) {
+			svg += `<line x1="${ml}" x2="${W - mr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`
+				+ `<text x="${ml - 6}" y="${y(v) + 4}" text-anchor="end">${usd(v)}</text>`;
+		}
+		costMonths.forEach((c, i) => {
+			const cx = ml + band * (i + 0.5), x0 = cx - bw / 2, h = c.usd / top * ih, r = Math.min(4, h, bw / 2);
+			const base = mt + ih;
+			// Rounded at the data end only, anchored square to the baseline.
+			if (h > 0) {
+				svg += `<path d="M${x0},${base} V${base - h + r} Q${x0},${base - h} ${x0 + r},${base - h} H${x0 + bw - r} Q${x0 + bw},${base - h} ${x0 + bw},${base - h + r} V${base} Z" fill="var(--s1)"/>`;
+			}
+			if (labels) svg += `<text class="value" x="${cx}" y="${base - h - 5}" text-anchor="middle">${usd(c.usd)}</text>`;
+			const [yy, mm] = c.month.split("-");
+			const tick = n <= 12 || i % Math.ceil(n / 12) === 0;
+			if (tick) svg += `<text x="${cx}" y="${H - 4}" text-anchor="middle">${esc(monthName(c.month, { month: "short" }))}${mm === "01" || i === 0 ? ` ${yy.slice(2)}` : ""}</text>`;
+			svg += `<rect x="${ml + band * i}" y="${mt}" width="${band}" height="${ih}" fill="transparent" data-i="${i}"/>`;
+		});
+		box.innerHTML = svg + '</svg><div class="tip" id="cost-tip" hidden></div>';
+
+		const tip = $("cost-tip");
+		box.querySelectorAll("rect[data-i]").forEach((hit) => {
+			hit.addEventListener("pointerenter", () => {
+				const i = +hit.dataset.i, r = box.querySelector("svg").getBoundingClientRect();
+				tip.innerHTML = `<strong>${esc(monthName(costMonths[i].month))}</strong><div>Development cost<span class="v">${usd(costMonths[i].usd)}</span></div>`;
+				tip.hidden = false;
+				const left = (ml + band * (i + 0.5)) * r.width / W, w = tip.offsetWidth;
+				tip.style.left = `${left + 12 + w > r.width ? Math.max(0, left - 12 - w) : left + 12}px`;
+			});
+			hit.addEventListener("pointerleave", () => { tip.hidden = true; });
+		});
+	}
+
 	$("ranges").addEventListener("click", (e) => {
 		const k = e.target.closest("button")?.dataset.range;
 		if (!k) return;
@@ -333,7 +425,13 @@
 		render();
 	});
 	let frame = 0;
-	addEventListener("resize", () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => data && drawChart(currentRange())); });
+	addEventListener("resize", () => {
+		cancelAnimationFrame(frame);
+		frame = requestAnimationFrame(() => {
+			if (data) drawChart(currentRange());
+			if (costMonths.length) drawCost();
+		});
+	});
 
 	async function json(path, optional) {
 		const res = await fetch(path, { cache: "no-store" });
@@ -344,6 +442,8 @@
 
 	async function load() {
 		if (RANGES.some((r) => `#${r[0]}` === location.hash)) rangeKey = location.hash.slice(1);
+		// The cost stands on its own: it shows even while the stats branch has nothing yet.
+		json("costs.json", true).then((c) => { costMonths = Array.isArray(c) ? months(c) : []; renderCost(); }).catch(() => {});
 		try {
 			const [mods, rows, daily] = await Promise.all([json("mods.json"), json("downloads.json", true), json("modrinth-daily.json", true).catch(() => null)]);
 			const usable = daily && typeof daily.start === "string" && daily.days && typeof daily.days === "object" ? daily : null;
