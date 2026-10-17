@@ -113,16 +113,6 @@
           }
         },
         {
-          "name": "projects",
-          "id": "1532090272421384282",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            }
-          }
-        },
-        {
           "name": "tickets",
           "id": "1560781769752445028",
           "type": "forum",
@@ -180,9 +170,6 @@
           "default_auto_archive_duration": 10080,
           "default_forum_layout": 1,
           "overwrites": {
-            "@everyone": {
-              "deny": ["ViewChannel"]
-            },
             "Computah": {
               "allow": ["ViewChannel", "SendMessages", "ManageThreads"]
             }
@@ -205,243 +192,6 @@
             },
             "Computah": {
               "allow": ["ViewChannel", "SendMessages"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Routes 🗺️",
-      "id": "1532079677445767239",
-      "channels": [
-        {
-          "name": "tickets-🗺️",
-          "id": "1519377359290110137",
-          "type": "forum",
-          "topic": "Please use this to make your request its being tracked by the author. This forum is for the \"Routes\" mod",
-          "require_tag": true,
-          "available_tags": [
-            {
-              "name": "Bug",
-              "emoji_name": "🐛"
-            },
-            {
-              "name": "Crash",
-              "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
-            },
-            {
-              "name": "Idea",
-              "emoji_name": "💡"
-            }
-          ],
-          "default_reaction_emoji": {
-            "emoji_name": "❤️"
-          },
-          "default_auto_archive_duration": 10080,
-          "default_forum_layout": 1
-        },
-        {
-          "name": "announcements-🗺️",
-          "id": "1522425693265203331",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            },
-            "Computah": {
-              "allow": ["ViewChannel", "SendMessages"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Cobblemon Ditto HMs 💿",
-      "id": "1532079750267539496",
-      "channels": [
-        {
-          "name": "tickets-💿",
-          "id": "1532081100749406218",
-          "type": "forum",
-          "topic": "Please use this to make your request its being tracked by the author. This forum is for the \"Cobblemon Ditto HMs\" mod",
-          "require_tag": false,
-          "available_tags": [
-            {
-              "name": "Bug",
-              "emoji_name": "🐛"
-            },
-            {
-              "name": "Crash",
-              "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
-            },
-            {
-              "name": "Idea",
-              "emoji_name": "💡"
-            }
-          ],
-          "default_reaction_emoji": {
-            "emoji_name": "❤️"
-          },
-          "default_forum_layout": 0
-        },
-        {
-          "name": "announcements-💿",
-          "id": "1532081291963531574",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            },
-            "Computah": {
-              "allow": ["SendMessages"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Cobblemon Picnic 🧺",
-      "id": "1532079789161054289",
-      "channels": [
-        {
-          "name": "tickets-🧺",
-          "id": "1532081390508839083",
-          "type": "forum",
-          "topic": "Please use this to make your request its being tracked by the author. This forum is for the \"Cobblemon Picnic\" mod",
-          "require_tag": true,
-          "available_tags": [
-            {
-              "name": "Bug",
-              "emoji_name": "🐛"
-            },
-            {
-              "name": "Crash",
-              "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
-            },
-            {
-              "name": "Idea",
-              "emoji_name": "💡"
-            }
-          ],
-          "default_forum_layout": 0
-        },
-        {
-          "name": "annoucements-🧺",
-          "id": "1532081457462513734",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            },
-            "Computah": {
-              "allow": ["SendMessages"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Cobblemon Nuzlocke & SoulLink 🔗",
-      "id": "1532080048985739416",
-      "channels": [
-        {
-          "name": "tickets-🔗",
-          "id": "1532081527662313764",
-          "type": "forum",
-          "topic": "Please use this to make your request its being tracked by the author. This forum is for the \"Cobblemon Nuzlocke & Soul Link\" mod",
-          "require_tag": true,
-          "available_tags": [
-            {
-              "name": "Bug",
-              "emoji_name": "🐛"
-            },
-            {
-              "name": "Crash",
-              "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
-            },
-            {
-              "name": "Idea",
-              "emoji_name": "💡"
-            }
-          ],
-          "default_reaction_emoji": {
-            "emoji_name": "❤️"
-          },
-          "default_forum_layout": 0
-        },
-        {
-          "name": "announcements-🔗",
-          "id": "1532081610034253904",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            },
-            "Computah": {
-              "allow": ["SendMessages"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Cobblemon Champions Training 🏆",
-      "id": "1544698263897374773",
-      "channels": [
-        {
-          "name": "tickets-🏆",
-          "id": "1544709874661851296",
-          "type": "forum",
-          "require_tag": false,
-          "available_tags": [
-            {
-              "name": "Bug",
-              "emoji_name": "🐛"
-            },
-            {
-              "name": "Crash",
-              "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
-            },
-            {
-              "name": "Idea",
-              "emoji_name": "💡"
-            }
-          ],
-          "default_reaction_emoji": {
-            "emoji_name": "❤️"
-          },
-          "default_forum_layout": 0
-        },
-        {
-          "name": "announcements-🏆",
-          "id": "1545050120280604703",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            },
-            "Computah": {
-              "allow": ["SendMessages"]
             }
           }
         }
@@ -495,9 +245,256 @@
       ]
     },
     {
-      "name": "Cobblemon Raid Icons 📍",
-      "id": "1544698469221142539",
+      "name": "Archive",
       "channels": [
+        {
+          "name": "projects",
+          "id": "1532090272421384282",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "tickets-🗺️",
+          "id": "1519377359290110137",
+          "type": "forum",
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "require_tag": true,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "❤️"
+          },
+          "default_auto_archive_duration": 10080,
+          "default_forum_layout": 1,
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "announcements-🗺️",
+          "id": "1522425693265203331",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["ViewChannel", "SendMessages"]
+            }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
+        {
+          "name": "tickets-💿",
+          "id": "1532081100749406218",
+          "type": "forum",
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "require_tag": false,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "❤️"
+          },
+          "default_forum_layout": 0,
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "announcements-💿",
+          "id": "1532081291963531574",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["SendMessages"]
+            }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
+        {
+          "name": "tickets-🧺",
+          "id": "1532081390508839083",
+          "type": "forum",
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "require_tag": true,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            }
+          ],
+          "default_forum_layout": 0,
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "annoucements-🧺",
+          "id": "1532081457462513734",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["SendMessages"]
+            }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
+        {
+          "name": "tickets-🔗",
+          "id": "1532081527662313764",
+          "type": "forum",
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "require_tag": true,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "❤️"
+          },
+          "default_forum_layout": 0,
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "announcements-🔗",
+          "id": "1532081610034253904",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["SendMessages"]
+            }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
+        {
+          "name": "tickets-🏆",
+          "id": "1544709874661851296",
+          "type": "forum",
+          "require_tag": false,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "❤️"
+          },
+          "default_forum_layout": 0,
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "announcements-🏆",
+          "id": "1545050120280604703",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["SendMessages"]
+            }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
         {
           "name": "tickets-📍",
           "id": "1545050296240046090",
@@ -524,7 +521,13 @@
           "default_reaction_emoji": {
             "emoji_name": "❤️"
           },
-          "default_forum_layout": 0
+          "default_forum_layout": 0,
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
         },
         {
           "name": "announcements-📍",
@@ -537,21 +540,22 @@
             "Computah": {
               "allow": ["SendMessages"]
             }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Cobblemon Mid Battle EXP 🍬",
-      "id": "1560083981083484190",
-      "channels": [
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
         {
           "name": "tickets-🍬",
           "id": "1560084088239554711",
           "type": "forum",
           "require_tag": false,
           "available_tags": [],
-          "default_forum_layout": 0
+          "default_forum_layout": 0,
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
         },
         {
           "name": "announcements-🍬",
@@ -564,7 +568,8 @@
             "Computah": {
               "allow": ["SendMessages"]
             }
-          }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
         }
       ]
     }

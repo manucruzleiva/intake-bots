@@ -132,8 +132,11 @@ Server: https://discord.gg/SwcwXcCN4k
 
 Todo mod nuevo vive sólo en los dos canales globales: `#tickets` (`1560781769752445028`, foro único,
 un tag por mod) y `#announcements` (`1560858633049215047`, tipo Announcement, ping al rol del mod).
-Los de la tabla son los canales viejos de cada mod: el poller sigue leyendo los foros, y los de
-anuncios ya no reciben cards.
+Los de la tabla son los canales viejos de cada mod, en la categoría `Archive`. Los foros no aceptan
+posts nuevos (`@everyone` sin `SendMessages`) pero sí respuestas en los hilos que ya existen
+(`SendMessagesInThreads`), y el poller los sigue leyendo: el follow-up y el aviso de cierre siguen
+llegando. Los de anuncios ya no reciben cards y terminan en un mensaje que apunta a `#announcements`.
+Tree Carve no está en el intake y conserva su categoría.
 
 | Proyecto | Prefijo | Tickets (viejo) | Anuncios (viejo) |
 |---|---|---|---|
@@ -168,6 +171,8 @@ gh workflow run server.yml --repo manucruzleiva/intake-bots -f dry_run=false    
   humanos no se tocan, y sólo se leen los canales que declaran la clave (los anuncios de release
   del mismo bot quedan afuera). Mira los últimos 100 mensajes: es para canales sin escritura, como
   `#rules`.
+- **Un cambio de categoría va de a un canal**: Discord rechaza un PATCH de posiciones que mueve más de
+  uno (40009), así que cada `→ move` es su propia llamada y el PATCH masivo sólo ordena.
 - **Nada se borra sin `prune`.** Lo que sobra sale en el diff como `? extra` y se deja, para que un
   typo no cueste un canal. Con `prune`, borrar un foro borra todos sus threads: leé el dry run antes.
 - **Un rol por encima del de `Computah` no se puede editar**: Discord rechaza el cambio aunque el
