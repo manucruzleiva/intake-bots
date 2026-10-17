@@ -20,6 +20,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
 | [`lib/releases.mjs`](lib/releases.mjs) | Le avisa a cada reporter, en su hilo, el día que sale el release con su fix |
 | [`lib/survey.mjs`](lib/survey.mjs) | La encuesta de satisfacción: el poll de ese aviso, y qué hace el voto del reporter |
+| [`lib/metrics.mjs`](lib/metrics.mjs) | Las métricas de intake de cada proyecto, en el job summary de su fila |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
@@ -84,6 +85,16 @@ release haya salido semanas después del cierre. Sin voto en 168 h: `no-answer`.
 fila de `satisfaction.json`. Mientras el poll está abierto, y después de un Partly / No, el hilo no se
 archiva; tras Yes o `no-answer` se archiva como cualquier otro. Una corrida sin voto nuevo no toca el
 state. Necesita **Send Polls** en `#tickets` (en el overwrite del bot, `server.json`).
+
+**Métricas** (#14, `lib/metrics.mjs`): cada fila termina con una tabla en su job summary —
+ingest lag (el `created_at` del issue menos la hora del post, sacada del snowflake), primera respuesta
+humana, tiempo a cerrar (mediana · p90 · máximo, histórico y últimos 30 días), issues `discord`
+abiertos con la edad del más viejo, `needs-info` y la encuesta. Sale del listado de issues `discord`
+que la fila ya lee para el backfill (un `GET` por corrida cuando el backfill no lo pidió) y de
+`satisfaction.json`; no escribe state. La primera respuesta es el primer comment de un escritor sin
+`FROM_DISCORD` — un `/reply` o no —: `relayReplies` la anota una vez en `entry.firstReplyAt`, sólo en
+issues filados desde que existe (`entry.awaitingReply`), porque antes de #11 los follow-ups del poller
+no llevaban marca. Un listado que falla deja "Unavailable" en el summary y **no** pone roja la fila.
 
 **Votos** (#32): el voto es la reacción default de los foros, 👍 (`default_reaction_emoji` en
 `server.json`), así que el botón bajo el post en la lista del foro es la boleta. Cada corrida lee el

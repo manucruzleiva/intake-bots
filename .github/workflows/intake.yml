@@ -115,6 +115,7 @@ jobs:
           GH_TOKEN: ${{ inputs.break == format('{0}:github', matrix.dir) && 'healthcheck-test-invalid-token' || secrets[format('{0}_GH_TOKEN', matrix.prefix)] }}
           GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}
           INTAKE_USER_AGENT: ${{ matrix.ua }}
+          PROJECT_NAME: ${{ matrix.name }}
           SKIP_BEFORE_ID: ${{ matrix.skipBeforeId }}
         run: node ../lib/poller.mjs
 
