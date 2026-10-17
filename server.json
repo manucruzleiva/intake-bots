@@ -171,6 +171,21 @@
             {
               "name": "Tree Carve",
               "emoji_name": "🗡️"
+            },
+            {
+              "name": "Resolved",
+              "emoji_name": "✅",
+              "moderated": true
+            },
+            {
+              "name": "Not planned",
+              "emoji_name": "📕",
+              "moderated": true
+            },
+            {
+              "name": "Needs info",
+              "emoji_name": "❓",
+              "moderated": true
             }
           ],
           "default_reaction_emoji": {

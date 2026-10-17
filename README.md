@@ -58,7 +58,13 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
   en `unrouted.json`; cuando el tag aparece, la fila dueña lo fila en su corrida siguiente. *Require
   tag* no lo evita: exige *algún* tag, y uno de tipo alcanza.
 - Los foros viejos se siguen leyendo: los cierres de sus hilos se siguen anunciando ahí.
-- Discord permite 20 tags por foro: 4 de tipo dejan lugar a 16 mods.
+- **Tags de estado**: `Resolved`, `Not planned` y `Needs info`, moderados (sólo los pone quien tiene
+  *Manage Threads*: el bot y el staff). Al archivar un post cerrado, el bot le suma `Resolved` o
+  `Not planned` según el `state_reason` del issue, sin sacarle los tags del reporter; si ya tiene 5,
+  el máximo de Discord, se archiva sin estado. Un post con dos mods recibe el estado recién cuando
+  cerró el último, leído de los mensajes de cierre del hilo; con un fix entre ellos es `Resolved`.
+  `Needs info` es de #10. Los tags de estado nunca deciden el tipo.
+- Discord permite 20 tags por foro: 4 de tipo y 3 de estado dejan lugar a 13 mods.
 
 ## projects.json
 
