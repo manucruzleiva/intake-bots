@@ -6,7 +6,7 @@ name: Intake
 # Secrets y variables van namespaceados por el `prefix` de projects.json:
 #   Secrets:   DISCORD_TOKEN (el bot único) y GH_TOKEN (PAT que puede abrir issues en el repo del mod),
 #              COMPARTIDOS: el mismo par para todas las filas
-#   Variables: <PREFIX>_GH_REPO, <PREFIX>_TICKETS_CHANNEL_ID (su foro viejo)
+#   Variables: <PREFIX>_GH_REPO
 #              DISCORD_GUILD_ID  <- COMPARTIDA (hay un solo server)
 #              TICKETS_FORUM_ID  <- COMPARTIDA: el foro único. Cada fila se queda con los posts que llevan
 #                                   su `tag` de projects.json; los que no llevan ninguno los atiende
@@ -114,9 +114,8 @@ jobs:
         # secrets no se pueden leer de vuelta, así que uno pisado no se restaura.
         env:
           DISCORD_BOT_TOKEN: ${{ inputs.break == format('{0}:discord', matrix.dir) && 'healthcheck-test-invalid-token' || secrets.DISCORD_TOKEN }}
-          DISCORD_FORUM_CHANNEL_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || vars[format('{0}_TICKETS_CHANNEL_ID', matrix.prefix)] }}
           DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
-          DISCORD_SHARED_FORUM_ID: ${{ vars.TICKETS_FORUM_ID }}
+          DISCORD_SHARED_FORUM_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || vars.TICKETS_FORUM_ID }}
           MOD_TAG: ${{ matrix.tag }}
           GH_TOKEN: ${{ inputs.break == format('{0}:github', matrix.dir) && 'healthcheck-test-invalid-token' || secrets.GH_TOKEN }}
           GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}

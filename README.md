@@ -178,7 +178,7 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
 | `linear` | Opcional. El **nombre** del project de Linear de sus espejos (`Routes`, `Cobblemon Champions`…: no siempre el del mod). Sin él, la fila no triagea; va vacío en un repo que no espeja |
-| `gate` | Opcional. `enabled-var` o `channel-set` (ver abajo) |
+| `gate` | Opcional. `enabled-var` (ver abajo) |
 | `announce` | El anuncio de release: `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). `sponsor` va pelado: el botón le suma `metadata_mod=<dir>` y `metadata_src=discord-announce` (o `discord-catalog` en la card de `#mods`), que el export de GitHub Sponsors muestra en su columna `metadata`. El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). **El canal no va acá**: todo mod postea en `#announcements` de `server.json` (su id fijado) y menciona el rol que se llama como su `tag`, buscado por nombre; `allowed_mentions` nombra sólo ese rol. Sin rol, la card sale sin ping y con un `::warning::` |
 
 **Dar de alta un proyecto:**
@@ -194,7 +194,6 @@ want release pings for?*, y crea `<dir>/state.json` vacío. Sólo agrega lo que 
 corrida dice `nothing to do`. No toca Discord ni escribe ids ni variables: al final imprime el objeto
 para `projects.json`, los secrets, la fila del registro y el `server.yml` que aplica el cambio. El
 objeto va a `projects.json` **después** de cargar los secrets: antes es una fila roja en cada corrida.
-Un mod nuevo no tiene foro propio: sin `<PREFIX>_TICKETS_CHANNEL_ID`, el poller lee sólo `#tickets`.
 Para un mod que ya está en `projects.json`, `--dir` alcanza. No
 hace falta un workflow nuevo.
 
@@ -203,7 +202,6 @@ hace falta un workflow nuevo.
 | Gate | Corre cuando | Quién lo usa |
 |---|---|---|
 | `enabled-var` | `<PREFIX>_INTAKE_ENABLED == 'true'`, o siempre en un `workflow_dispatch` manual (el del pacer no cuenta) | nuzlocke |
-| `channel-set` | `<PREFIX>_TICKETS_CHANNEL_ID` tiene valor | raid-icons, mid-battle-exp, champions-training |
 
 Un proyecto con el gate cerrado sigue en la matrix: su fila sale verde con un único step que dice por
 qué no corrió.
@@ -223,7 +221,6 @@ archivados del foro.
 | `DISCORD_TOKEN` | secret | **Compartido**: el bot único, para cada fila del intake, `server.yml`, `catalog.yml` y el job `unrouted` |
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
 | `GH_TOKEN` | secret | **Compartido**: el PAT con el que cada fila abre issues en el repo de su mod y `catalog.yml` lee el `DESCRIPTION_SHORT.txt` |
-| `<PREFIX>_TICKETS_CHANNEL_ID` | variable | El foro viejo del mod, que se sigue leyendo por los hilos que ya existen |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
 | `LINEAR_API_KEY` | secret | **Compartido**: key personal de Linear (`intake-bots`, Write, team COB) con la que las filas triagean los espejos y `health.mjs` el de "Intake unhealthy" |
 
@@ -238,23 +235,8 @@ sin escribir nada). La lista autoritativa está en `Reference/Required Secrets a
 
 Server: https://discord.gg/SwcwXcCN4k
 
-Todo mod nuevo vive sólo en los dos canales globales: `#tickets` (`1560781769752445028`, foro único,
-un tag por mod) y `#announcements` (`1560858633049215047`, tipo Announcement, ping al rol del mod).
-Los de la tabla son los canales viejos de cada mod, en la categoría `Archive`. Los foros no aceptan
-posts nuevos (`@everyone` sin `SendMessages`) pero sí respuestas en los hilos que ya existen
-(`SendMessagesInThreads`), y el poller los sigue leyendo: el follow-up y el aviso de cierre siguen
-llegando. Los de anuncios ya no reciben cards y terminan en un mensaje que apunta a `#announcements`.
-
-| Proyecto | Prefijo | Tickets (viejo) | Anuncios (viejo) |
-|---|---|---|---|
-| routes | `ROUTES` | `1519377359290110137` | `1522425693265203331` |
-| picnic | `PICNIC` | `1532081390508839083` | `1532081457462513734` |
-| ditto-hms | `DITTO` | `1532081100749406218` | `1532081291963531574` |
-| nuzlocke | `NUZLOCKE` | `1532081527662313764` | `1532081610034253904` |
-| raid-icons | `RAID_ICONS` | `1545050296240046090` | `1545050328435662858` |
-| mid-battle-exp | `MID_BATTLE_EXP` | `1560084088239554711` | `1560084267969679471` |
-| champions-training | `CHAMPIONS` | `1544709874661851296` | `1545050120280604703` |
-| tree-carve | `TREE_CARVE` | `1545050211452194906` | `1545050240401408130` |
+Cada mod vive sólo en los dos canales globales: `#tickets` (`1560781769752445028`, foro único, un
+tag por mod) y `#announcements` (`1560858633049215047`, tipo Announcement, ping al rol del mod).
 
 ### El catálogo
 

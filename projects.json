@@ -84,7 +84,6 @@
     "tag": "Raid Icons",
     "linear": "Cobblemon Raid Icons",
     "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
-    "gate": "channel-set",
     "announce": {
       "content": "# 💎🗺️ Cobblemon Raid Icons v{version} is here! ✨",
       "links": {
@@ -103,7 +102,6 @@
     "prefix": "MID_BATTLE_EXP",
     "tag": "Mid-Battle EXP",
     "ua": "cobblemon-mid-battle-exp-intake (+https://modrinth.com/project/ShgrcSQY)",
-    "gate": "channel-set",
     "announce": {
       "content": "# ⚔️✨ Cobblemon Mid-Battle EXP v{version} is here! ✨",
       "links": {
@@ -123,7 +121,6 @@
     "tag": "Champions Training",
     "linear": "Cobblemon Champions",
     "ua": "cobblemon-champions-training-intake (+https://modrinth.com/project/PlTQXswh)",
-    "gate": "channel-set",
     "announce": {
       "content": "# 🏆✨ Cobblemon Champions Training v{version} is here! ✨",
       "links": {
