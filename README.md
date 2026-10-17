@@ -61,6 +61,17 @@ el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el p
 Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
 línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
 
+**La voz de Computah** (#17, `lib/voice.mjs`): todo lo que el bot escribe en un hilo — respuesta al
+filar, pedido de datos, cierre, not planned, aviso de release, pregunta de la encuesta, pedido de tag —
+sale de ahí, como **lista de variantes** por clave: IA primitiva, corta y seca, la etiqueta en negrita en
+MAYÚSCULAS y el resto en frases recortadas. La variante rota con un contador por clave en
+`state.voice` del proyecto (dos posts seguidos del mismo tipo nunca repiten texto; un dry run muestra la
+que tocaría); el pedido de tag rota con el largo de `unrouted.json`. Cada variante conserva lo que hace
+el mensaje (tabla en la cabecera del módulo). El bot reconoce sus mensajes por el texto: `OWN_REPLIES` y
+`CLOSE_TEXTS` se arman con todas las variantes **y** con `LEGACY`, la redacción de antes, que sigue en
+hilos abiertos. Un texto nuevo va al módulo, nunca suelto en otro archivo. El relay de `/reply` habla
+el autor y queda fuera.
+
 **`/reply`** (#11, `lib/replies.mjs`): los repos de mod son privados, así que el reporter **nunca ve
 el issue** — el hilo es el único canal de vuelta. Un comentario del issue que **empieza con `/reply`**
 se postea en el hilo, sin el prefijo, firmado `💬 **shiero:**` (`REPLY_NAME`) y con una mención al
@@ -74,8 +85,8 @@ follow-ups que escribe el poller nunca empiezan con `/reply` y llevan `<!-- inta
 y el encabezado `💬` está entre las respuestas propias, así que no vuelve como follow-up. Una imagen
 subida al issue no se ve en Discord: el link es del repo privado.
 
-**Encuesta de satisfacción** (#13, `lib/survey.mjs`): el aviso `🚀 Out now in vX.Y.Z` de un Bug o
-Crash (#12) lleva en **el mismo mensaje** un poll nativo de Discord — *Did vX.Y.Z fix your problem?*,
+**Encuesta de satisfacción** (#13, `lib/survey.mjs`): el aviso `🚀 … vX.Y.Z` de un Bug o
+Crash (#12) lleva en **el mismo mensaje** un poll nativo de Discord — *FIX CHECK: did vX.Y.Z solve your problem?*,
 Yes / Partly / No, 168 h —, así que sale y se reintenta junto con el aviso. Sólo cuenta el voto del
 **dueño del hilo**, guardado en `entry.survey.owner` al postear: cada corrida lee el mensaje (los
 conteos) y los votantes sólo de las respuestas con votos, y el primer voto del reporter es el
