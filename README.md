@@ -71,7 +71,7 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
 | `gate` | Opcional. `enabled-var` o `channel-set` (ver abajo) |
-| `announce` | El anuncio de release: `channelId`, `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas) |
+| `announce` | El anuncio de release: `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). **El canal no va acá**: todo mod postea en `#announcements` de `server.json` (su id fijado) y menciona el rol que se llama como su `tag`, buscado por nombre; `allowed_mentions` nombra sólo ese rol. Sin rol, la card sale sin ping y con un `::warning::` |
 
 **Dar de alta un proyecto:**
 
@@ -130,7 +130,12 @@ sin escribir nada). La lista autoritativa está en `Reference/Required Secrets a
 
 Server: https://discord.gg/SwcwXcCN4k
 
-| Proyecto | Prefijo | Tickets | Anuncios |
+Todo mod nuevo vive sólo en los dos canales globales: `#tickets` (`1560781769752445028`, foro único,
+un tag por mod) y `#announcements` (`1560858633049215047`, tipo Announcement, ping al rol del mod).
+Los de la tabla son los canales viejos de cada mod: el poller sigue leyendo los foros, y los de
+anuncios ya no reciben cards.
+
+| Proyecto | Prefijo | Tickets (viejo) | Anuncios (viejo) |
 |---|---|---|---|
 | routes | `ROUTES` | `1519377359290110137` | `1522425693265203331` |
 | picnic | `PICNIC` | `1532081390508839083` | `1532081457462513734` |

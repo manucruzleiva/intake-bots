@@ -6,7 +6,6 @@
     "tag": "Routes",
     "ua": "routes-intake (+https://modrinth.com/project/routes)",
     "announce": {
-      "channelId": "1522425693265203331",
       "content": "# 🗺️✨ Routes v{version} is here! ✨",
       "links": {
         "modrinth": "https://modrinth.com/mod/routes",
@@ -26,7 +25,6 @@
     "ua": "cobblemon-picnic-intake (+https://modrinth.com/project/cobblemon-picnic)",
     "skipBeforeId": "1516437610648834058",
     "announce": {
-      "channelId": "1532081457462513734",
       "content": "# 🧺✨ Cobblemon Picnic v{version} is here! ✨",
       "links": {
         "modrinth": "https://modrinth.com/mod/cobblemon-picnic",
@@ -45,7 +43,6 @@
     "tag": "Ditto HMs",
     "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)",
     "announce": {
-      "channelId": "1532081291963531574",
       "content": "# 🟣✨ Cobblemon Ditto HMs v{version} is here! ✨",
       "links": {
         "modrinth": "https://modrinth.com/mod/cobblemon-ditto-hms",
@@ -65,7 +62,6 @@
     "ua": "cobblemon-nuzlocke-intake (+https://modrinth.com/project/cobblemon-nuzlocke-soullink)",
     "gate": "enabled-var",
     "announce": {
-      "channelId": "1532081610034253904",
       "content": "# ☠️🔗 Cobblemon Nuzlocke & Soul Link v{version} is here!",
       "links": {
         "modrinth": "https://modrinth.com/mod/cobblemon-nuzlocke-soul-link",
@@ -85,7 +81,6 @@
     "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
     "gate": "channel-set",
     "announce": {
-      "channelId": "1545050328435662858",
       "content": "# 💎🗺️ Cobblemon Raid Icons v{version} is here! ✨",
       "links": {
         "modrinth": "https://modrinth.com/mod/S01tPZTk",
@@ -105,7 +100,6 @@
     "ua": "cobblemon-mid-battle-exp-intake (+https://modrinth.com/project/ShgrcSQY)",
     "gate": "channel-set",
     "announce": {
-      "channelId": "1560084267969679471",
       "content": "# ⚔️✨ Cobblemon Mid-Battle EXP v{version} is here! ✨",
       "links": {
         "modrinth": "https://modrinth.com/mod/cobblemon-mid-battle-exp",
@@ -125,7 +119,6 @@
     "ua": "cobblemon-champions-training-intake (+https://modrinth.com/project/PlTQXswh)",
     "gate": "channel-set",
     "announce": {
-      "channelId": "1545050120280604703",
       "content": "# 🏆✨ Cobblemon Champions Training v{version} is here! ✨",
       "links": {
         "modrinth": "https://modrinth.com/mod/cobblemon-champions-training",

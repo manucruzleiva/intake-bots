@@ -26,6 +26,41 @@
       "managed": true
     },
     {
+      "name": "Routes",
+      "id": "1560858620113985626",
+      "permissions": []
+    },
+    {
+      "name": "Picnic",
+      "id": "1560858621439385673",
+      "permissions": []
+    },
+    {
+      "name": "Ditto HMs",
+      "id": "1560858623175958529",
+      "permissions": []
+    },
+    {
+      "name": "Nuzlocke",
+      "id": "1560858624979632128",
+      "permissions": []
+    },
+    {
+      "name": "Raid Icons",
+      "id": "1560858626543845446",
+      "permissions": []
+    },
+    {
+      "name": "Mid-Battle EXP",
+      "id": "1560858628343337010",
+      "permissions": []
+    },
+    {
+      "name": "Champions Training",
+      "id": "1560858629672800306",
+      "permissions": []
+    },
+    {
       "name": "@everyone",
       "permissions": ["CreateInstantInvite", "AddReactions", "Stream", "ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "UseExternalEmojis", "Connect", "Speak", "UseVAD", "ChangeNickname", "UseApplicationCommands", "RequestToSpeak", "CreatePublicThreads", "CreatePrivateThreads", "UseExternalStickers", "SendMessagesInThreads", "UseEmbeddedActivities", "UseExternalSounds", "SendVoiceMessages", "bit47", "SetVoiceChannelStatus", "SendPolls", "UseExternalApps"]
     }
@@ -150,6 +185,26 @@
             },
             "Computah": {
               "allow": ["ViewChannel", "SendMessages", "ManageThreads"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "id": "1560858631279218708",
+      "channels": [
+        {
+          "name": "announcements",
+          "id": "1560858633049215047",
+          "type": "announcement",
+          "topic": "Every release of every mod. Pick the mods you want a ping for in Channels & Roles.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["ViewChannel", "SendMessages"]
             }
           }
         }
@@ -582,6 +637,58 @@
     "enabled": false,
     "mode": 0,
     "default_channels": ["rules"],
-    "prompts": []
+    "prompts": [
+      {
+        "title": "Which mods do you want release pings for?",
+        "type": 0,
+        "single_select": false,
+        "required": false,
+        "in_onboarding": true,
+        "options": [
+          {
+            "title": "Routes",
+            "emoji_name": "🗺️",
+            "channels": [],
+            "roles": ["Routes"]
+          },
+          {
+            "title": "Picnic",
+            "emoji_name": "🧺",
+            "channels": [],
+            "roles": ["Picnic"]
+          },
+          {
+            "title": "Ditto HMs",
+            "emoji_name": "💿",
+            "channels": [],
+            "roles": ["Ditto HMs"]
+          },
+          {
+            "title": "Nuzlocke",
+            "emoji_name": "🔗",
+            "channels": [],
+            "roles": ["Nuzlocke"]
+          },
+          {
+            "title": "Raid Icons",
+            "emoji_name": "📍",
+            "channels": [],
+            "roles": ["Raid Icons"]
+          },
+          {
+            "title": "Mid-Battle EXP",
+            "emoji_name": "🍬",
+            "channels": [],
+            "roles": ["Mid-Battle EXP"]
+          },
+          {
+            "title": "Champions Training",
+            "emoji_name": "🏆",
+            "channels": [],
+            "roles": ["Champions Training"]
+          }
+        ]
+      }
+    ]
   }
 }

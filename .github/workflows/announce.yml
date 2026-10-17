@@ -4,8 +4,9 @@ name: Announce release
 # llama con `uses: manucruzleiva/intake-bots/.github/workflows/announce.yml@main`. Antes era un paso
 # pegado en siete publish.yml, cada uno con su emoji, sus links y su footer adentro de un `jq`.
 #
-# Lo propio de cada mod (canal, encabezado, color, footer) vive en el bloque `announce` de
-# projects.json, y el formato en lib/announce.mjs.
+# Lo propio de cada mod (encabezado, color, footer, links) vive en el bloque `announce` de
+# projects.json, y el formato en lib/announce.mjs. El canal es uno solo, #announcements de server.json,
+# y la card menciona el rol del mod (el nombre de su `tag`).
 #
 # Adentro de un workflow llamado, `actions/checkout` sin `repository` trae el repo del CALLER: de ahí
 # sale su CHANGELOG.md. intake-bots se baja aparte en .intake/, de la misma rama que el `@main` del
