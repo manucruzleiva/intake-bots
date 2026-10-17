@@ -18,6 +18,8 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
 | [`lib/bootstrap.mjs`](lib/bootstrap.mjs) | Agrega un mod a `server.json`: su tag en `#tickets`, su rol y su opción de onboarding. Imprime lo que queda a mano |
 | [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
+| [`lib/releases.mjs`](lib/releases.mjs) | Le avisa a cada reporter, en su hilo, el día que sale el release con su fix |
+| [`lib/survey.mjs`](lib/survey.mjs) | La encuesta de satisfacción: el poll de ese aviso, y qué hace el voto del reporter |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
@@ -37,6 +39,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
 | `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad y el rol `Bug Catcher` (aparece con el primer issue filado) |
+| `<dir>/satisfaction.json` | Resultados de la encuesta: `{ issue, version, vote, at }` por poll respondido o vencido (aparece con el primero) |
 | [`CREDITS.md`](CREDITS.md) | El registro de créditos, copiado a mano a la wiki |
 
 ## Qué hace el poller
@@ -68,6 +71,19 @@ hilo evita mandar uno dos veces. Más de 2000 caracteres se parte en varios mens
 follow-ups que escribe el poller nunca empiezan con `/reply` y llevan `<!-- intake:from-discord -->`,
 y el encabezado `💬` está entre las respuestas propias, así que no vuelve como follow-up. Una imagen
 subida al issue no se ve en Discord: el link es del repo privado.
+
+**Encuesta de satisfacción** (#13, `lib/survey.mjs`): el aviso `🚀 Out now in vX.Y.Z` de un Bug o
+Crash (#12) lleva en **el mismo mensaje** un poll nativo de Discord — *Did vX.Y.Z fix your problem?*,
+Yes / Partly / No, 168 h —, así que sale y se reintenta junto con el aviso. Sólo cuenta el voto del
+**dueño del hilo**, guardado en `entry.survey.owner` al postear: cada corrida lee el mensaje (los
+conteos) y los votantes sólo de las respuestas con votos, y el primer voto del reporter es el
+resultado. **Yes** se registra. **Partly / No** además le pone `fix-failed` al issue (el bot crea el
+label), comenta el voto y pregunta en el hilo qué sigue pasando, con mención; **no reabre**. La
+ventana de follow-ups vuelve a contar desde ese voto, así que la respuesta llega al issue aunque el
+release haya salido semanas después del cierre. Sin voto en 168 h: `no-answer`. Cada resultado es una
+fila de `satisfaction.json`. Mientras el poll está abierto, y después de un Partly / No, el hilo no se
+archiva; tras Yes o `no-answer` se archiva como cualquier otro. Una corrida sin voto nuevo no toca el
+state. Necesita **Send Polls** en `#tickets` (en el overwrite del bot, `server.json`).
 
 **Votos** (#32): el voto es la reacción default de los foros, 👍 (`default_reaction_emoji` en
 `server.json`), así que el botón bajo el post en la lista del foro es la boleta. Cada corrida lee el
@@ -347,5 +363,5 @@ gh workflow run intake.yml --repo manucruzleiva/intake-bots
 ```
 
 Arranca también la cadena del pacer, si estaba cortada. El log de cada fila termina en
-`Done. N new issue(s) filed; F follow-up comment(s); R /reply relay(s); M close(s) announced; K threads tracked.`
-(`R` sólo aparece cuando hubo alguno.)
+`Done. N new issue(s) filed; F follow-up comment(s); R /reply relay(s); S survey result(s); M close(s) announced; K threads tracked.`
+(`R` y `S` sólo aparecen cuando hubo alguno.)

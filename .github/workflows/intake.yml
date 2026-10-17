@@ -126,9 +126,10 @@ jobs:
         env:
           DIR: ${{ matrix.dir }}
         run: |
-          # reporters.json no existe hasta que se fila el primer issue, y `git add` de un path que
+          # reporters.json no existe hasta que se fila el primer issue (satisfaction.json, hasta el
+          # primer resultado de la encuesta), y `git add` de un path que
           # no existe corta con exit 128. Se agrega lo que haya y se commitea sólo si quedó algo.
-          for f in "$DIR/state.json" "$DIR/reporters.json"; do
+          for f in "$DIR/state.json" "$DIR/reporters.json" "$DIR/satisfaction.json"; do
             if [ -f "$f" ]; then git add "$f"; fi
           done
           if git diff --cached --quiet; then exit 0; fi

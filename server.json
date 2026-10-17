@@ -272,7 +272,7 @@
           "default_forum_layout": 1,
           "overwrites": {
             "Computah": {
-              "allow": ["ViewChannel", "SendMessages", "ManageThreads"]
+              "allow": ["ViewChannel", "SendMessages", "ManageThreads", "SendPolls"]
             }
           }
         }
