@@ -118,6 +118,17 @@
           }
         },
         {
+          "name": "mods",
+          "id": "1560884963967246506",
+          "type": "text",
+          "topic": "Every mod, with its latest version and downloads. Kept up to date by the bot.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
           "name": "tickets",
           "id": "1560781769752445028",
           "type": "forum",

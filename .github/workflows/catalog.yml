@@ -1,0 +1,51 @@
+name: Mod catalog
+
+# El catálogo de #mods (lib/catalog.mjs): una card por proyecto de projects.json, editada en el lugar
+# con la versión, el Minecraft, los loaders y las descargas de Modrinth y CurseForge (vía cfwidget).
+# Cada hora alcanza: cfwidget cachea una hora, y la card sólo se edita cuando cambia lo que muestra.
+# Va aparte de intake.yml a propósito: una API de tienda caída no ensucia la cadena del intake.
+#
+#   Secrets:   DISCORD_TOKEN          el bot único del server
+#              <PREFIX>_GH_TOKEN      el PAT de cada fila, para leer DESCRIPTION_SHORT.txt del repo
+#                                     privado del mod (llega por REPO_SECRETS; sólo se leen ésos)
+#   Variables: <PREFIX>_GH_REPO       el repo del mod
+
+run-name: Mod catalog (${{ inputs.dry_run && 'dry run' || github.event_name }}${{ inputs.prune && ' + prune' || '' }})
+
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only print what would change"
+        type: boolean
+        default: false
+      prune:
+        description: "Delete bot posts in #mods past the last project"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: catalog
+  cancel-in-progress: false
+
+jobs:
+  catalog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Update the cards in #mods
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          REPO_VARS: ${{ toJSON(vars) }}
+          REPO_SECRETS: ${{ toJSON(secrets) }}
+          DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
+          PRUNE: ${{ inputs.prune && '--prune' || '' }}
+        run: node lib/catalog.mjs $DRY_RUN $PRUNE

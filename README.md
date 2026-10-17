@@ -22,6 +22,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
 | [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
 | [`lib/announce.mjs`](lib/announce.mjs) | El anuncio de un release en Discord. Lo corre `announce.yml`; `--print` muestra el payload sin postear |
+| [`lib/catalog.mjs`](lib/catalog.mjs) | El catálogo de `#mods`: una card por proyecto con los datos vivos de Modrinth y CurseForge, editada en el lugar. `--dry-run` imprime sin escribir |
 | [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` |
 | [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
 | [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, mensajes fijos del bot (`#rules`), AutoMod, welcome screen y onboarding |
@@ -30,6 +31,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
 | [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
 | [`.github/workflows/server.yml`](.github/workflows/server.yml) | A mano: hace que el guild coincida con `server.json` (`dry_run` por defecto, `prune` apagado) |
+| [`.github/workflows/catalog.yml`](.github/workflows/catalog.yml) | Cada hora: corre `lib/catalog.mjs`. Aparte de `intake.yml`, para que una tienda caída no toque la cadena |
 | [`.github/workflows/announce.yml`](.github/workflows/announce.yml) | Reutilizable (`workflow_call`): el job `announce` del `publish.yml` de cada mod lo llama para anunciar el release |
 | `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
@@ -127,10 +129,10 @@ archivados del foro.
 | Nombre | Tipo | |
 |---|---|---|
 | `DISCORD_GUILD_ID` | variable | **Compartida**: hay un solo server |
-| `DISCORD_TOKEN` | secret | El bot único, para `server.yml` y el job `unrouted` |
+| `DISCORD_TOKEN` | secret | El bot único, para `server.yml`, `catalog.yml` y el job `unrouted` |
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
 | `<PREFIX>_DISCORD_TOKEN` | secret | Token del bot de Discord |
-| `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
+| `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod; `catalog.yml` lo usa para leer su `DESCRIPTION_SHORT.txt` |
 | `<PREFIX>_TICKETS_CHANNEL_ID` | variable | Foro de tickets |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
 
@@ -162,6 +164,28 @@ llegando. Los de anuncios ya no reciben cards y terminan en un mensaje que apunt
 | mid-battle-exp | `MID_BATTLE_EXP` | `1560084088239554711` | `1560084267969679471` |
 | champions-training | `CHAMPIONS` | `1544709874661851296` | `1545050120280604703` |
 | tree-carve | `TREE_CARVE` | `1545050211452194906` | `1545050240401408130` |
+
+### El catálogo
+
+`#mods` (`1560884963967246506`, sólo lectura) tiene una card por proyecto de `projects.json`, en
+ese orden: la n-ésima card es el n-ésimo post más viejo del bot en el canal. `catalog.yml` la edita
+en el lugar cada hora, sólo cuando cambia lo que muestra:
+
+- **Pitch**: el `DESCRIPTION_SHORT.txt` del repo del mod, nunca el resumen de la tienda (que puede
+  estar viejo).
+- **Status, versión, Minecraft, loaders y descargas**: Modrinth, y CurseForge vía
+  [cfwidget](https://api.cfwidget.com), porque la Core API de CurseForge pide una key que el
+  `CURSEFORGE_TOKEN` no es. Las descargas van compactas (`21.1K`), así una descarga suelta no edita
+  la card.
+- **Modrinth da 404** (en revisión o en draft): la card dice `Released` + `Modrinth: in review` si
+  CurseForge lo tiene, y no lleva botón de Modrinth hasta que Modrinth lo apruebe. Eso pasa solo, en
+  la corrida siguiente.
+- Un error que no es una respuesta (un 5xx, cfwidget todavía buscando el proyecto) deja esa card como
+  estaba y la corrida sale en rojo.
+
+Un mod nuevo en `projects.json` agrega su card al final. Reordenar `projects.json` reescribe las
+cards, no las mueve. `server.json` declara `#mods` **sin** `messages`, para que `server.mjs` no
+toque las cards.
 
 ## El server como código
 
