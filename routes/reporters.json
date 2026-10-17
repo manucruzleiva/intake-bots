@@ -2,12 +2,14 @@
   "wizardcloth2": {
     "count": 1,
     "bugs": 1,
-    "features": 0
+    "features": 0,
+    "id": "559208677769216030"
   },
   "phexides1999": {
     "count": 1,
     "bugs": 1,
-    "features": 0
+    "features": 0,
+    "id": "1150070419324420236"
   },
   "kyuilol": {
     "count": 1,
@@ -18,42 +20,49 @@
     "count": 1,
     "kinds": {
       "feedback": 1
-    }
+    },
+    "id": "1224035852334923908"
   },
   "blacqsheep": {
     "count": 1,
     "kinds": {
       "bug": 1
-    }
+    },
+    "id": "710474829446381600"
   },
   "loadout0647": {
     "count": 1,
     "kinds": {
       "bug": 1
-    }
+    },
+    "id": "657360135710310416"
   },
   "hetherite": {
     "count": 1,
     "kinds": {
       "crash": 1
-    }
+    },
+    "id": "1131869246176120902"
   },
   "carrotc": {
     "count": 1,
     "kinds": {
       "feedback": 1
-    }
+    },
+    "id": "224246844975349761"
   },
   "dribdribs": {
     "count": 1,
     "kinds": {
       "bug": 1
-    }
+    },
+    "id": "304578863051177984"
   },
   "nexstargaze": {
     "count": 1,
     "kinds": {
       "bug": 1
-    }
+    },
+    "id": "797073693141499925"
   }
 }

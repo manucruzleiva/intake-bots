@@ -35,7 +35,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`.github/workflows/announce.yml`](.github/workflows/announce.yml) | Reutilizable (`workflow_call`): el job `announce` del `publish.yml` de cada mod lo llama para anunciar el release |
 | `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
-| `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad (aparece con el primer issue filado) |
+| `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad y el rol `Bug Catcher` (aparece con el primer issue filado) |
 | [`CREDITS.md`](CREDITS.md) | El registro de créditos, copiado a mano a la wiki |
 
 ## Qué hace el poller
@@ -54,6 +54,14 @@ reporter. Un log adjunto cubre los tres: dice versión y loader en sus primeras 
 el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el post el tag `Needs info`.
 Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
 línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
+
+**Bug Catcher** (#31): quien entra al tally de `reporters.json` recibe el rol `Bug Catcher` (hoisted,
+declarado en `server.json` bajo `Computah`), con las mismas exclusiones que los créditos: ni bots —
+los posts `[TEST]` son del bot — ni `AUTHOR_USERNAMES`. La entrada guarda el `id` del autor al
+filar, y la corrida le pone el rol a cada entrada con `id` y sin `bugCatcher`. El resultado queda
+anotado una vez: `true` (no se repone si alguien lo saca) o `"not a member"` si ya no está en el
+server; cualquier otra falla es un `::warning::` y se reintenta. Una entrada sin `id` no lo recibe:
+son reporteros de los bots viejos que no aparecen en ningún hilo ni como miembro.
 
 ### El foro único
 

@@ -26,6 +26,13 @@
       "managed": true
     },
     {
+      "name": "Bug Catcher",
+      "id": "1560896938214170624",
+      "permissions": [],
+      "color": 8172354,
+      "hoist": true
+    },
+    {
       "name": "Routes",
       "id": "1560858620113985626",
       "permissions": []
