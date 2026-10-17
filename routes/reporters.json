@@ -3,13 +3,15 @@
     "count": 1,
     "bugs": 1,
     "features": 0,
-    "id": "559208677769216030"
+    "id": "559208677769216030",
+    "bugCatcher": "not a member"
   },
   "phexides1999": {
     "count": 1,
     "bugs": 1,
     "features": 0,
-    "id": "1150070419324420236"
+    "id": "1150070419324420236",
+    "bugCatcher": true
   },
   "kyuilol": {
     "count": 1,
@@ -21,42 +23,48 @@
     "kinds": {
       "feedback": 1
     },
-    "id": "1224035852334923908"
+    "id": "1224035852334923908",
+    "bugCatcher": true
   },
   "blacqsheep": {
     "count": 1,
     "kinds": {
       "bug": 1
     },
-    "id": "710474829446381600"
+    "id": "710474829446381600",
+    "bugCatcher": true
   },
   "loadout0647": {
     "count": 1,
     "kinds": {
       "bug": 1
     },
-    "id": "657360135710310416"
+    "id": "657360135710310416",
+    "bugCatcher": true
   },
   "hetherite": {
     "count": 1,
     "kinds": {
       "crash": 1
     },
-    "id": "1131869246176120902"
+    "id": "1131869246176120902",
+    "bugCatcher": true
   },
   "carrotc": {
     "count": 1,
     "kinds": {
       "feedback": 1
     },
-    "id": "224246844975349761"
+    "id": "224246844975349761",
+    "bugCatcher": "not a member"
   },
   "dribdribs": {
     "count": 1,
     "kinds": {
       "bug": 1
     },
-    "id": "304578863051177984"
+    "id": "304578863051177984",
+    "bugCatcher": true
   },
   "nexstargaze": {
     "count": 1,
