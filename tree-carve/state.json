@@ -10,7 +10,6 @@
       "kind": "idea",
       "lastMsg": "1561041959882194996",
       "awaitingReply": true,
-      "linearSince": "2026-10-17T15:43:25.870Z",
       "test": true
     },
     "1561040946240430293": {
@@ -18,7 +17,6 @@
       "kind": "crash",
       "lastMsg": "1561041964239954042",
       "awaitingReply": true,
-      "linearSince": "2026-10-17T15:43:26.781Z",
       "test": true
     }
   },
