@@ -1,4 +1,14 @@
 {
-  "processed": [],
-  "tracked": {}
+  "processed": [
+    "1560864399869345813"
+  ],
+  "tracked": {
+    "1560864399869345813": {
+      "issue": 82,
+      "kind": "bug",
+      "lastMsg": "1560864399869345813",
+      "test": true
+    }
+  },
+  "lastRelease": "v1.0.0"
 }
