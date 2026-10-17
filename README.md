@@ -132,7 +132,8 @@ archivados del foro.
 | `DISCORD_TOKEN` | secret | El bot único, para `server.yml`, `catalog.yml` y el job `unrouted` |
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
 | `<PREFIX>_DISCORD_TOKEN` | secret | Token del bot de Discord |
-| `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod; `catalog.yml` lo usa para leer su `DESCRIPTION_SHORT.txt` |
+| `GH_TOKEN` | secret | El mismo PAT, sin prefijo: `catalog.yml` lee con él el `DESCRIPTION_SHORT.txt` de cada repo de mod |
+| `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
 | `<PREFIX>_TICKETS_CHANNEL_ID` | variable | Foro de tickets |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
 

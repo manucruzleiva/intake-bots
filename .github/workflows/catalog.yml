@@ -6,8 +6,9 @@ name: Mod catalog
 # Va aparte de intake.yml a propósito: una API de tienda caída no ensucia la cadena del intake.
 #
 #   Secrets:   DISCORD_TOKEN          el bot único del server
-#              <PREFIX>_GH_TOKEN      el PAT de cada fila, para leer DESCRIPTION_SHORT.txt del repo
-#                                     privado del mod (llega por REPO_SECRETS; sólo se leen ésos)
+#              GH_TOKEN               el PAT de los <PREFIX>_GH_TOKEN, sin prefijo: lee el
+#                                     DESCRIPTION_SHORT.txt del repo privado de cada mod. Uno por fila
+#                                     no se puede: un toJSON(secrets) deja la corrida en action_required
 #   Variables: <PREFIX>_GH_REPO       el repo del mod
 
 run-name: Mod catalog (${{ inputs.dry_run && 'dry run' || github.event_name }}${{ inputs.prune && ' + prune' || '' }})
@@ -45,7 +46,7 @@ jobs:
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           REPO_VARS: ${{ toJSON(vars) }}
-          REPO_SECRETS: ${{ toJSON(secrets) }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
           PRUNE: ${{ inputs.prune && '--prune' || '' }}
         run: node lib/catalog.mjs $DRY_RUN $PRUNE
