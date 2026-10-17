@@ -155,6 +155,9 @@
               "content": "### 📄 Where are `latest.log` and the crash reports?\nIn your game folder: `logs/latest.log` and `crash-reports/`. In a launcher, open the profile's folder (Modrinth App: ⋮ → **Open folder**). Attach the file to your post, or share an mclo.gs link.\n→ [Where to find your logs](<https://manucruzleiva.github.io/mod-wiki/reporting/#where-to-find-your-logs>)"
             },
             {
+              "content": "### 📋 How do I share my log with mclo.gs?\n1. Open your log in a text editor: `logs/latest.log`, or the newest file in `crash-reports/` after a crash.\n2. Copy all of it and paste it into <https://mclo.gs>.\n3. Press **Save** and copy the link from your browser's address bar.\n4. Paste that link into your post in <#1560781769752445028>.\n→ [Where to find your logs](<https://manucruzleiva.github.io/mod-wiki/reporting/#where-to-find-your-logs>)"
+            },
+            {
               "content": "### 📝 Where is the changelog?\nEvery release is announced in <#1560858633049215047> with a summary, and its title links the full changelog. Each mod's whole history is on its Modrinth page, under **Changelog**.\n→ [Each mod's page](<https://manucruzleiva.github.io/mod-wiki/#the-mods>)"
             }
           ]
@@ -175,6 +178,26 @@
           "id": "1560781769752445028",
           "type": "forum",
           "topic": "One post per bug, crash, idea or piece of feedback. Pick what kind of post it is AND which mod it is about: a post with no mod tag waits until it has one.\n\nFor a bug or a crash: your Minecraft version, the mod's version, the loader (Fabric or NeoForge), and logs/latest.log or the crash report.",
+          "pinned": {
+            "title": "📌 How to make a ticket — read me first",
+            "messages": [
+              {
+                "content": "# 📌 How to make a ticket\n**This post is the example, and it is locked: open your own with the New Post button.** One post = one bug, crash, idea or piece of feedback.\n\n## 1 · Pick two tags\n- **What it is:** 🐛 Bug · 💥 Crash · 💡 Idea · 💬 Feedback\n- **Which mod:** its tag — 🗺️ Routes, 🧺 Picnic, 💿 Ditto HMs… A post without a mod tag waits until it has one.\n\n## 2 · Give us the crucial information\nFor a **bug** or a **crash**, this is what we need before we can start. Without it we cannot reproduce the problem, so the post gets the ❓ **Needs info** tag and waits until it arrives:\n- **Minecraft version and the mod's version** (like `1.21.1` and `2.0.31`). A bug fixed in one version can still be there in an older one.\n- **Your loader: Fabric or NeoForge.** Each has its own build of the mod, and a bug can live in only one of them.\n- **Your log** — required for a crash, and it speeds up any bug. `logs/latest.log`, or the newest file in `crash-reports/` after a crash. It shows the exact error *and* every other mod you run, and another mod is often the real cause. Its first lines also say your versions and loader, so a log alone covers all three. Attach the file or paste an mclo.gs link: <#1532088850422305019> explains both.\n\n## 3 · Copy the template for your kind of post\nThe messages below have one each. Copy it into your post, fill it in, and delete what does not apply.\n\nThe bot answers in your post: when it is tracked, when it is fixed, and when the fix is out."
+              },
+              {
+                "content": "### 🐛 Bug — something does not work as it should\nTags: **Bug** + the mod\n```text\nTitle: what goes wrong, in a few words\n\nWhat happened:\nWhat I expected instead:\nSteps to make it happen:\n1.\n2.\n3.\n\nMinecraft version:\nMod version:\nLoader: Fabric / NeoForge\nLog (recommended): attach logs/latest.log or paste an mclo.gs link\nScreenshot or video (if it helps):\n```"
+              },
+              {
+                "content": "### 💥 Crash — the game closes or will not start\nTags: **Crash** + the mod\n```text\nTitle: what you were doing when it crashed\n\nWhat I was doing:\nDoes it happen every time? yes / no\nDid it start after adding or updating a mod? Which one:\n\nMinecraft version:\nMod version:\nLoader: Fabric / NeoForge\nCrash report (required): the newest file in crash-reports/, attached or as an mclo.gs link\nNo crash report? Attach logs/latest.log instead\n```"
+              },
+              {
+                "content": "### 💡 Idea — something the mod could do\nTags: **Idea** + the mod\n```text\nTitle: the idea in a few words\n\nWhat it would do:\nWhy it would help (what problem it solves):\nHow you would use it in your game:\n```\nNo versions needed for an idea."
+              },
+              {
+                "content": "### 💬 Feedback — what you think of the mod\nTags: **Feedback** + the mod\n```text\nTitle: what it is about\n\nWhat I like or dislike:\nWhat I would change, if anything:\nMod version (optional):\n```"
+              }
+            ]
+          },
           "require_tag": true,
           "available_tags": [
             {
@@ -719,11 +742,31 @@
     "enabled": true,
     "description": "Feedback and support for shiero's Cobblemon mods. Pick your mods for release pings, then start here.",
     "welcome_channels": [
-      { "channel": "rules", "description": "Read before you post", "emoji_name": "📜" },
-      { "channel": "faq", "description": "Install, versions and logs", "emoji_name": "❓" },
-      { "channel": "mods", "description": "Every mod and its downloads", "emoji_name": "🧩" },
-      { "channel": "tickets", "description": "Report a bug or share an idea", "emoji_name": "🎫" },
-      { "channel": "announcements", "description": "Release notes for every mod", "emoji_name": "📣" }
+      {
+        "channel": "rules",
+        "description": "Read before you post",
+        "emoji_name": "📜"
+      },
+      {
+        "channel": "faq",
+        "description": "Install, versions and logs",
+        "emoji_name": "❓"
+      },
+      {
+        "channel": "mods",
+        "description": "Every mod and its downloads",
+        "emoji_name": "🧩"
+      },
+      {
+        "channel": "tickets",
+        "description": "Report a bug or share an idea",
+        "emoji_name": "🎫"
+      },
+      {
+        "channel": "announcements",
+        "description": "Release notes for every mod",
+        "emoji_name": "📣"
+      }
     ]
   },
   "onboarding": {
