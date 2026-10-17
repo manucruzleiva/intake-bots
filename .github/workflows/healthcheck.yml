@@ -55,6 +55,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO_VARS: ${{ toJSON(vars) }}
           HEALTH_PAGE_DIR: _site
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
         run: node lib/health.mjs
       # Ésta es la que publica una cadena muerta: el job `health` de intake.yml se corta con ella.
       - id: page

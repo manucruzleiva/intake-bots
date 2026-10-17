@@ -20,6 +20,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
 | [`lib/releases.mjs`](lib/releases.mjs) | Le avisa a cada reporter, en su hilo, el día que sale el release con su fix |
 | [`lib/survey.mjs`](lib/survey.mjs) | La encuesta de satisfacción: el poll de ese aviso, y qué hace el voto del reporter |
+| [`lib/linear.mjs`](lib/linear.mjs) | Planifica el espejo de Linear de un issue: project, prioridad por tipo y `Backlog`, sólo lo vacío |
 | [`lib/metrics.mjs`](lib/metrics.mjs) | Las métricas de intake de cada proyecto, en el job summary de su fila |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
@@ -104,6 +105,26 @@ la vez (el bot crea el label si no está). Con menos de 5 lo saca. Un issue cerr
 tenía. Cuenta todo 👍, incluido el del autor del post. Los posts `[TEST]` del bot también cuentan, y
 el fijado nunca entra a `tracked`.
 
+**Triage en Linear** (#9, `lib/linear.mjs`): cada issue filado espeja a Linear en `Triage`, sin
+project ni prioridad. La fila lo planifica: el project es el `linear` de su objeto en `projects.json`,
+buscado por nombre, y la prioridad sale del tipo (Crash → 1 Urgent, Bug → 2 High, Idea y Feedback →
+4 Low, sin tag de tipo → *No priority*, que decide un humano). El estado pasa a `Backlog`. **Sólo se
+llena lo vacío**: un project, una prioridad o un estado que alguien ya tocó se respetan, y nunca se
+crea nada en Linear (el sync es bidireccional: un issue creado ahí abre otro en GitHub). El espejo se
+busca **por la URL del issue de GitHub** en los attachments del COB (`attachmentsForURL`), nunca por
+título, con un solo request por issue. La entrada lleva `linearSince` hasta que queda planificado: el
+paso corre al final de la corrida, para darle tiempo a que el espejo llegue, y una corrida sin
+pendientes no llama a Linear ni escribe state. Si a la hora no hay espejo, la entrada queda
+`linear: "no mirror"` y la fila sale roja una vez: el repo no está en la lista de GitHub Issues de la
+integración. Una fila sin `linear` (mid-battle-exp, que no espeja) no hace nada. Sin
+`LINEAR_API_KEY`, warning y los pendientes esperan a que se cargue; una key rechazada corta en la
+primera llamada.
+
+**Aviso de crash**: al filar un Crash, el bot postea en `#moderator-only` (por nombre, de
+`server.json`) con mención al rol `Author`, el hilo y el `owner/repo#N`. Una prioridad Urgent en
+Linear no le avisa a nadie que no esté mirando el board. Sale una vez, al filar; si falla, la fila
+sale roja.
+
 **Bug Catcher** (#31): quien entra al tally de `reporters.json` recibe el rol `Bug Catcher` (hoisted,
 declarado en `server.json` bajo `Computah`), con las mismas exclusiones que los créditos: ni bots —
 los posts `[TEST]` son del bot — ni `AUTHOR_USERNAMES`. La entrada guarda el `id` del autor al
@@ -144,6 +165,7 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `tag` | Su tag de mod en el foro único. Tiene que existir con ese nombre en `server.json`; si falta en el foro, la fila sale roja |
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
+| `linear` | Opcional. El **nombre** del project de Linear de sus espejos (`Routes`, `Cobblemon Champions`…: no siempre el del mod). Sin él, la fila no triagea; va vacío en un repo que no espeja |
 | `gate` | Opcional. `enabled-var` o `channel-set` (ver abajo) |
 | `announce` | El anuncio de release: `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). **El canal no va acá**: todo mod postea en `#announcements` de `server.json` (su id fijado) y menciona el rol que se llama como su `tag`, buscado por nombre; `allowed_mentions` nombra sólo ese rol. Sin rol, la card sale sin ping y con un `::warning::` |
 
@@ -193,6 +215,7 @@ archivados del foro.
 | `<PREFIX>_GH_TOKEN` | secret | PAT que abre los issues en el repo del mod |
 | `<PREFIX>_TICKETS_CHANNEL_ID` | variable | Foro de tickets |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
+| `LINEAR_API_KEY` | secret | **Compartido**: key personal de Linear (`intake-bots`, Write, team COB) con la que las filas triagean los espejos y `health.mjs` el de "Intake unhealthy" |
 
 `DISCORD_GUILD_ID` no es opcional en la práctica: sin él, `/guilds/{id}/threads/active` no se llama y
 el bot **sólo ve threads archivados**, así que un reporte recién abierto no entra hasta que Discord lo
@@ -337,7 +360,10 @@ Corre en dos lados: como job `health` al final de cada intake (cada ~10 min) y d
 `healthcheck.yml` por `schedule`, que es el único que ve que la cadena se cortó. El aviso es **un
 issue, "Intake unhealthy"**, que abre el bot: las corridas del pacer las dispara el `GITHUB_TOKEN` y
 GitHub no le avisa a nadie cuando fallan. Mientras los problemas sigan iguales sólo se edita (sin
-notificar), cuando cambian se comenta, y se cierra solo cuando todo vuelve a estar sano.
+notificar), cuando cambian se comenta, y se cierra solo cuando todo vuelve a estar sano. Su espejo de
+Linear recibe project `Intake Bots`, prioridad 2 High y `Backlog` (`lib/linear.mjs`, con
+`LINEAR_API_KEY`): se busca mientras el issue tiene menos de una hora, así que no hace falta state y
+un incidente cuesta unas pocas lecturas. Una falla de Linear es un warning, no un chequeo rojo.
 
 ### La página de estado
 
