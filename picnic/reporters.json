@@ -31,5 +31,13 @@
     },
     "id": "954568121459544108",
     "bugCatcher": true
+  },
+  "pirat4louco": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    },
+    "id": "384695991594385419",
+    "bugCatcher": true
   }
 }
