@@ -17,6 +17,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 |---|---|
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
 | [`lib/bootstrap.mjs`](lib/bootstrap.mjs) | Agrega un mod a `server.json`: su tag en `#tickets`, su rol y su opción de onboarding. Imprime lo que queda a mano |
+| [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
@@ -54,6 +55,19 @@ reporter. Un log adjunto cubre los tres: dice versión y loader en sus primeras 
 el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el post el tag `Needs info`.
 Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
 línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
+
+**`/reply`** (#11, `lib/replies.mjs`): los repos de mod son privados, así que el reporter **nunca ve
+el issue** — el hilo es el único canal de vuelta. Un comentario del issue que **empieza con `/reply`**
+se postea en el hilo, sin el prefijo, firmado `💬 **shiero:**` (`REPLY_NAME`) y con una mención al
+dueño del hilo; en un post multi-mod lleva `**<tag>** · ` adelante. Sólo cuenta el de alguien con
+escritura en el repo (`author_association` OWNER, MEMBER o COLLABORATOR), sobre un issue abierto o
+cerrado hace ≤ `FOLLOWUP_DAYS_AFTER_CLOSE` días; lo demás del issue queda interno. Entregado, el
+comentario recibe un 🚀. Una sola lectura por corrida (`/issues/comments?since=` de todo el repo,
+`state.repliesSince`, que en la primera corrida se registra sin relayear nada), y `lastReply` por
+hilo evita mandar uno dos veces. Más de 2000 caracteres se parte en varios mensajes. Sin loop: los
+follow-ups que escribe el poller nunca empiezan con `/reply` y llevan `<!-- intake:from-discord -->`,
+y el encabezado `💬` está entre las respuestas propias, así que no vuelve como follow-up. Una imagen
+subida al issue no se ve en Discord: el link es del repo privado.
 
 **Votos** (#32): el voto es la reacción default de los foros, 👍 (`default_reaction_emoji` en
 `server.json`), así que el botón bajo el post en la lista del foro es la boleta. Cada corrida lee el
@@ -333,4 +347,5 @@ gh workflow run intake.yml --repo manucruzleiva/intake-bots
 ```
 
 Arranca también la cadena del pacer, si estaba cortada. El log de cada fila termina en
-`Done. N new issue(s) filed; F follow-up comment(s); M close(s) announced; K threads tracked.`
+`Done. N new issue(s) filed; F follow-up comment(s); R /reply relay(s); M close(s) announced; K threads tracked.`
+(`R` sólo aparece cuando hubo alguno.)
