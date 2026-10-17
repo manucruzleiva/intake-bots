@@ -16,6 +16,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | Ruta | Qué es |
 |---|---|
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
+| [`lib/bootstrap.mjs`](lib/bootstrap.mjs) | Agrega un mod a `server.json`: su tag en `#tickets`, su rol y su opción de onboarding. Imprime lo que queda a mano |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
@@ -72,8 +73,21 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `gate` | Opcional. `enabled-var` o `channel-set` (ver abajo) |
 | `announce` | El anuncio de release: `channelId`, `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas) |
 
-**Dar de alta un proyecto:** cargar sus secrets y variables, crear la carpeta, agregar el objeto y su
-tag de mod en el foro `tickets` de `server.json`. No
+**Dar de alta un proyecto:**
+
+```bash
+node lib/bootstrap.mjs --dir <dir> --tag "<Tag>" --emoji <emoji> [--name "<Name>"] [--prefix <PREFIX>]   # dry run
+node lib/bootstrap.mjs --dir <dir> --tag "<Tag>" --emoji <emoji> --write
+```
+
+Agrega a `server.json` el tag del mod en `#tickets`, un rol con su nombre (sin permisos, arriba de
+`@everyone`: el ping opt-in de su anuncio) y esa opción en el prompt de onboarding *Which mods do you
+want release pings for?*, y crea `<dir>/state.json` vacío. Sólo agrega lo que falta: una segunda
+corrida dice `nothing to do`. No toca Discord ni escribe ids ni variables: al final imprime el objeto
+para `projects.json`, los secrets, la fila del registro y el `server.yml` que aplica el cambio. El
+objeto va a `projects.json` **después** de cargar los secrets: antes es una fila roja en cada corrida.
+Un mod nuevo no tiene foro propio: sin `<PREFIX>_TICKETS_CHANNEL_ID`, el poller lee sólo `#tickets`.
+Para un mod que ya está en `projects.json`, `--dir` alcanza. No
 hace falta un workflow nuevo.
 
 ### Gates
