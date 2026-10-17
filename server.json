@@ -207,53 +207,6 @@
       ]
     },
     {
-      "name": "Tree Carve 🗡️",
-      "id": "1544698396944760942",
-      "channels": [
-        {
-          "name": "tickets-🗡️",
-          "id": "1545050211452194906",
-          "type": "forum",
-          "require_tag": false,
-          "available_tags": [
-            {
-              "name": "Bug",
-              "emoji_name": "🐛"
-            },
-            {
-              "name": "Crash",
-              "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
-            },
-            {
-              "name": "Idea",
-              "emoji_name": "💡"
-            }
-          ],
-          "default_reaction_emoji": {
-            "emoji_name": "❤️"
-          },
-          "default_forum_layout": 0
-        },
-        {
-          "name": "announcements-🗡️",
-          "id": "1545050240401408130",
-          "type": "text",
-          "overwrites": {
-            "@everyone": {
-              "deny": ["SendMessages"]
-            },
-            "Computah": {
-              "allow": ["SendMessages"]
-            }
-          }
-        }
-      ]
-    },
-    {
       "name": "Archive",
       "channels": [
         {
@@ -569,6 +522,54 @@
         {
           "name": "announcements-🍬",
           "id": "1560084267969679471",
+          "type": "text",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            },
+            "Computah": {
+              "allow": ["SendMessages"]
+            }
+          },
+          "topic": "Archived: every mod's releases are posted in <#1560858633049215047>."
+        },
+        {
+          "name": "tickets-🗡️",
+          "id": "1545050211452194906",
+          "type": "forum",
+          "require_tag": false,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "❤️"
+          },
+          "default_forum_layout": 0,
+          "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "announcements-🗡️",
+          "id": "1545050240401408130",
           "type": "text",
           "overwrites": {
             "@everyone": {

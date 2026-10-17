@@ -136,7 +136,6 @@ Los de la tabla son los canales viejos de cada mod, en la categoría `Archive`. 
 posts nuevos (`@everyone` sin `SendMessages`) pero sí respuestas en los hilos que ya existen
 (`SendMessagesInThreads`), y el poller los sigue leyendo: el follow-up y el aviso de cierre siguen
 llegando. Los de anuncios ya no reciben cards y terminan en un mensaje que apunta a `#announcements`.
-Tree Carve no está en el intake y conserva su categoría.
 
 | Proyecto | Prefijo | Tickets (viejo) | Anuncios (viejo) |
 |---|---|---|---|
@@ -147,6 +146,7 @@ Tree Carve no está en el intake y conserva su categoría.
 | raid-icons | `RAID_ICONS` | `1545050296240046090` | `1545050328435662858` |
 | mid-battle-exp | `MID_BATTLE_EXP` | `1560084088239554711` | `1560084267969679471` |
 | champions-training | `CHAMPIONS` | `1544709874661851296` | `1545050120280604703` |
+| tree-carve | `TREE_CARVE` | `1545050211452194906` | `1545050240401408130` |
 
 ## El server como código
 
