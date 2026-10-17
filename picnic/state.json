@@ -32,15 +32,11 @@
     "1561045561270997052": {
       "issue": 34,
       "kind": "bug",
-      "lastMsg": "1561046574568710167",
+      "lastMsg": "1561047476272898119",
       "awaitingReply": true,
-      "missing": [
-        "version",
-        "loader"
-      ],
       "linearSince": "2026-10-17T16:04:36.140Z"
     }
   },
   "lastRelease": "v3.0.0",
-  "repliesSince": "2026-10-17T08:18:48.783Z"
+  "repliesSince": "2026-10-17T16:15:15Z"
 }
