@@ -129,5 +129,23 @@
       "color": 10233776,
       "footer": "Train it yourself. 🏆"
     }
+  },
+  {
+    "dir": "tree-carve",
+    "name": "Tree Carve",
+    "prefix": "TREE_CARVE",
+    "tag": "Tree Carve",
+    "ua": "tree-carve-intake (+https://modrinth.com/project/qkkteeJr)",
+    "announce": {
+      "content": "# 🌳🗡️ Tree Carve v{version} is here! ✨",
+      "links": {
+        "modrinth": "https://modrinth.com/mod/qkkteeJr",
+        "curseforge": "https://www.curseforge.com/projects/1676740",
+        "wiki": "https://manucruzleiva.github.io/mod-wiki/tree-carve/",
+        "sponsor": "https://github.com/sponsors/manucruzleiva"
+      },
+      "color": 5814783,
+      "footer": "Carve something someone else will find."
+    }
   }
 ]

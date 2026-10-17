@@ -61,6 +61,11 @@
       "permissions": []
     },
     {
+      "name": "Tree Carve",
+      "id": "1560864076035399750",
+      "permissions": []
+    },
+    {
       "name": "@everyone",
       "permissions": ["CreateInstantInvite", "AddReactions", "Stream", "ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "UseExternalEmojis", "Connect", "Speak", "UseVAD", "ChangeNickname", "UseApplicationCommands", "RequestToSpeak", "CreatePublicThreads", "CreatePrivateThreads", "UseExternalStickers", "SendMessagesInThreads", "UseEmbeddedActivities", "UseExternalSounds", "SendVoiceMessages", "bit47", "SetVoiceChannelStatus", "SendPolls", "UseExternalApps"]
     }
@@ -162,6 +167,10 @@
             {
               "name": "Champions Training",
               "emoji_name": "🏆"
+            },
+            {
+              "name": "Tree Carve",
+              "emoji_name": "🗡️"
             }
           ],
           "default_reaction_emoji": {
@@ -691,6 +700,12 @@
             "emoji_name": "🏆",
             "channels": [],
             "roles": ["Champions Training"]
+          },
+          {
+            "title": "Tree Carve",
+            "emoji_name": "🗡️",
+            "channels": [],
+            "roles": ["Tree Carve"]
           }
         ]
       }
