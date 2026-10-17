@@ -266,7 +266,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_auto_archive_duration": 10080,
           "default_forum_layout": 1,
@@ -336,7 +336,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_auto_archive_duration": 10080,
           "default_forum_layout": 1,
@@ -385,7 +385,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_forum_layout": 0,
           "overwrites": {
@@ -478,7 +478,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_forum_layout": 0,
           "overwrites": {
@@ -525,7 +525,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_forum_layout": 0,
           "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
@@ -573,7 +573,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_forum_layout": 0,
           "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",
@@ -649,7 +649,7 @@
             }
           ],
           "default_reaction_emoji": {
-            "emoji_name": "❤️"
+            "emoji_name": "👍"
           },
           "default_forum_layout": 0,
           "topic": "This forum is closed to new posts: open yours in <#1560781769752445028> and pick this mod's tag. Replies in an existing post still reach the author.",

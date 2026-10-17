@@ -55,6 +55,14 @@ el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el p
 Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
 línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
 
+**Votos** (#32): el voto es la reacción default de los foros, 👍 (`default_reaction_emoji` en
+`server.json`), así que el botón bajo el post en la lista del foro es la boleta. Cada corrida lee el
+starter de cada Idea con el issue abierto, archivado o no (un `GET` por idea: el listado de hilos no
+trae reacciones), y le deja al issue el bucket más alto que alcanza: `votes:5+` o `votes:10+`, uno a
+la vez (el bot crea el label si no está). Con menos de 5 lo saca. Un issue cerrado conserva el que
+tenía. Cuenta todo 👍, incluido el del autor del post. Los posts `[TEST]` del bot también cuentan, y
+el fijado nunca entra a `tracked`.
+
 **Bug Catcher** (#31): quien entra al tally de `reporters.json` recibe el rol `Bug Catcher` (hoisted,
 declarado en `server.json` bajo `Computah`), con las mismas exclusiones que los créditos: ni bots —
 los posts `[TEST]` son del bot — ni `AUTHOR_USERNAMES`. La entrada guarda el `id` del autor al
