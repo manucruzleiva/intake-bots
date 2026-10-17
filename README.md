@@ -45,6 +45,14 @@ y los `.txt`/`.log`/`.json` adjuntos se pliegan en un `<details>` antes de que e
 de Discord. Cuando el issue se cierra en GitHub, el bot lo avisa en el thread, distinguiendo "fixed"
 de "not planned".
 
+**Needs info** (#10, `lib/completeness.mjs`): a un Bug o Crash, la respuesta le pide sólo lo que le
+falta — la versión (algo como `1.21.1`), el loader (`fabric`/`neoforge`) y, si es un Crash, el log
+(un adjunto `.log`/`.txt` o un link de mclo.gs/pastebin) —, leído del post y de los mensajes del
+reporter. Un log adjunto cubre los tres: dice versión y loader en sus primeras líneas. Si falta algo,
+el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el post el tag `Needs info`.
+Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
+línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
+
 ### El foro único
 
 `#tickets` (`TICKETS_FORUM_ID`) recibe los posts de todos los mods: cada post lleva un **tag de tipo**
@@ -63,7 +71,8 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
   `Not planned` según el `state_reason` del issue, sin sacarle los tags del reporter; si ya tiene 5,
   el máximo de Discord, se archiva sin estado. Un post con dos mods recibe el estado recién cuando
   cerró el último, leído de los mensajes de cierre del hilo; con un fix entre ellos es `Resolved`.
-  `Needs info` es de #10. Los tags de estado nunca deciden el tipo.
+  `Needs info` lo pone el filado de un reporte incompleto y lo saca la última pieza que llega (ver
+  arriba); un cierre lo reemplaza. Los tags de estado nunca deciden el tipo.
 - Discord permite 20 tags por foro: 4 de tipo y 3 de estado dejan lugar a 13 mods.
 
 ## projects.json
