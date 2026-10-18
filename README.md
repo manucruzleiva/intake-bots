@@ -87,6 +87,15 @@ follow-ups que escribe el poller nunca empiezan con `/reply` y llevan `<!-- inta
 y el encabezado `💬` está entre las respuestas propias, así que no vuelve como follow-up. Una imagen
 subida al issue no se ve en Discord: el link es del repo privado.
 
+**Aviso de release** (#12, `lib/releases.mjs`): cuando sale el release que trae el fix, el bot lo
+dice en el hilo del reporter. Un release cuenta como salido recién cuando **su card está en
+`#announcements`** (#53): el GitHub Release es donde el publish arranca, y la card la postea el
+`publish.yml` del mod sólo después de que las tiendas aceptaron los jars. La card se reconoce por el
+encabezado de `announce.content` con esa versión, no por autor: cada mod la postea con su propio
+`DISCORD_TOKEN`. Sin card, el release espera a la corrida siguiente sin gastar intentos; a las 6 h
+sigue esperando pero con un `::warning::`. Un publish fallido no avisa nunca: lo destraba un
+`announce_only`.
+
 **Encuesta de satisfacción** (#13, `lib/survey.mjs`): el aviso `🚀 … vX.Y.Z` de un Bug o
 Crash (#12) lleva en **el mismo mensaje** un poll nativo de Discord — *FIX CHECK: did vX.Y.Z solve your problem?*,
 Yes / Partly / No, 168 h —, así que sale y se reintenta junto con el aviso. Sólo cuenta el voto del
