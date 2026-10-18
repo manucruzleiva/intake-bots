@@ -220,7 +220,7 @@ jobs:
         if: ${{ !cancelled() && hashFiles('_site/status.json') != '' }}
         run: |
           if git fetch --depth=1 origin stats; then
-            for f in downloads.json modrinth-daily.json; do
+            for f in downloads.json modrinth-daily.json revenue-fetched.json; do
               git show "FETCH_HEAD:stats/$f" > "_site/stats/$f" 2>/dev/null || rm -f "_site/stats/$f"
             done
           else

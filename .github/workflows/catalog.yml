@@ -8,13 +8,15 @@ name: Mod catalog
 # De paso guarda los totales de descargas de cada mod (lib/stats.mjs) en stats/downloads.json de la
 # rama orphan `stats`, montada como worktree en stats-branch/. Es la única rama que pushea: main no
 # recibe nada. La rama se crea sola en la primera corrida. Un dry run no escribe stats.
-# Al lado reescribe stats/modrinth-daily.json, las descargas por día de Modrinth desde sus analytics.
+# Al lado reescribe stats/modrinth-daily.json, las descargas por día de Modrinth desde sus analytics,
+# y stats/revenue-fetched.json, el revenue por mes de Modrinth y de GitHub Sponsors.
 #
 #   Secrets:   DISCORD_TOKEN          el bot único del server
 #              GH_TOKEN               el PAT que comparte con intake.yml: lee el DESCRIPTION_SHORT.txt
-#                                     del repo privado de cada mod
-#              MODRINTH_ANALYTICS_TOKEN  PAT de Modrinth con sólo Read analytics. Sin él, la serie de
-#                                     Modrinth no se actualiza (warning) y el resto corre igual
+#                                     del repo privado de cada mod y, por ser del autor, sus sponsors
+#              MODRINTH_ANALYTICS_TOKEN  PAT de Modrinth con Read analytics y Read payouts. Sin él, la
+#                                     serie y el revenue de Modrinth no se actualizan (warning) y el
+#                                     resto corre igual
 #   Variables: <PREFIX>_GH_REPO       el repo del mod
 
 run-name: Mod catalog (${{ inputs.dry_run && 'dry run' || github.event_name }}${{ inputs.prune && ' + prune' || '' }})
@@ -73,7 +75,9 @@ jobs:
         run: |
           if [ ! -f stats/downloads.json ]; then exit 0; fi
           git add stats/downloads.json
-          if [ -f stats/modrinth-daily.json ]; then git add stats/modrinth-daily.json; fi
+          for f in modrinth-daily.json revenue-fetched.json; do
+            if [ -f "stats/$f" ]; then git add "stats/$f"; fi
+          done
           if git diff --cached --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
