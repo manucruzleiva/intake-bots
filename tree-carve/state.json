@@ -9,18 +9,17 @@
     "1561233883306139680": {
       "issue": 87,
       "kind": "bug",
-      "lastMsg": "1561233883306139680",
+      "lastMsg": "1561233923277717536",
       "awaitingReply": true,
       "missing": [
         "version",
         "loader"
       ],
-      "linearSince": "2026-10-18T04:26:13.532Z",
       "test": true
     }
   },
   "lastRelease": "v1.0.0",
-  "repliesSince": "2026-10-17T17:02:38Z",
+  "repliesSince": "2026-10-18T04:26:17Z",
   "voice": {
     "filed.bug": 1,
     "ask": 1
