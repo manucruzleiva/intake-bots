@@ -26,7 +26,8 @@
       "closedAs": "completed",
       "closeAttempts": 3,
       "closedAnnounced": true,
-      "archiveAttempts": 2
+      "archiveAttempts": 3,
+      "archived": true
     }
   },
   "lastRelease": "v1.5.38",
