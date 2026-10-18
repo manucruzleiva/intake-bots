@@ -31,8 +31,12 @@
       "survey": {
         "message": "1561204684126032005",
         "version": "4.0.0",
-        "owner": "384695991594385419"
-      }
+        "owner": "384695991594385419",
+        "vote": "yes",
+        "at": "2026-10-18T18:12:17.083Z",
+        "done": true
+      },
+      "archived": true
     }
   },
   "lastRelease": "v4.0.0",
