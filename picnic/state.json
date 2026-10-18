@@ -20,15 +20,6 @@
       "lastMsg": "1549871598637420548",
       "archived": true
     },
-    "1560868715707367445": {
-      "issue": 33,
-      "kind": "bug",
-      "lastMsg": "1560868770849890387",
-      "others": [
-        "Routes"
-      ],
-      "test": true
-    },
     "1561045561270997052": {
       "issue": 34,
       "kind": "bug",
