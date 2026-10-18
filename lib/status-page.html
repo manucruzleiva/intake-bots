@@ -8,6 +8,7 @@
   Deployed to GitHub Pages by the intake workflows, next to the status.json that lib/health.mjs
   writes. Everything is decided here, in the viewer's browser: the page is only redeployed by a run
   that is alive, so it has to notice on its own when its data stopped coming.
+  Under it, the open tickets of each mod, from the backlog.json that lib/backlog.mjs writes.
 -->
 <style>
 	:root {
@@ -67,7 +68,7 @@
 		color: var(--text);
 		font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 	}
-	main { max-width: 760px; margin: 0 auto; padding: 32px 16px 48px; }
+	main { max-width: 900px; margin: 0 auto; padding: 32px 16px 48px; }
 	header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 16px; }
 	h1 { font-size: 20px; margin: 0; }
 	header a { font-size: 14px; }
@@ -112,6 +113,36 @@
 	.stale-data .row { opacity: 0.55; }
 	code { font-size: 13px; }
 	footer { color: var(--muted); font-size: 13px; margin-top: 16px; }
+	h2 { font-size: 17px; margin: 0; }
+	.section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 32px 0 12px; }
+	.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+	.seg button {
+		font: inherit; font-size: 13px; padding: 5px 12px; border: 0; border-left: 1px solid var(--line);
+		background: transparent; color: var(--muted); cursor: pointer;
+	}
+	.seg button:first-child { border-left: 0; }
+	.seg button[aria-pressed="true"] { background: var(--off-bg); color: var(--text); font-weight: 600; }
+	.seg button:focus-visible, th button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
+	.table-wrap { overflow-x: auto; }
+	table.backlog { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+	.backlog th, .backlog td { padding: 8px 10px; border-top: 1px solid var(--line); text-align: right; white-space: nowrap; vertical-align: middle; }
+	.backlog thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--muted); vertical-align: bottom; }
+	.backlog th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+	.backlog th[aria-sort] button { color: var(--text); }
+	.backlog th[aria-sort="descending"] button::after { content: " \2193"; }
+	.backlog th[aria-sort="ascending"] button::after { content: " \2191"; }
+	.backlog .mod { text-align: left; position: sticky; left: 0; background: var(--card); }
+	.backlog td.mod a { color: var(--text); text-decoration: none; font-weight: 600; }
+	.backlog td.mod a:hover { text-decoration: underline; }
+	.mod-cell { display: inline-flex; align-items: center; gap: 10px; }
+	.icon { width: 24px; height: 24px; border-radius: 6px; flex: none; object-fit: cover; }
+	span.icon { display: inline-grid; place-items: center; background: var(--off-bg); font-size: 14px; }
+	.backlog .total { font-weight: 600; }
+	.backlog td.zero { color: var(--muted); opacity: 0.5; }
+	.backlog tfoot td { font-weight: 600; border-top: 2px solid var(--line); }
+	.backlog td.na { color: var(--muted); text-align: left; font-size: 13px; }
+	.backlog-note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+	.backlog-note ul { margin: 4px 0 0; padding-left: 20px; }
 </style>
 </head>
 <body>
@@ -119,9 +150,18 @@
 	<header><h1>Intake status</h1><a href="stats/">Download stats →</a></header>
 	<div id="verdict" class="verdict"><strong>Loading…</strong></div>
 	<div id="rows" class="card" hidden></div>
+	<section id="backlog" hidden>
+		<div class="section-head">
+			<h2>Open tickets</h2>
+			<div class="seg" id="dims" role="group" aria-label="Count by"></div>
+		</div>
+		<div class="card table-wrap"><table class="backlog" id="backlog-table"></table></div>
+		<div class="backlog-note" id="backlog-note"></div>
+	</section>
 	<footer>
 		Discord ticket forums → GitHub issues, checked by <code>lib/health.mjs</code> at the end of every
-		intake run and hourly from the healthcheck. This page re-reads its data every minute.
+		intake run and hourly from the healthcheck. Open tickets are counted from each mod's GitHub issues,
+		with status and priority from their Linear mirror. This page re-reads its data every minute.
 	</footer>
 </main>
 <script>
@@ -176,6 +216,122 @@
 		document.title = stale ? "Intake Status — stale" : s.healthy ? "Intake Status" : "Intake Status — unhealthy";
 	}
 
+	// ---- Open tickets -------------------------------------------------------------------------
+	// One row per mod, one column per bucket of the chosen dimension. Columns that are zero for every
+	// mod are left out; the cell tint is the count against the largest cell, in one hue.
+	const DIM_LABEL = { type: "Type", status: "Status", priority: "Priority", source: "Source" };
+	const store = {
+		get(k) { try { return localStorage.getItem("backlog." + k); } catch { return null; } },
+		set(k, v) { try { localStorage.setItem("backlog." + k, v); } catch {} },
+	};
+	const view = { dim: store.get("dim") || "type", sort: store.get("sort") || "total", dir: store.get("dir") || "desc" };
+	let backlog = null;
+
+	function value(m, col) {
+		if (col === "name") return m.name.toLowerCase();
+		if (col === "total") return m.total;
+		if (col === "oldest") return m.oldest_days;
+		return m.counts?.[view.dim]?.[col] ?? null;
+	}
+
+	function renderBacklog() {
+		const b = backlog;
+		if (!b.dimensions[view.dim]) view.dim = "type";
+		$("dims").innerHTML = Object.keys(b.dimensions).map((d) =>
+			`<button type="button" data-dim="${esc(d)}" aria-pressed="${d === view.dim}">${esc(DIM_LABEL[d] || d)}</button>`).join("");
+
+		const known = b.mods.filter((m) => m.counts?.[view.dim]);
+		const buckets = b.dimensions[view.dim].filter((k) => known.some((m) => m.counts[view.dim][k.key] > 0));
+		const cols = [{ key: "name", label: "Mod", cls: "mod" }, { key: "total", label: "Open", cls: "total" }]
+			.concat(buckets.map((k) => ({ key: k.key, label: k.label })))
+			.concat([{ key: "oldest", label: "Oldest" }]);
+		if (!cols.some((c) => c.key === view.sort)) { view.sort = "total"; view.dir = "desc"; }
+		const max = Math.max(1, ...known.flatMap((m) => buckets.map((k) => m.counts[view.dim][k.key])));
+
+		// Missing values sink to the bottom whichever way the column is sorted.
+		const sign = view.dir === "asc" ? 1 : -1;
+		const rows = [...b.mods].sort((x, y) => {
+			const a = value(x, view.sort), c = value(y, view.sort);
+			if (a === null || c === null) return (a === null) - (c === null) || x.name.localeCompare(y.name);
+			if (a < c) return -sign;
+			if (a > c) return sign;
+			return x.name.localeCompare(y.name);
+		});
+
+		const head = "<thead><tr>" + cols.map((c) => {
+			const sort = c.key === view.sort ? ` aria-sort="${view.dir === "asc" ? "ascending" : "descending"}"` : "";
+			return `<th class="${c.cls || ""}"${sort}><button type="button" data-sort="${esc(c.key)}">${esc(c.label)}</button></th>`;
+		}).join("") + "</tr></thead>";
+
+		const icon = (m) => {
+			const fallback = `<span class="icon" aria-hidden="true">${esc(m.emoji || m.name[0])}</span>`;
+			return m.icon
+				? `<img class="icon" src="${esc(m.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${esc(fallback)}">`
+				: fallback;
+		};
+		const days = (d) => d === null ? "—" : d === 0 ? "today" : `${d} d`;
+		const body = "<tbody>" + rows.map((m) => {
+			const name = m.link ? `<a href="${esc(m.link)}">${esc(m.name)}</a>` : esc(m.name);
+			let cells = `<td class="mod"><span class="mod-cell">${icon(m)}${name}</span></td>`;
+			if (m.total === null) {
+				return `<tr>${cells}<td class="na" colspan="${cols.length - 1}">Could not read its issues</td></tr>`;
+			}
+			cells += `<td class="total">${m.total}</td>`;
+			for (const k of buckets) {
+				const n = m.counts[view.dim]?.[k.key];
+				if (n === undefined || n === null) { cells += `<td class="zero">?</td>`; continue; }
+				const tint = n ? ` style="background: color-mix(in srgb, var(--link) ${Math.round(6 + 26 * n / max)}%, transparent)"` : "";
+				cells += `<td class="${n ? "" : "zero"}"${tint} title="${esc(m.name)}: ${n} ${esc(k.label)}">${n || "·"}</td>`;
+			}
+			return `<tr>${cells}<td>${days(m.oldest_days)}</td></tr>`;
+		}).join("") + "</tbody>";
+
+		const sum = (f) => known.reduce((t, m) => t + f(m), 0);
+		const oldest = b.mods.reduce((o, m) => m.oldest_days === null ? o : Math.max(o ?? 0, m.oldest_days), null);
+		const foot = `<tfoot><tr><td class="mod">All mods</td><td class="total">${b.mods.reduce((t, m) => t + (m.total || 0), 0)}</td>`
+			+ buckets.map((k) => `<td>${sum((m) => m.counts[view.dim][k.key])}</td>`).join("")
+			+ `<td>${days(oldest)}</td></tr></tfoot>`;
+
+		$("backlog-table").innerHTML = head + body + foot;
+		// Status and priority come from Linear: a run that could not read it leaves them null.
+		const unknown = b.mods.some((m) => m.total !== null && !m.counts?.[view.dim]);
+		const age = Math.max(0, Math.round((Date.now() - Date.parse(b.generated_at)) / 60000));
+		$("backlog-note").innerHTML = `Counted ${ago(age)}.`
+			+ (unknown ? ` ${esc(DIM_LABEL[view.dim])} comes from Linear, which this run could not read.` : "")
+			+ (b.errors.length ? "<ul>" + b.errors.map((e) => `<li>${esc(e)}</li>`).join("") + "</ul>" : "");
+		$("backlog").hidden = false;
+	}
+
+	$("dims").addEventListener("click", (e) => {
+		const d = e.target.closest("button")?.dataset.dim;
+		if (!d || !backlog) return;
+		view.dim = d;
+		store.set("dim", d);
+		renderBacklog();
+	});
+	$("backlog-table").addEventListener("click", (e) => {
+		const col = e.target.closest("button")?.dataset.sort;
+		if (!col || !backlog) return;
+		// Names read best A→Z first; counts and ages, largest first.
+		view.dir = view.sort === col ? (view.dir === "asc" ? "desc" : "asc") : col === "name" ? "asc" : "desc";
+		view.sort = col;
+		store.set("sort", view.sort);
+		store.set("dir", view.dir);
+		renderBacklog();
+	});
+
+	async function loadBacklog() {
+		try {
+			const res = await fetch("backlog.json", { cache: "no-store" });
+			// An older deploy, or a run whose backlog failed: the section stays as it was.
+			if (!res.ok) return;
+			backlog = await res.json();
+		} catch {
+			if (!backlog) return;
+		}
+		renderBacklog();
+	}
+
 	let last = null;
 	async function load() {
 		try {
@@ -193,7 +349,8 @@
 		render(last);
 	}
 	load();
-	setInterval(load, 60000);
+	loadBacklog();
+	setInterval(() => { load(); loadBacklog(); }, 60000);
 </script>
 </body>
 </html>

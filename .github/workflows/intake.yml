@@ -214,6 +214,8 @@ jobs:
           REPO_VARS: ${{ toJSON(vars) }}
           HEALTH_PAGE_DIR: _site
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          # El PAT de los repos de mod, para la tabla de backlog de la página (lib/backlog.mjs).
+          MODS_GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: node lib/health.mjs
       # Igual en healthcheck.yml. Sin la rama, la página de stats dice que no hay datos.
       - name: Add the download snapshots to the stats page

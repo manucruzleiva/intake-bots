@@ -29,7 +29,8 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/announce.mjs`](lib/announce.mjs) | El anuncio de un release en Discord. Lo corre `announce.yml`; `--print` muestra el payload sin postear |
 | [`lib/catalog.mjs`](lib/catalog.mjs) | El catálogo de `#mods`: una card por proyecto con los datos vivos de Modrinth y CurseForge, editada en el lugar. `--dry-run` imprime sin escribir |
 | [`lib/stats.mjs`](lib/stats.mjs) | Los snapshots de descargas: con lo que bajó el catálogo, agrega una fila por mod cuyo total se movió a `stats/downloads.json` de la rama `stats` |
-| [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` |
+| [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` y el `backlog.json` |
+| [`lib/backlog.mjs`](lib/backlog.mjs) | La tabla de tickets abiertos de la página: cuenta los issues abiertos de cada mod por tipo, estado, prioridad y origen |
 | [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
 | [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, mensajes fijos del bot (`#rules`), AutoMod, welcome screen y onboarding |
 | [`projects.json`](projects.json) | Un objeto por proyecto: lo único que hay que tocar para dar uno de alta |
@@ -379,6 +380,23 @@ La página sólo se re-publica desde una corrida viva, así que **decide sola si
 viejos**: compara el `generated_at` de `status.json` con el reloj de quien la mira, y pasados 30 min
 muestra "Stale — the intake chain may be down" en lugar del último veredicto. Re-lee el JSON cada
 minuto. No guarda historial: un deploy estático no tiene dónde.
+
+**Open tickets** (`lib/backlog.mjs`): debajo del veredicto, una fila por proyecto de `projects.json`
+con su ícono y cuántos issues abiertos tiene su repo, contados por **tipo**, **estado**, **prioridad**
+u **origen** (un selector) y ordenables por cualquier columna; la elección queda en el `localStorage`
+de quien mira. Sólo conteos, nunca títulos: la página es pública y los repos de mod no. `health.mjs`
+lo escribe como `backlog.json` con el secret `GH_TOKEN` (env `MODS_GH_TOKEN`: el `GH_TOKEN` del job es
+el de este repo y no ve los otros) y `LINEAR_API_KEY`.
+
+- **Tipo**: labels del issue (`crash`, `bug`, `documentation`, `enhancement`) o `RESEARCH` en el
+  título; sin nada de eso, la prioridad del espejo de Linear, que se pone por tipo (1 Crash, 2 Bug,
+  3 Improvement, 4 Feature). Sin espejo ni label, `Untriaged`.
+- **Estado**: el state del espejo, buscado por la URL del issue en sus attachments. `needs-info` o
+  `blocked` le ganan. Sin espejo abierto (mid-battle-exp no espeja), `Not in Linear`.
+- **Ícono**: el `icon_url` de Modrinth, el thumbnail de CurseForge si Modrinth todavía no lo aprobó, y
+  si no el emoji del tag en `#tickets`.
+
+Nada de esto pone rojo el chequeo: una fuente que no se pudo leer queda como línea bajo la tabla.
 
 Pages se habilitó una vez, en modo workflow:
 
