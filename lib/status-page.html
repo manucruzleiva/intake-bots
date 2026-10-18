@@ -8,7 +8,7 @@
   Deployed to GitHub Pages by the intake workflows, next to the status.json that lib/health.mjs
   writes. Everything is decided here, in the viewer's browser: the page is only redeployed by a run
   that is alive, so it has to notice on its own when its data stopped coming.
-  Under it, the open tickets of each mod, from the backlog.json that lib/backlog.mjs writes.
+  Under it, the open tickets of each repo, from the backlog.json that lib/backlog.mjs writes.
 -->
 <style>
 	:root {
@@ -160,7 +160,7 @@
 	</section>
 	<footer>
 		Discord ticket forums → GitHub issues, checked by <code>lib/health.mjs</code> at the end of every
-		intake run and hourly from the healthcheck. Open tickets are counted from each mod's GitHub issues,
+		intake run and hourly from the healthcheck. Open tickets are counted from each repo's GitHub issues,
 		with status and priority from their Linear mirror. This page re-reads its data every minute.
 	</footer>
 </main>
@@ -242,7 +242,7 @@
 
 		const known = b.mods.filter((m) => m.counts?.[view.dim]);
 		const buckets = b.dimensions[view.dim].filter((k) => known.some((m) => m.counts[view.dim][k.key] > 0));
-		const cols = [{ key: "name", label: "Mod", cls: "mod" }, { key: "total", label: "Open", cls: "total" }]
+		const cols = [{ key: "name", label: "Project", cls: "mod" }, { key: "total", label: "Open", cls: "total" }]
 			.concat(buckets.map((k) => ({ key: k.key, label: k.label })))
 			.concat([{ key: "oldest", label: "Oldest" }]);
 		if (!cols.some((c) => c.key === view.sort)) { view.sort = "total"; view.dir = "desc"; }
@@ -288,7 +288,7 @@
 
 		const sum = (f) => known.reduce((t, m) => t + f(m), 0);
 		const oldest = b.mods.reduce((o, m) => m.oldest_days === null ? o : Math.max(o ?? 0, m.oldest_days), null);
-		const foot = `<tfoot><tr><td class="mod">All mods</td><td class="total">${b.mods.reduce((t, m) => t + (m.total || 0), 0)}</td>`
+		const foot = `<tfoot><tr><td class="mod">All projects</td><td class="total">${b.mods.reduce((t, m) => t + (m.total || 0), 0)}</td>`
 			+ buckets.map((k) => `<td>${sum((m) => m.counts[view.dim][k.key])}</td>`).join("")
 			+ `<td>${days(oldest)}</td></tr></tfoot>`;
 

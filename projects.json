@@ -157,6 +157,8 @@
     "name": "Cobblemon Action Combat",
     "prefix": "ACTION_COMBAT",
     "intake": false,
+    "repo": "manucruzleiva/cobblemon-action-combat",
+    "emoji": "⚔️",
     "announce": {
       "content": "# ⚔️✨ Cobblemon Action Combat v{version} is here! ✨",
       "links": {
@@ -165,5 +167,40 @@
       "color": 10233776,
       "footer": "Grow in the middle of the fight. ⚔️"
     }
+  },
+  {
+    "dir": "poketowns",
+    "name": "PokeTowns",
+    "intake": false,
+    "repo": "manucruzleiva/cobblemon-poketowns",
+    "emoji": "🏘️"
+  },
+  {
+    "dir": "pokegyms",
+    "name": "PokeGyms",
+    "intake": false,
+    "repo": "manucruzleiva/cobblemon-pokegyms",
+    "emoji": "🏟️"
+  },
+  {
+    "dir": "poketrades",
+    "name": "Cobblemon NPC Trades",
+    "intake": false,
+    "repo": "manucruzleiva/cobblemon-poketrades",
+    "emoji": "🔄"
+  },
+  {
+    "dir": "intake-bots",
+    "name": "Intake Bots",
+    "intake": false,
+    "repo": "manucruzleiva/intake-bots",
+    "emoji": "🤖"
+  },
+  {
+    "dir": "mod-wiki",
+    "name": "Mod Wiki",
+    "intake": false,
+    "repo": "manucruzleiva/mod-wiki",
+    "emoji": "📖"
   }
 ]
