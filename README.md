@@ -207,7 +207,7 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `gate` | Opcional. `enabled-var` (ver abajo) |
 | `intake` | Opcional. `false` en un repo sin foro: no entra al poller, al catálogo de `#mods`, al healthcheck ni al bootstrap. Un mod que sólo anuncia releases lleva `dir`, `name`, `prefix` y `announce`; un repo que sólo cuenta en la tabla de tickets de la página (un mod en desarrollo, este bot, la wiki), `dir`, `name` y `repo`. **Todo repo del workspace tiene su entrada**, con o sin intake |
 | `repo` | Opcional. El `owner/repo` cuyos issues cuenta la tabla de tickets de la página (`lib/backlog.mjs`), en un proyecto sin la variable `<PREFIX>_GH_REPO` |
-| `emoji` | Opcional. El ícono de su fila en esa tabla cuando no hay tienda ni tag en `#tickets` que lo den |
+| `emoji` | Opcional. El ícono de su fila en esa tabla cuando no hay tienda, `art/branding/icon.png` en el repo ni tag en `#tickets` que lo den |
 | `announce` | El anuncio de release: `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). `sponsor` va pelado: el botón le suma `metadata_mod=<dir>` y `metadata_src=discord-announce` (o `discord-catalog` en la card de `#mods`), que el export de GitHub Sponsors muestra en su columna `metadata`. El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). **El canal no va acá**: todo mod postea en `#announcements` de `server.json` (su id fijado) y menciona el rol que se llama como su `tag`, buscado por nombre; `allowed_mentions` nombra sólo ese rol. Sin rol, la card sale sin ping y con un `::warning::` |
 
 **Dar de alta un proyecto:**
@@ -421,8 +421,9 @@ el de este repo y no ve los otros) y `LINEAR_API_KEY`.
   3 Improvement, 4 Feature). Sin espejo ni label, `Untriaged`.
 - **Estado**: el state del espejo, buscado por la URL del issue en sus attachments. `needs-info` o
   `blocked` le ganan. Sin espejo abierto (mid-battle-exp no espeja), `Not in Linear`.
-- **Ícono**: el `icon_url` de Modrinth, el thumbnail de CurseForge si Modrinth todavía no lo aprobó, y
-  si no el emoji del tag en `#tickets`.
+- **Ícono**: el `icon_url` de Modrinth, el thumbnail de CurseForge si Modrinth todavía no lo aprobó, el
+  placeholder del repo (`art/branding/icon.png`, embebido como data URI porque el repo es privado) si
+  no está en ninguna tienda, y si no el emoji del tag en `#tickets`.
 
 Nada de esto pone rojo el chequeo: una fuente que no se pudo leer queda como línea bajo la tabla.
 
