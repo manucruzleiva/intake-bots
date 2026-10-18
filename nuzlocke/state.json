@@ -24,12 +24,14 @@
       "kind": "idea",
       "lastMsg": "1560587512848580680",
       "closedAs": "completed",
-      "closeAttempts": 2
+      "closeAttempts": 3,
+      "closedAnnounced": true,
+      "archiveAttempts": 1
     }
   },
   "lastRelease": "v1.5.38",
   "repliesSince": "2026-10-18T14:34:27Z",
   "voice": {
-    "fixed.idea": 2
+    "fixed.idea": 3
   }
 }
