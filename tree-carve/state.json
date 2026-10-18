@@ -5,21 +5,9 @@
     "1561040946240430293",
     "1561233883306139680"
   ],
-  "tracked": {
-    "1561233883306139680": {
-      "issue": 87,
-      "kind": "bug",
-      "lastMsg": "1561233923277717536",
-      "awaitingReply": true,
-      "missing": [
-        "version",
-        "loader"
-      ],
-      "test": true
-    }
-  },
+  "tracked": {},
   "lastRelease": "v1.0.0",
-  "repliesSince": "2026-10-18T13:57:29Z",
+  "repliesSince": "2026-10-18T14:01:58Z",
   "voice": {
     "filed.bug": 1,
     "ask": 1
