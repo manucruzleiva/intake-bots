@@ -33,10 +33,21 @@
       "issue": 34,
       "kind": "bug",
       "lastMsg": "1561168069185773619",
-      "firstReplyAt": "2026-10-17T17:37:17Z"
+      "firstReplyAt": "2026-10-17T17:37:17Z",
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "releaseAnnounced": "v4.0.0",
+      "survey": {
+        "message": "1561204684126032005",
+        "version": "4.0.0",
+        "owner": "384695991594385419"
+      }
     }
   },
-  "lastRelease": "v3.0.0",
-  "repliesSince": "2026-10-18T00:12:37Z",
-  "voice": {}
+  "lastRelease": "v4.0.0",
+  "repliesSince": "2026-10-18T02:25:40Z",
+  "voice": {
+    "fixed.bug": 1,
+    "release": 1
+  }
 }
