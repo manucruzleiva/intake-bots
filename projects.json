@@ -170,21 +170,21 @@
   },
   {
     "dir": "poketowns",
-    "name": "PokeTowns",
+    "name": "Cobblemon PokeTowns",
     "intake": false,
     "repo": "manucruzleiva/cobblemon-poketowns",
     "emoji": "🏘️"
   },
   {
     "dir": "pokegyms",
-    "name": "PokeGyms",
+    "name": "Cobblemon PokeGyms",
     "intake": false,
     "repo": "manucruzleiva/cobblemon-pokegyms",
     "emoji": "🏟️"
   },
   {
     "dir": "poketrades",
-    "name": "Cobblemon NPC Trades",
+    "name": "Cobblemon PokeTrades",
     "intake": false,
     "repo": "manucruzleiva/cobblemon-poketrades",
     "emoji": "🔄"
