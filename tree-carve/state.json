@@ -2,10 +2,27 @@
   "processed": [
     "1560864399869345813",
     "1561040950833193071",
-    "1561040946240430293"
+    "1561040946240430293",
+    "1561233883306139680"
   ],
-  "tracked": {},
+  "tracked": {
+    "1561233883306139680": {
+      "issue": 87,
+      "kind": "bug",
+      "lastMsg": "1561233883306139680",
+      "awaitingReply": true,
+      "missing": [
+        "version",
+        "loader"
+      ],
+      "linearSince": "2026-10-18T04:26:13.532Z",
+      "test": true
+    }
+  },
   "lastRelease": "v1.0.0",
   "repliesSince": "2026-10-17T17:02:38Z",
-  "voice": {}
+  "voice": {
+    "filed.bug": 1,
+    "ask": 1
+  }
 }
