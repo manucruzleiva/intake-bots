@@ -26,7 +26,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
 | [`lib/gates.mjs`](lib/gates.mjs) | Los gates: qué proyecto corre y por qué. Lo usan `matrix.mjs` y `health.mjs` |
 | [`lib/health.mjs`](lib/health.mjs) | El healthcheck: lee las corridas de `intake.yml` y abre/cierra el issue "Intake unhealthy" |
-| [`lib/announce.mjs`](lib/announce.mjs) | El anuncio de un release en Discord. Lo corre `announce.yml`; `--print` muestra el payload sin postear |
+| [`lib/announce.mjs`](lib/announce.mjs) | La card de un release en `#announcements`. Lo corre `mod-released.yml`; valida el release y lee el CHANGELOG del mod en su tag por la API; `--print` muestra el payload sin postear |
 | [`lib/catalog.mjs`](lib/catalog.mjs) | El catálogo de `#mods`: una card por proyecto con los datos vivos de Modrinth y CurseForge, editada en el lugar. `--dry-run` imprime sin escribir |
 | [`lib/stats.mjs`](lib/stats.mjs) | Los snapshots de descargas: con lo que bajó el catálogo, agrega una fila por mod cuyo total se movió a `stats/downloads.json` de la rama `stats` |
 | [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` y el `backlog.json` |
@@ -39,7 +39,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
 | [`.github/workflows/server.yml`](.github/workflows/server.yml) | A mano: hace que el guild coincida con `server.json` (`dry_run` por defecto, `prune` apagado) |
 | [`.github/workflows/catalog.yml`](.github/workflows/catalog.yml) | Cada hora: corre `lib/catalog.mjs` y pushea el snapshot de descargas a la rama `stats`. Aparte de `intake.yml`, para que una tienda caída no toque la cadena |
-| [`.github/workflows/announce.yml`](.github/workflows/announce.yml) | Reutilizable (`workflow_call`): el job `announce` del `publish.yml` de cada mod lo llama para anunciar el release |
+| [`.github/workflows/mod-released.yml`](.github/workflows/mod-released.yml) | `repository_dispatch` `mod-released`: el `publish.yml` de cada mod lo dispara cuando las tiendas aceptaron los jars, y postea la card. A mano, con `dry` (por defecto), valida e imprime sin postear |
 | `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
 | `<dir>/state.json` | Ledger de dedup del proyecto. **No se mueve ni se borra**: sin él, cada thread viejo se vuelve a filar |
 | `<dir>/reporters.json` | Tally de reporteros para los créditos de la comunidad y el rol `Bug Catcher` (aparece con el primer issue filado) |
@@ -89,12 +89,19 @@ subida al issue no se ve en Discord: el link es del repo privado.
 
 **Aviso de release** (#12, `lib/releases.mjs`): cuando sale el release que trae el fix, el bot lo
 dice en el hilo del reporter. Un release cuenta como salido recién cuando **su card está en
-`#announcements`** (#53): el GitHub Release es donde el publish arranca, y la card la postea el
-`publish.yml` del mod sólo después de que las tiendas aceptaron los jars. La card se reconoce por el
-encabezado de `announce.content` con esa versión, no por autor: cada mod la postea con su propio
-`DISCORD_TOKEN`. Sin card, el release espera a la corrida siguiente sin gastar intentos; a las 6 h
-sigue esperando pero con un `::warning::`. Un publish fallido no avisa nunca: lo destraba un
-`announce_only`.
+`#announcements`** (#53): el GitHub Release es donde el publish arranca. La card se reconoce por el
+encabezado de `announce.content` con esa versión. Sin card, el release espera a la corrida siguiente
+sin gastar intentos; a las 6 h sigue esperando pero con un `::warning::`. Un publish fallido no avisa
+nunca: lo destraba un `announce_only`.
+
+**Card de release** (#54, `mod-released.yml`): un repo de mod nunca habla con Discord. Cuando las
+tiendas aceptaron los jars (o en un `announce_only`), su `publish.yml` dispara un `repository_dispatch`
+`mod-released` con `{project, version, tag}` y su secret `INTAKE_DISPATCH_TOKEN` (PAT fine-grained
+sólo sobre intake-bots, Contents: read and write). intake-bots no le cree al payload: el proyecto tiene
+que estar en `projects.json`, el tag tiene que ser un release publicado de `<PREFIX>_GH_REPO` y nombrar
+esa versión, y el CHANGELOG se lee en ese tag con `GH_TOKEN`. El workflow no escribe `state.json` ni
+entra al grupo `intake`, donde un dispatch pendiente puede quedar reemplazado y perder su card. Cerrar
+los issues del release sigue en el `publish.yml` del mod: eso es GitHub, no Discord.
 
 **Encuesta de satisfacción** (#13, `lib/survey.mjs`): el aviso `🚀 … vX.Y.Z` de un Bug o
 Crash (#12) lleva en **el mismo mensaje** un poll nativo de Discord — *FIX CHECK: did vX.Y.Z solve your problem?*,
@@ -189,6 +196,7 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
 | `linear` | Opcional. El **nombre** del project de Linear de sus espejos (`Routes`, `Cobblemon Champions`…: no siempre el del mod). Sin él, la fila no triagea; va vacío en un repo que no espeja |
 | `gate` | Opcional. `enabled-var` (ver abajo) |
+| `intake` | Opcional. `false` en un mod que sólo anuncia releases: no entra al poller, al catálogo de `#mods`, al healthcheck ni al bootstrap, y sólo necesita `dir`, `name`, `prefix`, `announce` y la variable `<PREFIX>_GH_REPO` |
 | `announce` | El anuncio de release: `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). `sponsor` va pelado: el botón le suma `metadata_mod=<dir>` y `metadata_src=discord-announce` (o `discord-catalog` en la card de `#mods`), que el export de GitHub Sponsors muestra en su columna `metadata`. El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). **El canal no va acá**: todo mod postea en `#announcements` de `server.json` (su id fijado) y menciona el rol que se llama como su `tag`, buscado por nombre; `allowed_mentions` nombra sólo ese rol. Sin rol, la card sale sin ping y con un `::warning::` |
 
 **Dar de alta un proyecto:**
@@ -228,9 +236,9 @@ archivados del foro.
 | Nombre | Tipo | |
 |---|---|---|
 | `DISCORD_GUILD_ID` | variable | **Compartida**: hay un solo server |
-| `DISCORD_TOKEN` | secret | **Compartido**: el bot único, para cada fila del intake, `server.yml`, `catalog.yml` y el job `unrouted` |
+| `DISCORD_TOKEN` | secret | **Compartido**: el bot único, para cada fila del intake, `server.yml`, `catalog.yml`, `mod-released.yml` y el job `unrouted` |
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
-| `GH_TOKEN` | secret | **Compartido**: el PAT con el que cada fila abre issues en el repo de su mod y `catalog.yml` lee el `DESCRIPTION_SHORT.txt` |
+| `GH_TOKEN` | secret | **Compartido**: el PAT con el que cada fila abre issues en el repo de su mod, `catalog.yml` lee el `DESCRIPTION_SHORT.txt` y `mod-released.yml` valida el release y lee el CHANGELOG |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
 | `LINEAR_API_KEY` | secret | **Compartido**: key personal de Linear (`intake-bots`, Write, team COB) con la que las filas triagean los espejos y `health.mjs` el de "Intake unhealthy" |
 

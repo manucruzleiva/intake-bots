@@ -151,5 +151,19 @@
       "color": 5814783,
       "footer": "Carve something someone else will find."
     }
+  },
+  {
+    "dir": "action-combat",
+    "name": "Cobblemon Action Combat",
+    "prefix": "ACTION_COMBAT",
+    "intake": false,
+    "announce": {
+      "content": "# ⚔️✨ Cobblemon Action Combat v{version} is here! ✨",
+      "links": {
+        "sponsor": "https://github.com/sponsors/manucruzleiva"
+      },
+      "color": 10233776,
+      "footer": "Grow in the middle of the fight. ⚔️"
+    }
   }
 ]

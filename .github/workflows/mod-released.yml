@@ -1,0 +1,79 @@
+name: Mod released
+
+# La card de un release en #announcements. Un repo de mod nunca habla con Discord: su publish.yml,
+# cuando las tiendas aceptaron los jars (o en un `announce_only`), dispara acá un repository_dispatch
+#
+#   POST /repos/manucruzleiva/intake-bots/dispatches
+#   { "event_type": "mod-released", "client_payload": { "project": "<dir>", "version": "X.Y.Z", "tag": "vX.Y.Z" } }
+#
+# con su secret INTAKE_DISPATCH_TOKEN (un PAT fine-grained sólo sobre intake-bots, Contents: read and
+# write). lib/announce.mjs no le cree al payload: el proyecto tiene que estar en projects.json, el tag
+# tiene que ser un release publicado del repo del mod (<PREFIX>_GH_REPO) y nombrar esa versión, y el
+# CHANGELOG.md se lee del repo del mod EN ESE TAG, por la API con GH_TOKEN.
+#
+# El aviso en los hilos de los reporters no sale de acá: lo manda la próxima corrida de intake.yml,
+# que espera a ver esta card en #announcements (lib/releases.mjs). Por eso este workflow no escribe
+# state.json ni comparte el grupo `intake`: en ese grupo un dispatch pendiente puede quedar
+# reemplazado por otro, y esa card se perdería. Su grupo es por versión, así que sólo se pisan dos
+# disparos de la misma card.
+#
+# `dry` (en el payload o en el dispatch manual) hace todas las validaciones y lee el CHANGELOG, pero
+# imprime el payload de Discord en vez de postearlo.
+
+on:
+  repository_dispatch:
+    types: [mod-released]
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "The project's `dir` in projects.json"
+        required: true
+        type: string
+      version:
+        description: "The version to announce, without the leading v"
+        required: true
+        type: string
+      dry:
+        description: "Validate and print the card, post nothing"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mod-released-${{ github.event.client_payload.project || inputs.project }}-${{ github.event.client_payload.version || inputs.version }}
+  cancel-in-progress: false
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    env:
+      PROJECT: ${{ github.event.client_payload.project || inputs.project }}
+      VERSION: ${{ github.event.client_payload.version || inputs.version }}
+      TAG: ${{ github.event.client_payload.tag || format('v{0}', github.event.client_payload.version || inputs.version) }}
+      DRY: ${{ (github.event.client_payload.dry == true || github.event.client_payload.dry == 'true' || inputs.dry == true) && 'true' || '' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Resolve the project
+        id: project
+        run: |
+          prefix=$(jq -r --arg d "$PROJECT" '.[] | select(.dir == $d) | .prefix // empty' projects.json)
+          if [ -z "$prefix" ]; then
+            echo "::error::projects.json has no project \"$PROJECT\""
+            exit 1
+          fi
+          echo "prefix=$prefix" >> "$GITHUB_OUTPUT"
+          echo "$PROJECT v$VERSION ($TAG)${DRY:+, dry run}"
+
+      - name: Announce on Discord
+        env:
+          MOD_REPO: ${{ vars[format('{0}_GH_REPO', steps.project.outputs.prefix)] }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        run: node lib/announce.mjs "$PROJECT" "$VERSION" ${DRY:+--print}

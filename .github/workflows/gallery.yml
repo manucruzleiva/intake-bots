@@ -4,7 +4,7 @@ name: Store gallery
 # `uses: manucruzleiva/intake-bots/.github/workflows/gallery.yml@main`, en el release y en el dispatch
 # sync_description_only.
 #
-# La fuente es art/gallery/gallery.json del repo del CALLER (su checkout, como en announce.yml), y la
+# La fuente es art/gallery/gallery.json del repo del CALLER (su checkout), y la
 # lógica vive en lib/gallery.mjs: deja la galería de Modrinth igual a las entradas del manifiesto que
 # no son placeholder. Un repo sin manifiesto se saltea con un aviso, así cada mod lo adopta a su ritmo.
 # CurseForge no tiene endpoint de imágenes: el run lista qué subir ahí a mano.
