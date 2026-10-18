@@ -63,6 +63,15 @@ el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el p
 Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
 línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
 
+**Imágenes del reporte** (#39, `lib/assets.mjs`): el link de un adjunto de Discord muere a las 24 h,
+así que al filar el issue (y al comentar un follow-up) cada imagen (`png/jpe?g/gif/webp`) se baja y se
+sube a la rama huérfana `intake-assets` del repo del mod, en `<threadId>/<attachmentId>-<archivo>`, y el
+body la enlaza por `/raw/intake-assets/…`: se ve para quien tiene acceso al repo privado y es un 404
+para el resto. Cada commit lleva `[skip ci]`. La primera escritura crea la rama (blob, tree, commit sin
+padre y ref) y las demás van por `PUT /contents`; un reintento encuentra el archivo ya subido (422) y lo
+usa. Una subida fallida deja el link de Discord con un `::warning::` y nunca frena el issue. `DRY_RUN`
+no sube nada; borrar un post `[TEST]` borra también su carpeta de la rama.
+
 **La voz de Computah** (#17, `lib/voice.mjs`): todo lo que el bot escribe en un hilo — respuesta al
 filar, pedido de datos, cierre, not planned, aviso de release, pregunta de la encuesta, pedido de tag —
 sale de ahí, como **lista de variantes** por clave: IA primitiva, corta y seca, la etiqueta en negrita en
