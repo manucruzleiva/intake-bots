@@ -456,5 +456,15 @@
         ]
       }
     ]
-  }
+  },
+  "emojis": [
+    {
+      "name": "modrinth",
+      "file": "art/emoji/modrinth.png"
+    },
+    {
+      "name": "curseforge",
+      "file": "art/emoji/curseforge.png"
+    }
+  ]
 }
