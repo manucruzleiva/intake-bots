@@ -22,10 +22,14 @@
     "1560534975684677702": {
       "issue": 136,
       "kind": "idea",
-      "lastMsg": "1560587512848580680"
+      "lastMsg": "1560587512848580680",
+      "closedAs": "completed",
+      "closeAttempts": 1
     }
   },
   "lastRelease": "v1.5.38",
-  "repliesSince": "2026-10-18T14:24:17Z",
-  "voice": {}
+  "repliesSince": "2026-10-18T14:34:27Z",
+  "voice": {
+    "fixed.idea": 1
+  }
 }
