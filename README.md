@@ -115,7 +115,10 @@ sólo sobre intake-bots, Contents: read and write). intake-bots no le cree al pa
 que estar en `projects.json`, el tag tiene que ser un release publicado de `<PREFIX>_GH_REPO` y nombrar
 esa versión, y el CHANGELOG se lee en ese tag con `GH_TOKEN`. El workflow no escribe `state.json` ni
 entra al grupo `intake`, donde un dispatch pendiente puede quedar reemplazado y perder su card. Cerrar
-los issues del release sigue en el `publish.yml` del mod: eso es GitHub, no Discord.
+los issues del release sigue en el `publish.yml` del mod: eso es GitHub, no Discord. **Una card por versión**: antes de postear,
+`announce.mjs` busca en `#announcements` la card de esa versión; si la posteó este bot la edita en el
+lugar (un changelog corregido, un dispatch repetido), si es de otro bot la deja, y `force_new` postea
+una nueva igual. Un proyecto sin intake (sin `<PREFIX>_GH_REPO`) usa su `repo` de `projects.json`.
 
 **Encuesta de satisfacción** (#13, `lib/survey.mjs`): el aviso `🚀 … vX.Y.Z` de un Bug o
 Crash (#12) lleva en **el mismo mensaje** un poll nativo de Discord — *FIX CHECK: did vX.Y.Z solve your problem?*,
