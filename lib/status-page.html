@@ -3,12 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Intake Status</title>
+<title>Computah Status</title>
 <!--
-  Deployed to GitHub Pages by the intake workflows, next to the status.json that lib/health.mjs
-  writes. Everything is decided here, in the viewer's browser: the page is only redeployed by a run
-  that is alive, so it has to notice on its own when its data stopped coming.
-  Under it, the open tickets of each repo, from the backlog.json that lib/backlog.mjs writes.
+  Deployed to GitHub Pages by the intake workflows, next to the JSON that lib/health.mjs writes:
+  status.json (is intake working), surfaces.json (the Discord server, the release cards and the store
+  pages, lib/surfaces.mjs) and backlog.json (the open tickets of each repo, lib/backlog.mjs).
+  Everything is decided here, in the viewer's browser: the page is only redeployed by a run that is
+  alive, so it has to notice on its own when its data stopped coming.
+
+  Top to bottom: the intake verdict (the same one as the "Intake unhealthy" issue), one card per
+  pillar of GOAL.MD, one row per project across the pillars, and the open tickets.
 -->
 <style>
 	:root {
@@ -68,15 +72,25 @@
 		color: var(--text);
 		font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 	}
-	main { max-width: 900px; margin: 0 auto; padding: 32px 16px 48px; }
-	header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; margin: 0 0 16px; }
-	h1 { font-size: 20px; margin: 0; }
-	header a { font-size: 14px; }
+	main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; }
 	a { color: var(--link); }
+	code { font-size: 13px; }
+
+	/* The bar the stats page shares. */
+	.topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 0 0 20px; }
+	.brand { display: flex; align-items: center; gap: 10px; }
+	.brand .logo { font-size: 26px; line-height: 1; }
+	.brand h1 { font-size: 19px; margin: 0; line-height: 1.2; }
+	.brand p { margin: 0; color: var(--muted); font-size: 13px; }
+	nav.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+	nav.tabs a { font-size: 14px; padding: 6px 14px; color: var(--muted); text-decoration: none; border-left: 1px solid var(--line); }
+	nav.tabs a:first-child { border-left: 0; }
+	nav.tabs a[aria-current="page"] { color: var(--text); font-weight: 600; background: var(--off-bg); }
+
 	.verdict {
 		border-radius: 10px;
 		padding: 16px 18px;
-		margin-bottom: 16px;
+		margin-bottom: 20px;
 		border: 1px solid var(--line);
 		background: var(--card);
 	}
@@ -87,21 +101,17 @@
 	.verdict ul { margin: 8px 0 0; padding-left: 20px; }
 	.meta { color: var(--muted); font-size: 13px; margin: 6px 0 0; }
 	.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
-	.row {
-		display: grid;
-		grid-template-columns: 1fr auto;
-		gap: 2px 12px;
-		padding: 12px 16px;
-		border-top: 1px solid var(--line);
-	}
-	.row:first-child { border-top: 0; }
-	.name { font-weight: 600; }
+	.stale-data .pillars, .stale-data #projects .card { opacity: 0.55; }
+
+	h2 { font-size: 17px; margin: 0; }
+	.section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 32px 0 12px; }
+	.section-head p { margin: 0; color: var(--muted); font-size: 13px; flex-basis: 100%; }
+
 	.pill {
-		justify-self: end;
-		align-self: start;
-		font-size: 13px;
+		display: inline-block;
+		font-size: 12px;
 		font-weight: 600;
-		padding: 2px 10px;
+		padding: 2px 9px;
 		border-radius: 999px;
 		white-space: nowrap;
 	}
@@ -109,12 +119,39 @@
 	.pill.warn { color: var(--warn); background: var(--warn-bg); }
 	.pill.fail { color: var(--fail); background: var(--fail-bg); }
 	.pill.off { color: var(--off); background: var(--off-bg); }
-	.detail { grid-column: 1 / -1; color: var(--muted); font-size: 13px; }
-	.stale-data .row { opacity: 0.55; }
-	code { font-size: 13px; }
-	footer { color: var(--muted); font-size: 13px; margin-top: 16px; }
-	h2 { font-size: 17px; margin: 0; }
-	.section-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 32px 0 12px; }
+
+	/* ---- Pillars ---- */
+	.pillars { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+	.pillar { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; border-top: 3px solid var(--off); }
+	.pillar.ok { border-top-color: var(--ok); }
+	.pillar.warn { border-top-color: var(--warn); }
+	.pillar.fail { border-top-color: var(--fail); }
+	.pillar header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+	.pillar h3 { font-size: 15px; margin: 0; display: flex; align-items: center; gap: 8px; }
+	.pillar h3 span { font-size: 18px; }
+	.pillar .big { font-size: 22px; font-weight: 700; line-height: 1.2; font-variant-numeric: tabular-nums; }
+	.pillar .big small { font-size: 13px; font-weight: 400; color: var(--muted); }
+	.pillar ul { list-style: none; margin: 0; padding: 0; font-size: 13px; color: var(--muted); }
+	.pillar li { padding: 1px 0; }
+	.pillar .next { margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 12px; color: var(--muted); }
+
+	/* ---- Projects and open tickets ---- */
+	.table-wrap { overflow-x: auto; }
+	table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+	th, td { padding: 9px 10px; border-top: 1px solid var(--line); white-space: nowrap; vertical-align: middle; }
+	thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--muted); vertical-align: bottom; text-align: left; }
+	.mod { text-align: left; position: sticky; left: 0; background: var(--card); z-index: 1; }
+	td.mod a { color: var(--text); text-decoration: none; font-weight: 600; }
+	td.mod a:hover { text-decoration: underline; }
+	.mod-cell { display: inline-flex; align-items: center; gap: 10px; }
+	.icon { width: 24px; height: 24px; border-radius: 6px; flex: none; object-fit: cover; }
+	span.icon { display: inline-grid; place-items: center; background: var(--off-bg); font-size: 14px; }
+	.sub { display: block; color: var(--muted); font-size: 12px; margin-top: 1px; }
+	.sub a { color: inherit; }
+	.dash { color: var(--muted); opacity: 0.6; }
+	table.projects tbody tr.dev td { color: var(--muted); }
+	@media (max-width: 600px) { td.mod { white-space: normal; min-width: 150px; } }
+
 	.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
 	.seg button {
 		font: inherit; font-size: 13px; padding: 5px 12px; border: 0; border-left: 1px solid var(--line);
@@ -123,45 +160,69 @@
 	.seg button:first-child { border-left: 0; }
 	.seg button[aria-pressed="true"] { background: var(--off-bg); color: var(--text); font-weight: 600; }
 	.seg button:focus-visible, th button:focus-visible { outline: 2px solid var(--link); outline-offset: -2px; }
-	.table-wrap { overflow-x: auto; }
-	table.backlog { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
-	.backlog th, .backlog td { padding: 8px 10px; border-top: 1px solid var(--line); text-align: right; white-space: nowrap; vertical-align: middle; }
-	.backlog thead th { border-top: 0; font-size: 12px; font-weight: 600; color: var(--muted); vertical-align: bottom; }
+	.backlog th, .backlog td { text-align: right; padding: 8px 10px; }
+	.backlog th.mod, .backlog td.mod { text-align: left; }
 	.backlog th button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 	.backlog th[aria-sort] button { color: var(--text); }
 	.backlog th[aria-sort="descending"] button::after { content: " \2193"; }
 	.backlog th[aria-sort="ascending"] button::after { content: " \2191"; }
-	.backlog .mod { text-align: left; position: sticky; left: 0; background: var(--card); }
-	.backlog td.mod a { color: var(--text); text-decoration: none; font-weight: 600; }
-	.backlog td.mod a:hover { text-decoration: underline; }
-	.mod-cell { display: inline-flex; align-items: center; gap: 10px; }
-	.icon { width: 24px; height: 24px; border-radius: 6px; flex: none; object-fit: cover; }
-	span.icon { display: inline-grid; place-items: center; background: var(--off-bg); font-size: 14px; }
 	.backlog .total { font-weight: 600; }
 	.backlog td.zero { color: var(--muted); opacity: 0.5; }
 	.backlog tfoot td { font-weight: 600; border-top: 2px solid var(--line); }
 	.backlog td.na { color: var(--muted); text-align: left; font-size: 13px; }
-	.backlog-note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
-	.backlog-note ul { margin: 4px 0 0; padding-left: 20px; }
+	.note { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+	.note ul { margin: 4px 0 0; padding-left: 20px; }
+	footer { color: var(--muted); font-size: 13px; margin-top: 32px; border-top: 1px solid var(--line); padding-top: 16px; }
+	footer p { margin: 0 0 6px; }
 </style>
 </head>
 <body>
 <main>
-	<header><h1>Intake status</h1><a href="stats/">Download stats →</a></header>
-	<div id="verdict" class="verdict"><strong>Loading…</strong></div>
-	<div id="rows" class="card" hidden></div>
-	<section id="backlog" hidden>
-		<div class="section-head">
-			<h2>Open tickets</h2>
-			<div class="seg" id="dims" role="group" aria-label="Count by"></div>
+	<div class="topbar">
+		<div class="brand">
+			<span class="logo" aria-hidden="true">🤖</span>
+			<div><h1>Computah</h1><p>The community side of shiero's mods, run from one repo</p></div>
 		</div>
-		<div class="card table-wrap"><table class="backlog" id="backlog-table"></table></div>
-		<div class="backlog-note" id="backlog-note"></div>
-	</section>
+		<nav class="tabs" aria-label="Pages"><a href="./" aria-current="page">Status</a><a href="stats/">Download stats</a></nav>
+	</div>
+
+	<div id="verdict" class="verdict"><strong>Loading…</strong></div>
+
+	<div id="content">
+		<section class="pillars" id="pillars" aria-label="Pillars"></section>
+
+		<section id="projects" hidden>
+			<div class="section-head">
+				<h2>Projects</h2>
+				<p>Every repo the bot looks after, across the four pillars.</p>
+			</div>
+			<div class="card table-wrap"><table class="projects" id="projects-table"></table></div>
+			<div class="note" id="projects-note"></div>
+		</section>
+
+		<section id="backlog" hidden>
+			<div class="section-head">
+				<h2>Open tickets</h2>
+				<div class="seg" id="dims" role="group" aria-label="Count by"></div>
+			</div>
+			<div class="card table-wrap"><table class="backlog" id="backlog-table"></table></div>
+			<div class="note" id="backlog-note"></div>
+		</section>
+	</div>
+
 	<footer>
-		Discord ticket forums → GitHub issues, checked by <code>lib/health.mjs</code> at the end of every
-		intake run and hourly from the healthcheck. Open tickets are counted from each repo's GitHub issues,
-		with status and priority from their Linear mirror. This page re-reads its data every minute.
+		<p>
+			Intake is checked by <code>lib/health.mjs</code> at the end of every intake run and hourly from the
+			healthcheck; that verdict is the one the <em>Intake unhealthy</em> issue follows. The other pillars are
+			read in the same run (<code>lib/surfaces.mjs</code>) and only inform: none of them opens an issue yet.
+			Open tickets are counted from each repo's GitHub issues, with status and priority from their Linear
+			mirror. This page re-reads its data every minute.
+		</p>
+		<p>
+			What the bot is for: <a href="https://github.com/manucruzleiva/intake-bots/blob/main/GOAL.MD">GOAL.MD</a> ·
+			how it works: <a href="https://github.com/manucruzleiva/intake-bots#readme">README</a> ·
+			report a problem in <code>#tickets</code> on Discord.
+		</p>
 	</footer>
 </main>
 <script>
@@ -172,12 +233,20 @@
 		.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
 		.replace(/`([^`]+)`/g, "<code>$1</code>")
 		.replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g, '<a href="$2">$1</a>');
-	const ago = (min) => min < 1 ? "just now" : min < 120 ? `${min} min ago` : `${Math.round(min / 60)} h ago`;
+	const ago = (min) => min < 1 ? "just now" : min < 120 ? `${min} min ago` : min < 2880 ? `${Math.round(min / 60)} h ago` : `${Math.round(min / 1440)} d ago`;
+	const minutesSince = (iso) => Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+	const since = (iso) => iso ? ago(minutesSince(iso)) : "never";
+	const pill = (level, text, title) => `<span class="pill ${esc(level)}"${title ? ` title="${esc(title)}"` : ""}>${esc(text)}</span>`;
+	const dash = '<span class="dash">—</span>';
 	const LABEL = { ok: "Healthy", warn: "One failed poll", fail: "Failing", off: "Not watched" };
+	// server.yml only runs by hand: a guild nobody has diffed in a week reads as unchecked.
+	const CHECK_DAYS = 7;
 
-	function render(s) {
+	let last = null, backlog = null, surfaces = null;
+
+	function renderVerdict(s) {
 		// Ages in status.json are as of generated_at; add what has passed since, so they stay true.
-		const elapsed = Math.max(0, Math.round((Date.now() - Date.parse(s.generated_at)) / 60000));
+		const elapsed = minutesSince(s.generated_at);
 		const stale = elapsed > s.stale_after_min;
 		const v = $("verdict");
 		const meta = `<p class="meta">Checked ${ago(elapsed)} (${esc(new Date(s.generated_at).toLocaleString())}) by the ${esc(s.source)} run.`
@@ -187,7 +256,7 @@
 			v.className = "verdict stale";
 			v.innerHTML = `<strong>Stale — the intake chain may be down</strong>`
 				+ `<p class="meta">No run has published a check in ${ago(elapsed).replace(" ago", "")} (limit ${s.stale_after_min} min). `
-				+ `The rows below are the last ones it published, ${s.healthy ? "when intake was healthy" : "when intake was already unhealthy"}.</p>`
+				+ `Everything below is what it last published, ${s.healthy ? "when intake was healthy" : "when intake was already unhealthy"}.</p>`
 				+ meta;
 		} else if (s.healthy) {
 			v.className = "verdict ok";
@@ -197,23 +266,182 @@
 			v.innerHTML = `<strong>Intake is unhealthy — ${s.problems.length} problem(s)</strong>`
 				+ "<ul>" + s.problems.map((p) => `<li>${md(p)}</li>`).join("") + "</ul>" + meta;
 		}
+		$("content").classList.toggle("stale-data", stale);
+		document.title = stale ? "Computah Status — stale" : s.healthy ? "Computah Status" : "Computah Status — intake unhealthy";
+		return stale;
+	}
 
-		const rows = $("rows");
-		rows.hidden = false;
-		rows.classList.toggle("stale-data", stale);
-		rows.innerHTML = s.rows.map((r) => {
-			let detail;
-			if (r.level === "off") detail = esc(r.note);
-			else {
-				detail = r.since === null ? `No good poll in the last ${s.runs_read} runs` : `Last good poll ${ago(r.since + elapsed)}`;
-				if (r.note) detail += ` · ${esc(r.note)}`;
-				if (r.url) detail += ` · <a href="${esc(r.url)}">job</a>`;
-			}
-			return `<div class="row"><span class="name">${esc(r.name)}</span>`
-				+ `<span class="pill ${esc(r.level)}">${LABEL[r.level] || esc(r.state)}</span>`
-				+ `<span class="detail">${detail}</span></div>`;
+	// ---- Pillars ------------------------------------------------------------------------------
+	// One card per pillar of GOAL.MD: its level, one figure, a few facts, and the next step the plan
+	// (ARCHITECTURE.md) gives it. A pillar without data says so instead of looking healthy.
+
+	function intakePillar(s) {
+		const watched = s.rows.filter((r) => r.level !== "off");
+		const failing = watched.filter((r) => r.level === "fail").length;
+		const stale = minutesSince(s.generated_at) > s.stale_after_min;
+		const level = stale ? "warn" : s.healthy ? "ok" : "fail";
+		const open = backlog ? backlog.mods.reduce((t, m) => t + (m.total || 0), 0) : null;
+		return {
+			key: "intake", icon: "📥", title: "Intake", level,
+			status: stale ? "Stale" : s.healthy ? "Healthy" : `${s.problems.length} problem(s)`,
+			big: `${watched.length - failing}<small> of ${watched.length} forums polling</small>`,
+			facts: [
+				s.chain ? `Last run ${ago(s.chain.age_min + minutesSince(s.generated_at))}` : "No intake run yet",
+				open === null ? null : `${open} open ticket(s) across the repos`,
+				"Replies, release notes and the survey go back to each thread",
+			],
+			next: "Discord reports → GitHub issues → reporter told when it ships",
+		};
+	}
+
+	function discordPillar(d) {
+		if (!d) return { key: "discord", icon: "🛠️", title: "Discord server", level: "off", status: "No data", big: "—", facts: ["This deploy has no surfaces.json yet"], next: "" };
+		const checked = [d.apply?.at, d.dry_run?.at].filter(Boolean).sort().pop() || null;
+		const days = checked ? Math.floor(minutesSince(checked) / 1440) : null;
+		const catalogBad = d.catalog && d.catalog.conclusion && !["success", "in_progress", "queued"].includes(d.catalog.conclusion);
+		let level = "ok", status = "Checked";
+		if (catalogBad) { level = "fail"; status = "Catalog failing"; }
+		else if (checked === null || days > CHECK_DAYS) { level = "warn"; status = checked ? `Unchecked ${days} d` : "Never checked"; }
+		const link = (r, text) => r ? `<a href="${esc(r.url)}">${text}</a>` : text;
+		return {
+			key: "discord", icon: "🛠️", title: "Discord server", level, status,
+			big: checked ? `${since(checked).replace(" ago", "")}<small> since the last check</small>` : "—",
+			facts: [
+				`${link(d.apply, "Last applied")} ${since(d.apply?.at)}`,
+				`${link(d.dry_run, "Last dry run")} ${since(d.dry_run?.at)}`,
+				`${link(d.catalog, "#mods catalog")} refreshed ${since(d.catalog?.at)}`,
+			],
+			next: "Next: a daily drift check that opens an issue (phase 3)",
+			html: true,
+		};
+	}
+
+	function releasesPillar(rows) {
+		if (!rows) return { key: "releases", icon: "📣", title: "Release cards", level: "off", status: "No data", big: "—", facts: [], next: "" };
+		const live = rows.filter((r) => r.announces && r.modrinth?.version);
+		const known = live.filter((r) => r.card && r.card.current !== null);
+		const missing = known.filter((r) => !r.card.current);
+		const level = !known.length ? "off" : missing.length ? "warn" : "ok";
+		const latest = rows.map((r) => r.dispatch).filter(Boolean).sort((a, b) => b.at.localeCompare(a.at))[0];
+		return {
+			key: "releases", icon: "📣", title: "Release cards", level,
+			status: !known.length ? "Unknown" : missing.length ? `${missing.length} missing` : "All announced",
+			big: known.length ? `${known.length - missing.length}<small> of ${known.length} newest versions have a card</small>` : "—",
+			facts: [
+				missing.length ? `No card yet: ${missing.map((r) => esc(r.name.replace(/^Cobblemon /, ""))).join(", ")}` : null,
+				latest ? `Last dispatch <a href="${esc(latest.url)}">${since(latest.at)}</a>` : "No dispatch since the run names carry the mod",
+				`${rows.filter((r) => r.announces).length} mods announce through the bot`,
+			],
+			next: "Next: every mod on the same dispatch, no duplicate cards (phase 0)",
+			html: true,
+		};
+	}
+
+	function storePillar(rows) {
+		if (!rows) return { key: "store", icon: "🏪", title: "Store pages", level: "off", status: "No data", big: "—", facts: [], next: "" };
+		const onModrinth = rows.filter((r) => r.links.modrinth);
+		const review = onModrinth.filter((r) => r.modrinth?.state === "review");
+		const compared = onModrinth.filter((r) => r.text === "in-sync" || r.text === "behind");
+		const behind = compared.filter((r) => r.text === "behind");
+		const level = !compared.length ? "off" : behind.length ? "warn" : "ok";
+		return {
+			key: "store", icon: "🏪", title: "Store pages", level,
+			status: !compared.length ? "Unknown" : behind.length ? `${behind.length} behind` : "In sync",
+			big: compared.length ? `${compared.length - behind.length}<small> of ${compared.length} Modrinth pages match DESCRIPTION.md</small>` : "—",
+			facts: [
+				behind.length ? `Behind: ${behind.map((r) => esc(r.name.replace(/^Cobblemon /, ""))).join(", ")}` : null,
+				review.length ? `In review on Modrinth: ${review.map((r) => esc(r.name.replace(/^Cobblemon /, ""))).join(", ")}` : null,
+				`${rows.filter((r) => r.links.curseforge).length} CurseForge pages, updated by hand`,
+			],
+			next: "Next: the bot syncs Modrinth (phase 1), a checklist for CurseForge (phase 2)",
+			html: true,
+		};
+	}
+
+	function renderPillars() {
+		const cards = [
+			last ? intakePillar(last) : null,
+			discordPillar(surfaces?.discord),
+			releasesPillar(surfaces?.projects),
+			storePillar(surfaces?.projects),
+		].filter(Boolean);
+		$("pillars").innerHTML = cards.map((c) => {
+			const facts = c.facts.filter(Boolean).map((f) => `<li>${c.html ? f : esc(f)}</li>`).join("");
+			return `<article class="pillar ${esc(c.level)}" id="pillar-${esc(c.key)}">`
+				+ `<header><h3><span aria-hidden="true">${c.icon}</span>${esc(c.title)}</h3>${pill(c.level, c.status)}</header>`
+				+ `<div class="big">${c.big}</div>`
+				+ (facts ? `<ul>${facts}</ul>` : "")
+				+ (c.next ? `<div class="next">${esc(c.next)}</div>` : "")
+				+ "</article>";
 		}).join("");
-		document.title = stale ? "Intake Status — stale" : s.healthy ? "Intake Status" : "Intake Status — unhealthy";
+	}
+
+	// ---- Projects -----------------------------------------------------------------------------
+	// One row per entry of projects.json, in its order: surfaces.json gives the rows, status.json the
+	// intake cell (by name, as health.mjs names its rows), backlog.json the icon and the open count.
+
+	function iconHtml(m) {
+		const fallback = `<span class="icon" aria-hidden="true">${esc(m?.emoji || m?.name?.[0] || "?")}</span>`;
+		return m?.icon
+			? `<img class="icon" src="${esc(m.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${esc(fallback)}">`
+			: fallback;
+	}
+
+	function intakeCell(p) {
+		if (!p.intake) return `${dash}<span class="sub">no forum yet</span>`;
+		const r = last?.rows.find((x) => x.name === p.name);
+		if (!r) return dash;
+		if (r.level === "off") return pill("off", LABEL.off, r.note);
+		const elapsed = minutesSince(last.generated_at);
+		const when = r.since === null ? `no good poll in ${last.runs_read} runs` : `polled ${ago(r.since + elapsed)}`;
+		return pill(r.level, LABEL[r.level] || r.state) + `<span class="sub">${r.url ? `<a href="${esc(r.url)}">${when}</a>` : when}</span>`;
+	}
+
+	function versionCell(p) {
+		if (!p.links.modrinth) return p.links.curseforge ? `<a href="${esc(p.links.curseforge)}">CurseForge</a>` : `${dash}<span class="sub">not released</span>`;
+		if (!p.modrinth) return '<span class="dash">?</span>';
+		if (p.modrinth.state === "review") return pill("off", "In review");
+		const v = `<a href="${esc(p.links.modrinth)}">v${esc(p.modrinth.version)}</a>`;
+		return v + (p.modrinth.released_at ? `<span class="sub">${since(p.modrinth.released_at)}</span>` : "");
+	}
+
+	function cardCell(p) {
+		if (!p.announces) return dash;
+		const failed = p.dispatch && p.dispatch.conclusion === "failure" && p.dispatch.version === p.modrinth?.version;
+		if (failed) return pill("fail", "Dispatch failed") + `<span class="sub"><a href="${esc(p.dispatch.url)}">v${esc(p.dispatch.version)}</a></span>`;
+		if (!p.card) return '<span class="dash" title="#announcements could not be read">?</span>';
+		if (p.card.current === null) return dash;
+		if (p.card.current) return pill("ok", "Posted");
+		const lastCard = p.card.last ? `last card v${esc(p.card.last.version)}` : "none in the last 50 posts";
+		return pill("warn", "Missing", `v${p.modrinth.version} has no card in #announcements`) + `<span class="sub">${lastCard}</span>`;
+	}
+
+	function textCell(p) {
+		if (p.text === "in-sync") return pill("ok", "In sync");
+		if (p.text === "behind") return pill("warn", "Behind", "DESCRIPTION.md changed since the last sync to Modrinth");
+		if (p.text === "no-source") return pill("off", "No DESCRIPTION.md");
+		return p.modrinth?.state === "live" ? '<span class="dash" title="Could not compare">?</span>' : dash;
+	}
+
+	function renderProjects() {
+		if (!surfaces) return;
+		const mods = new Map((backlog?.mods || []).map((m) => [m.dir, m]));
+		const head = "<thead><tr><th class=\"mod\">Project</th><th>Intake</th><th>Latest version</th><th>Release card</th><th>Modrinth text</th><th>Open tickets</th></tr></thead>";
+		const body = "<tbody>" + surfaces.projects.map((p) => {
+			const m = mods.get(p.dir);
+			const link = p.links.modrinth || p.links.curseforge || m?.link;
+			const name = link ? `<a href="${esc(link)}">${esc(p.name)}</a>` : esc(p.name);
+			const dev = !p.intake && !p.links.modrinth && !p.links.curseforge;
+			const open = m?.total === null || m?.total === undefined ? dash : `<a href="#backlog">${m.total}</a>`;
+			return `<tr${dev ? ' class="dev"' : ""}>`
+				+ `<td class="mod"><span class="mod-cell">${iconHtml({ ...m, name: p.name })}${name}</span></td>`
+				+ `<td>${intakeCell(p)}</td><td>${versionCell(p)}</td><td>${cardCell(p)}</td><td>${textCell(p)}</td><td>${open}</td></tr>`;
+		}).join("") + "</tbody>";
+		$("projects-table").innerHTML = head + body;
+		$("projects-note").innerHTML = `Read ${since(surfaces.generated_at)}. The release card is looked for in the last 50 posts of <code>#announcements</code>; `
+			+ "the Modrinth text is the published page against <code>DESCRIPTION.md</code> on the repo's default branch."
+			+ (surfaces.errors.length ? "<ul>" + surfaces.errors.map((e) => `<li>${esc(e)}</li>`).join("") + "</ul>" : "");
+		$("projects").hidden = false;
 	}
 
 	// ---- Open tickets -------------------------------------------------------------------------
@@ -225,7 +453,6 @@
 		set(k, v) { try { localStorage.setItem("backlog." + k, v); } catch {} },
 	};
 	const view = { dim: store.get("dim") || "type", sort: store.get("sort") || "total", dir: store.get("dir") || "desc" };
-	let backlog = null;
 
 	function value(m, col) {
 		if (col === "name") return m.name.toLowerCase();
@@ -263,16 +490,10 @@
 			return `<th class="${c.cls || ""}"${sort}><button type="button" data-sort="${esc(c.key)}">${esc(c.label)}</button></th>`;
 		}).join("") + "</tr></thead>";
 
-		const icon = (m) => {
-			const fallback = `<span class="icon" aria-hidden="true">${esc(m.emoji || m.name[0])}</span>`;
-			return m.icon
-				? `<img class="icon" src="${esc(m.icon)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.outerHTML=this.dataset.fallback" data-fallback="${esc(fallback)}">`
-				: fallback;
-		};
 		const days = (d) => d === null ? "—" : d === 0 ? "today" : `${d} d`;
 		const body = "<tbody>" + rows.map((m) => {
 			const name = m.link ? `<a href="${esc(m.link)}">${esc(m.name)}</a>` : esc(m.name);
-			let cells = `<td class="mod"><span class="mod-cell">${icon(m)}${name}</span></td>`;
+			let cells = `<td class="mod"><span class="mod-cell">${iconHtml(m)}${name}</span></td>`;
 			if (m.total === null) {
 				return `<tr>${cells}<td class="na" colspan="${cols.length - 1}">Could not read its issues</td></tr>`;
 			}
@@ -320,19 +541,23 @@
 		renderBacklog();
 	});
 
-	async function loadBacklog() {
-		try {
-			const res = await fetch("backlog.json", { cache: "no-store" });
-			// An older deploy, or a run whose backlog failed: the section stays as it was.
-			if (!res.ok) return;
-			backlog = await res.json();
-		} catch {
-			if (!backlog) return;
-		}
-		renderBacklog();
+	function renderAll() {
+		if (last) renderVerdict(last);
+		renderPillars();
+		renderProjects();
+		if (backlog) renderBacklog();
 	}
 
-	let last = null;
+	// An older deploy, or a run whose collection failed: that part stays as it was.
+	async function loadOptional(file) {
+		try {
+			const res = await fetch(file, { cache: "no-store" });
+			return res.ok ? await res.json() : null;
+		} catch {
+			return null;
+		}
+	}
+
 	async function load() {
 		try {
 			const res = await fetch("status.json", { cache: "no-store" });
@@ -343,14 +568,15 @@
 			if (!last) {
 				$("verdict").className = "verdict stale";
 				$("verdict").innerHTML = `<strong>Could not load the status</strong><p class="meta">${esc(e.message)}</p>`;
-				return;
 			}
 		}
-		render(last);
+		const [b, s] = await Promise.all([loadOptional("backlog.json"), loadOptional("surfaces.json")]);
+		backlog = b || backlog;
+		surfaces = s || surfaces;
+		renderAll();
 	}
 	load();
-	loadBacklog();
-	setInterval(() => { load(); loadBacklog(); }, 60000);
+	setInterval(load, 60000);
 </script>
 </body>
 </html>

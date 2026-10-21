@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Download Stats</title>
+<title>Computah Stats</title>
 <!--
   Deployed to GitHub Pages by the intake workflows, at stats/ next to the status page. lib/health.mjs
   writes it with mods.json (each mod's dir, name and Modrinth slug or id), costs.json (the
@@ -115,12 +115,28 @@
 	.figures { display: flex; flex-wrap: wrap; gap: 8px 40px; margin: 8px 0 16px; }
 	.chart text.value { fill: var(--text); font-size: 12px; }
 	footer { color: var(--muted); font-size: 13px; margin-top: 16px; }
+	/* The bar the status page shares. */
+	.topbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin: 0 0 20px; }
+	.brand { display: flex; align-items: center; gap: 10px; }
+	.brand .logo { font-size: 26px; line-height: 1; }
+	.brand h1 { font-size: 19px; line-height: 1.2; }
+	.brand p { margin: 0; color: var(--muted); font-size: 13px; }
+	nav.tabs { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--card); }
+	nav.tabs a { font-size: 14px; padding: 6px 14px; color: var(--muted); text-decoration: none; border-left: 1px solid var(--line); }
+	nav.tabs a:first-child { border-left: 0; }
+	nav.tabs a[aria-current="page"] { color: var(--text); font-weight: 600; background: var(--grid); }
 	code { font-size: 13px; }
 </style>
 </head>
 <body>
 <main>
-	<header><h1>Download stats</h1><a href="../">← Intake status</a></header>
+	<div class="topbar">
+		<div class="brand">
+			<span class="logo" aria-hidden="true">🤖</span>
+			<div><h1>Computah</h1><p>Downloads, revenue and cost of shiero's mods</p></div>
+		</div>
+		<nav class="tabs" aria-label="Pages"><a href="../">Status</a><a href="./" aria-current="page">Download stats</a></nav>
+	</div>
 	<div class="ranges" id="ranges" role="group" aria-label="Range"></div>
 	<section class="card">
 		<div class="meta" id="range-label">Downloads</div>
