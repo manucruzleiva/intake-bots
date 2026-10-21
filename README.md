@@ -4,6 +4,10 @@ Un solo poller que vigila los foros de tickets de Discord (el único, con un tag
 cada mod) y abre un issue en el repo de código correspondiente. Vive en un repo **público** porque GitHub Actions es gratis e ilimitado en
 repos públicos y metered en privados — los mods son privados, el bot no.
 
+El alcance es más amplio que el intake: el bot también gestiona el server de Discord, publica los
+anuncios de versión y mantiene las páginas de tienda de los mods. El objetivo está en
+[`GOAL.MD`](GOAL.MD) y el plan de los pilares nuevos en [`ARCHITECTURE.md`](ARCHITECTURE.md).
+
 ```
 foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──▶  issue en el repo del mod
                          │  ▲
