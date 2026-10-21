@@ -33,7 +33,8 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/announce.mjs`](lib/announce.mjs) | La card de un release en `#announcements`. Lo corre `mod-released.yml`; valida el release y lee el CHANGELOG del mod en su tag por la API; `--print` muestra el payload sin postear |
 | [`lib/catalog.mjs`](lib/catalog.mjs) | El catálogo de `#mods`: una card por proyecto con los datos vivos de Modrinth y CurseForge, editada en el lugar. `--dry-run` imprime sin escribir |
 | [`lib/stats.mjs`](lib/stats.mjs) | Los snapshots de descargas: con lo que bajó el catálogo, agrega una fila por mod cuyo total se movió a `stats/downloads.json` de la rama `stats` |
-| [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages; lee el `status.json` que escribe `health.mjs` y el `backlog.json` |
+| [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages (Computah): el veredicto del intake, una card por pilar y una fila por proyecto. Lee `status.json`, `surfaces.json` y `backlog.json`, que escribe `health.mjs` |
+| [`lib/surfaces.mjs`](lib/surfaces.mjs) | Los otros pilares para la página, sólo lectura: corridas de `server.yml`/`catalog.yml`, la card de la versión más nueva en `#announcements` el texto de Modrinth y CurseForge contra `DESCRIPTION.md`, y los links de Discord, sponsor y wiki |
 | [`lib/backlog.mjs`](lib/backlog.mjs) | La tabla de tickets abiertos de la página: cuenta los issues abiertos de cada mod por tipo, estado, prioridad y origen |
 | [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
 | [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, mensajes fijos del bot (`#rules`), AutoMod, welcome screen y onboarding |
@@ -430,6 +431,25 @@ el de este repo y no ve los otros) y `LINEAR_API_KEY`.
   no está en ninguna tienda, y si no el emoji del tag en `#tickets`.
 
 Nada de esto pone rojo el chequeo: una fuente que no se pudo leer queda como línea bajo la tabla.
+
+**Pilares y proyectos** (`lib/surfaces.mjs`, escrito como `surfaces.json`): entre el veredicto y los
+tickets, una card por pilar de [`GOAL.MD`](GOAL.MD) y una tabla con una fila por proyecto. Tampoco
+pone nada rojo ni abre issues: informa.
+
+- **Discord server**: la última corrida `apply` y `dry run` de `server.yml` y la última de
+  `catalog.yml`. Más de 7 días sin mirar el guild es amarillo.
+- **Release cards**: la versión más nueva de cada mod en Modrinth contra los últimos 50 posts de
+  `#announcements` (el mismo encabezado que busca `releases.mjs`), con `DISCORD_TOKEN`. Un dispatch
+  fallido de esa versión sale de las corridas de `mod-released.yml`, que llevan el mod y la versión en
+  su `run-name`.
+- **Store pages**: el `body` publicado en Modrinth contra el `DESCRIPTION.md` de la rama por defecto
+  del mod (con o sin la reescritura `metadata_src`), con `MODS_GH_TOKEN`. *Behind* es un cambio que
+  ningún sync subió todavía. Además, los links de Modrinth: el de Discord tiene que ser un invite que
+  todavía lleve a `DISCORD_GUILD_ID` (el endpoint público `/invites`), el botón de sponsor y el link de
+  wiki tienen que ser los de `announce.links`. En CurseForge, la descripción que sirve cfwidget contra
+  el mismo `DESCRIPTION.md`, comparada como texto visible (sin markup, imágenes ni espacios): no hay
+  API para escribirla, así que una diferencia es un pegado a mano pendiente, y la página muestra dónde
+  empieza.
 
 Pages se habilitó una vez, en modo workflow:
 

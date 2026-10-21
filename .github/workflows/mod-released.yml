@@ -20,6 +20,10 @@ name: Mod released
 # `dry` (en el payload o en el dispatch manual) hace todas las validaciones y lee el CHANGELOG, pero
 # imprime el payload de Discord en vez de postearlo.
 
+# El proyecto y la versión en el nombre de la corrida: la página de estado (lib/surfaces.mjs) lee de
+# ahí el último dispatch de cada mod.
+run-name: Mod released (${{ github.event.client_payload.project || inputs.project }} v${{ github.event.client_payload.version || inputs.version }}${{ (github.event.client_payload.dry == true || github.event.client_payload.dry == 'true' || inputs.dry == true) && ' · dry run' || '' }})
+
 on:
   repository_dispatch:
     types: [mod-released]
