@@ -22,9 +22,11 @@ Esto es deuda real, no hipotética, y la fase 0 la salda:
 1. **`announce.yml` no existe en intake-bots, y tres mods lo llaman.** `routes`, `cobblemon-nuzlocke`
    y `cobblemon-champions-training` tienen un job `uses: manucruzleiva/intake-bots/.github/workflows/announce.yml@main`.
    El camino vigente es el `repository_dispatch` `mod-released` (#54), que ya usan ditto-hms,
-   mid-battle-exp, picnic, raid-icons y tree-carve. En esos tres el job de anuncio falla al resolver
-   el workflow, y su release nunca llega a `#announcements` — y por #53, **tampoco se avisa a los
-   reporters**, porque `releases.mjs` espera ver la card.
+   mid-battle-exp, picnic, raid-icons y tree-carve. `announce.yml` se borró con #54 (2026-10-18) y
+   ninguno de los tres sacó release desde entonces, así que no se perdió ninguna card todavía; pero
+   el próximo release de cualquiera de ellos fallaría al resolver el workflow, no llegaría a
+   `#announcements` y, por #53, **tampoco avisaría a los reporters**, porque `releases.mjs` espera
+   ver la card.
 2. **`cobblemon-action-combat` postea en Discord por su cuenta**, con `DISCORD_TOKEN` y
    `DISCORD_ANNOUNCE_CHANNEL_ID` propios: un segundo formato de card y un token del bot fuera de este
    repo.
@@ -181,13 +183,13 @@ pendientes de CurseForge.
 
 | Fase | Contenido | Toca repos de mod | Tamaño |
 |---|---|---|---|
-| **0. Saldar deuda** | Migrar routes, nuzlocke, champions-training y action-combat al dispatch `mod-released`; dedup en `announce.mjs`; re-anunciar con `announce_only` las versiones que se perdieron | sí (4 `publish.yml`) | chico |
+| **0. Saldar deuda** | Migrar routes, nuzlocke, champions-training y action-combat al dispatch `mod-released`; dedup en `announce.mjs` | sí (4 `publish.yml`) | chico |
 | **1. Store sync en Modrinth** | `lib/store.mjs`, `store.yml`, bloque `store` en `projects.json`, `MODRINTH_STORE_TOKEN`; reemplazar el bloque copiado de cada `publish.yml` por el dispatch | sí (9 `publish.yml`) | medio |
 | **2. CurseForge asistido** | `<dir>/store.json`, el issue con checklist, `/done` | no | chico |
 | **3. Drift y health** | `server.yml` diario, `store.mjs --check` en `catalog.yml`, chequeos nuevos y página de estado | no | medio |
 | **4. Discord extendido** | permisos mínimos, `bootstrap.mjs --check`, housekeeping, resumen de moderación, crosspost | no | medio |
 
-Cada fase es su propio PR; la 0 primero porque hoy hay releases que no se anuncian.
+Cada fase es su propio PR; la 0 primero porque el próximo release de esos cuatro mods saldría sin card.
 
 ## Decisiones abiertas
 
