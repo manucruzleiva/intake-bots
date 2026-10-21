@@ -30,7 +30,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/catalog.mjs`](lib/catalog.mjs) | El catálogo de `#mods`: una card por proyecto con los datos vivos de Modrinth y CurseForge, editada en el lugar. `--dry-run` imprime sin escribir |
 | [`lib/stats.mjs`](lib/stats.mjs) | Los snapshots de descargas: con lo que bajó el catálogo, agrega una fila por mod cuyo total se movió a `stats/downloads.json` de la rama `stats` |
 | [`lib/status-page.html`](lib/status-page.html) | La página de estado en GitHub Pages (Computah): el veredicto del intake, una card por pilar y una fila por proyecto. Lee `status.json`, `surfaces.json` y `backlog.json`, que escribe `health.mjs` |
-| [`lib/surfaces.mjs`](lib/surfaces.mjs) | Los otros pilares para la página, sólo lectura: corridas de `server.yml`/`catalog.yml`, la card de la versión más nueva en `#announcements` y el texto de Modrinth contra `DESCRIPTION.md` |
+| [`lib/surfaces.mjs`](lib/surfaces.mjs) | Los otros pilares para la página, sólo lectura: corridas de `server.yml`/`catalog.yml`, la card de la versión más nueva en `#announcements` el texto de Modrinth y CurseForge contra `DESCRIPTION.md`, y los links de Discord, sponsor y wiki |
 | [`lib/backlog.mjs`](lib/backlog.mjs) | La tabla de tickets abiertos de la página: cuenta los issues abiertos de cada mod por tipo, estado, prioridad y origen |
 | [`lib/server.mjs`](lib/server.mjs) | El reconciliador del server de Discord contra `server.json`. Dry run por defecto; `--export` vuelca el guild vivo |
 | [`server.json`](server.json) | **El server de Discord entero**: roles, categorías, canales, overwrites, tags de foro, mensajes fijos del bot (`#rules`), AutoMod, welcome screen y onboarding |
@@ -440,7 +440,12 @@ pone nada rojo ni abre issues: informa.
   su `run-name`.
 - **Store pages**: el `body` publicado en Modrinth contra el `DESCRIPTION.md` de la rama por defecto
   del mod (con o sin la reescritura `metadata_src`), con `MODS_GH_TOKEN`. *Behind* es un cambio que
-  ningún sync subió todavía.
+  ningún sync subió todavía. Además, los links de Modrinth: el de Discord tiene que ser un invite que
+  todavía lleve a `DISCORD_GUILD_ID` (el endpoint público `/invites`), el botón de sponsor y el link de
+  wiki tienen que ser los de `announce.links`. En CurseForge, la descripción que sirve cfwidget contra
+  el mismo `DESCRIPTION.md`, comparada como texto visible (sin markup, imágenes ni espacios): no hay
+  API para escribirla, así que una diferencia es un pegado a mano pendiente, y la página muestra dónde
+  empieza.
 
 Pages se habilitó una vez, en modo workflow:
 
