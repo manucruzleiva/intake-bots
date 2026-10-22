@@ -1,6 +1,6 @@
 {
   "guild": {
-    "description": "This is a server to get feedback for the mods I'm making.",
+    "description": "Feedback and support for shiero's projects: Cobblemon mods, Pokémon TCG tools and apps.",
     "verification_level": 1,
     "default_message_notifications": 1,
     "explicit_content_filter": 2,
@@ -73,6 +73,22 @@
       "permissions": []
     },
     {
+      "name": "TCGKB",
+      "permissions": []
+    },
+    {
+      "name": "PAB",
+      "permissions": []
+    },
+    {
+      "name": "OTO",
+      "permissions": []
+    },
+    {
+      "name": "CCV",
+      "permissions": []
+    },
+    {
       "name": "@everyone",
       "permissions": ["CreateInstantInvite", "AddReactions", "Stream", "ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "UseExternalEmojis", "Connect", "Speak", "UseVAD", "ChangeNickname", "UseApplicationCommands", "RequestToSpeak", "CreatePublicThreads", "CreatePrivateThreads", "UseExternalStickers", "SendMessagesInThreads", "UseEmbeddedActivities", "UseExternalSounds", "SendVoiceMessages", "bit47", "SetVoiceChannelStatus", "SendPolls", "UseExternalApps"]
     }
@@ -89,7 +105,7 @@
       },
       "messages": [
         {
-          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the mod, not the person.\n2. **One report per post.** Open it in <#1560781769752445028> with the mod's tag and the type that fits.\n3. **Logs as files, not pasted.** Attach `latest.log` or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod, or repack it in a modpack, against its license.\n5. **English in shared channels**, so everyone can follow along."
+          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the project, not the person.\n2. **One report per post.** Mods go to <#1560781769752445028>, the TCG tools and apps (TCGKB, PAB, OTO, CCV) to #app-tickets. Add the project's tag and the type that fits.\n3. **Logs as files, not pasted.** Attach the log or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod or an app, or repack it, against its license.\n5. **English in shared channels**, so everyone can follow along."
         }
       ]
     },
@@ -106,14 +122,19 @@
   ],
   "categories": [
     {
-      "name": "Text Channels",
-      "id": "1519377359290110134",
+      "name": "Community",
       "channels": [
         {
           "name": "general",
           "id": "1519377359290110135",
           "type": "text"
-        },
+        }
+      ]
+    },
+    {
+      "name": "Cobblemon Mods",
+      "id": "1519377359290110134",
+      "channels": [
         {
           "name": "showcase",
           "id": "1560895112257601667",
@@ -279,6 +300,117 @@
       ]
     },
     {
+      "name": "Pokémon TCG & Apps",
+      "channels": [
+        {
+          "name": "apps",
+          "type": "text",
+          "topic": "Every TCG tool and app, with its latest version and download.",
+          "overwrites": {
+            "@everyone": {
+              "deny": ["SendMessages"]
+            }
+          }
+        },
+        {
+          "name": "tcg-chat",
+          "type": "text",
+          "topic": "Pokémon TCG talk: decks, events, streams and matches."
+        },
+        {
+          "name": "app-help",
+          "type": "text",
+          "topic": "Quick questions about installing or using TCGKB, PAB, OTO or CCV. Bugs, crashes and ideas go to #app-tickets."
+        },
+        {
+          "name": "app-tickets",
+          "type": "forum",
+          "topic": "One post per bug, crash, idea or piece of feedback about TCGKB, PAB, OTO or CCV. Pick what kind of post it is AND which app it is about: a post with no app tag waits until it has one.\n\nFor a bug or a crash: the app's version, your Windows version (or your browser, for TCGKB), and the app's log when it has one.",
+          "pinned": {
+            "title": "📌 How to make a ticket — read me first",
+            "tags": ["Bug", "Crash", "Feedback", "Idea"],
+            "messages": [
+              {
+                "content": "# 📌 How to make a ticket\n**This post is the example, and it is locked: open your own with the New Post button.** One post = one bug, crash, idea or piece of feedback.\n\n## 1 · Pick two tags\n- **What it is:** 🐛 Bug · 💥 Crash · 💡 Idea · 💬 Feedback\n- **Which app:** 🃏 TCGKB · 📜 PAB · 📺 OTO · 🎮 CCV. A post without an app tag waits until it has one.\n\n## 2 · Give us the crucial information\nFor a **bug** or a **crash**, this is what we need before we can start. Without it the post gets the ❓ **Needs info** tag and waits:\n- **The app's version** (like `1.4.2`). TCGKB is a website: say the page instead.\n- **Where you run it:** Windows 10 or 11 for PAB, OTO and CCV; your browser and device for TCGKB.\n- **The log, when the app has one** — required for a crash. Each app's README says where it keeps it. Attach the file.\n\n## 3 · Copy the template for your kind of post\nThe messages below have one each. Copy it into your post, fill it in, and delete what does not apply.\n\nThe bot answers in your post: when it is tracked, when it is fixed, and when the fix is out."
+              },
+              {
+                "content": "### 🐛 Bug — something does not work as it should\nTags: **Bug** + the app\n```text\nTitle: what goes wrong, in a few words\n\nWhat happened:\nWhat I expected instead:\nSteps to make it happen:\n1.\n2.\n3.\n\nApp version (or the TCGKB page):\nWindows version, or browser and device for TCGKB:\nLog (recommended): attach it\nScreenshot or video (if it helps):\n```"
+              },
+              {
+                "content": "### 💥 Crash — the app closes or will not start\nTags: **Crash** + the app\n```text\nTitle: what you were doing when it crashed\n\nWhat I was doing:\nDoes it happen every time? yes / no\nDid it start after an update? Which one:\n\nApp version:\nWindows version:\nLog (required): attach it\n```"
+              },
+              {
+                "content": "### 💡 Idea — something the app could do\nTags: **Idea** + the app\n```text\nTitle: the idea in a few words\n\nWhat it would do:\nWhy it would help (what problem it solves):\nHow you would use it:\n```\nNo versions needed for an idea."
+              },
+              {
+                "content": "### 💬 Feedback — what you think of the app\nTags: **Feedback** + the app\n```text\nTitle: what it is about\n\nWhat I like or dislike:\nWhat I would change, if anything:\nApp version (optional):\n```"
+              }
+            ]
+          },
+          "require_tag": true,
+          "available_tags": [
+            {
+              "name": "Bug",
+              "emoji_name": "🐛"
+            },
+            {
+              "name": "Crash",
+              "emoji_name": "💥"
+            },
+            {
+              "name": "Feedback",
+              "emoji_name": "💬"
+            },
+            {
+              "name": "Idea",
+              "emoji_name": "💡"
+            },
+            {
+              "name": "TCGKB",
+              "emoji_name": "🃏"
+            },
+            {
+              "name": "PAB",
+              "emoji_name": "📜"
+            },
+            {
+              "name": "OTO",
+              "emoji_name": "📺"
+            },
+            {
+              "name": "CCV",
+              "emoji_name": "🎮"
+            },
+            {
+              "name": "Resolved",
+              "emoji_name": "✅",
+              "moderated": true
+            },
+            {
+              "name": "Not planned",
+              "emoji_name": "📕",
+              "moderated": true
+            },
+            {
+              "name": "Needs info",
+              "emoji_name": "❓",
+              "moderated": true
+            }
+          ],
+          "default_reaction_emoji": {
+            "emoji_name": "👍"
+          },
+          "default_auto_archive_duration": 10080,
+          "default_forum_layout": 1,
+          "overwrites": {
+            "Computah": {
+              "allow": ["ViewChannel", "SendMessages", "ManageThreads", "SendPolls"]
+            }
+          }
+        }
+      ]
+    },
+    {
       "name": "News",
       "id": "1560858631279218708",
       "channels": [
@@ -286,7 +418,7 @@
           "name": "announcements",
           "id": "1560858633049215047",
           "type": "announcement",
-          "topic": "Every release of every mod. Pick the mods you want a ping for in Channels & Roles.",
+          "topic": "Every release of every mod and app. Pick the ones you want a ping for in Channels & Roles.",
           "overwrites": {
             "@everyone": {
               "deny": ["SendMessages"]
@@ -364,7 +496,7 @@
   ],
   "welcome_screen": {
     "enabled": true,
-    "description": "Feedback and support for shiero's Cobblemon mods. Pick your mods for release pings, then start here.",
+    "description": "Feedback and support for shiero's Cobblemon mods and Pokémon TCG tools. Pick your projects for release pings, then start here.",
     "welcome_channels": [
       {
         "channel": "rules",
@@ -373,22 +505,22 @@
       },
       {
         "channel": "faq",
-        "description": "Install, versions and logs",
+        "description": "Mods: install, versions and logs",
         "emoji_name": "❓"
       },
       {
-        "channel": "mods",
-        "description": "Every mod and its downloads",
-        "emoji_name": "🧩"
-      },
-      {
         "channel": "tickets",
-        "description": "Report a bug or share an idea",
+        "description": "Report a mod bug or share an idea",
         "emoji_name": "🎫"
       },
       {
+        "channel": "app-tickets",
+        "description": "Report a bug in TCGKB, PAB, OTO or CCV",
+        "emoji_name": "🃏"
+      },
+      {
         "channel": "announcements",
-        "description": "Release notes for every mod",
+        "description": "Release notes for every project",
         "emoji_name": "📣"
       }
     ]
@@ -452,6 +584,43 @@
             "emoji_name": "🗡️",
             "channels": [],
             "roles": ["Tree Carve"]
+          }
+        ]
+      },
+      {
+        "title": "Which TCG tools and apps do you use?",
+        "type": 0,
+        "single_select": false,
+        "required": false,
+        "in_onboarding": true,
+        "options": [
+          {
+            "title": "TCGKB",
+            "description": "Deck builder, card store and events",
+            "emoji_name": "🃏",
+            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "roles": ["TCGKB"]
+          },
+          {
+            "title": "PAB",
+            "description": "PTCGL Auto Battle Log",
+            "emoji_name": "📜",
+            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "roles": ["PAB"]
+          },
+          {
+            "title": "OTO",
+            "description": "OBS overlay for TCG streams",
+            "emoji_name": "📺",
+            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "roles": ["OTO"]
+          },
+          {
+            "title": "CCV",
+            "description": "Capture Card Viewer",
+            "emoji_name": "🎮",
+            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "roles": ["CCV"]
           }
         ]
       }

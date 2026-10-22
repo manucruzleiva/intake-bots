@@ -190,6 +190,34 @@
     "emoji": "🔄"
   },
   {
+    "dir": "tcgkb",
+    "name": "TCGKB",
+    "intake": false,
+    "repo": "manucruzleiva/tcgkb",
+    "emoji": "🃏"
+  },
+  {
+    "dir": "pab",
+    "name": "PTCGL Auto Battle Log",
+    "intake": false,
+    "repo": "manucruzleiva/ptcgl-auto-battlelog",
+    "emoji": "📜"
+  },
+  {
+    "dir": "oto",
+    "name": "OTO (OBS TCG Overlay)",
+    "intake": false,
+    "repo": "manucruzleiva/obs-tcg-overlay",
+    "emoji": "📺"
+  },
+  {
+    "dir": "ccv",
+    "name": "CCV (Capture Card Viewer)",
+    "intake": false,
+    "repo": "manucruzleiva/ccv",
+    "emoji": "🎮"
+  },
+  {
     "dir": "intake-bots",
     "name": "Intake Bots",
     "intake": false,
