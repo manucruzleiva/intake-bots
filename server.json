@@ -74,34 +74,42 @@
     },
     {
       "name": "TCGKB",
+      "id": "1562799936209420378",
       "permissions": []
     },
     {
       "name": "PAB",
+      "id": "1562799937282904114",
       "permissions": []
     },
     {
       "name": "OTO",
+      "id": "1562799938193068084",
       "permissions": []
     },
     {
       "name": "CCV",
+      "id": "1562799939065618523",
       "permissions": []
     },
     {
       "name": "Action Combat",
+      "id": "1562799940206334013",
       "permissions": []
     },
     {
       "name": "PokeTowns",
+      "id": "1562799941217423450",
       "permissions": []
     },
     {
       "name": "PokeGyms",
+      "id": "1562799941590712363",
       "permissions": []
     },
     {
       "name": "PokeTrades",
+      "id": "1562799942463004673",
       "permissions": []
     },
     {
@@ -121,7 +129,7 @@
       },
       "messages": [
         {
-          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the project, not the person.\n2. **One report per post.** Mods go to <#1560781769752445028>, the TCG tools and apps (TCGKB, PAB, OTO, CCV) to #app-tickets. Add the project's tag and the type that fits.\n3. **Logs as files, not pasted.** Attach the log or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod or an app, or repack it, against its license.\n5. **English in shared channels**, so everyone can follow along."
+          "content": "# Rules\n\n1. **Be respectful.** No harassment, slurs or personal attacks: criticize the project, not the person.\n2. **One report per post.** Mods go to <#1560781769752445028>, the TCG tools and apps (TCGKB, PAB, OTO, CCV) to <#1562799951006662716>. Add the project's tag and the type that fits.\n3. **Logs as files, not pasted.** Attach the log or the crash report, or share an mclo.gs link.\n4. **No piracy or redistribution.** Don't share a mod or an app, or repack it, against its license.\n5. **English in shared channels**, so everyone can follow along."
         }
       ]
     },
@@ -139,6 +147,7 @@
   "categories": [
     {
       "name": "Community",
+      "id": "1562799943557586954",
       "channels": [
         {
           "name": "general",
@@ -333,9 +342,11 @@
     },
     {
       "name": "Pokémon TCG & Apps",
+      "id": "1562799945772433550",
       "channels": [
         {
           "name": "apps",
+          "id": "1562799947072667708",
           "type": "text",
           "topic": "Every TCG tool and app, with its latest version and download.",
           "overwrites": {
@@ -346,16 +357,19 @@
         },
         {
           "name": "tcg-chat",
+          "id": "1562799948150349954",
           "type": "text",
           "topic": "Pokémon TCG talk: decks, events, streams and matches."
         },
         {
           "name": "app-help",
+          "id": "1562799949983256637",
           "type": "text",
-          "topic": "Quick questions about installing or using TCGKB, PAB, OTO or CCV. Bugs, crashes and ideas go to #app-tickets."
+          "topic": "Quick questions about installing or using TCGKB, PAB, OTO or CCV. Bugs, crashes and ideas go to <#1562799951006662716>."
         },
         {
           "name": "app-tickets",
+          "id": "1562799951006662716",
           "type": "forum",
           "topic": "One post per bug, crash, idea or piece of feedback about TCGKB, PAB, OTO or CCV. Pick what kind of post it is AND which app it is about: a post with no app tag waits until it has one.\n\nFor a bug or a crash: the app's version, your Windows version (or your browser, for TCGKB), and the app's log when it has one.",
           "pinned": {
