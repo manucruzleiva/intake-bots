@@ -678,28 +678,28 @@
             "title": "TCGKB",
             "description": "Deck builder, card store and events",
             "emoji_name": "🃏",
-            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "channels": ["tcg-chat", "apps", "app-help", "app-tickets"],
             "roles": ["TCGKB"]
           },
           {
             "title": "PAB",
             "description": "PTCGL Auto Battle Log",
             "emoji_name": "📜",
-            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "channels": ["tcg-chat", "apps", "app-help", "app-tickets"],
             "roles": ["PAB"]
           },
           {
             "title": "OTO",
             "description": "OBS overlay for TCG streams",
             "emoji_name": "📺",
-            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "channels": ["tcg-chat", "apps", "app-help", "app-tickets"],
             "roles": ["OTO"]
           },
           {
             "title": "CCV",
             "description": "Capture Card Viewer",
             "emoji_name": "🎮",
-            "channels": ["apps", "tcg-chat", "app-help", "app-tickets"],
+            "channels": ["tcg-chat", "apps", "app-help", "app-tickets"],
             "roles": ["CCV"]
           }
         ]
