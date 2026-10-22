@@ -205,28 +205,71 @@
     "name": "TCGKB",
     "intake": false,
     "repo": "manucruzleiva/tcgkb",
-    "emoji": "🃏"
+    "emoji": "🃏",
+    "app": {
+      "pitch": "Pokémon TCG deck builder, a store for your spare cards, and the competitive events near you. Import and export PTCGL decks, share them, and install it on your phone.",
+      "platform": "Web, installable on mobile",
+      "icon": "https://tcgkb.app/icons/icon-512.png",
+      "color": 3447003,
+      "links": {
+        "website": "https://tcgkb.app",
+        "sponsor": "https://github.com/sponsors/manucruzleiva"
+      }
+    }
   },
   {
     "dir": "pab",
     "name": "PTCGL Auto Battle Log",
     "intake": false,
     "repo": "manucruzleiva/ptcgl-auto-battlelog",
-    "emoji": "📜"
+    "emoji": "📜",
+    "app": {
+      "pitch": "Saves the battle log of every Pokémon TCG Live match to a folder on your PC, automatically. No clicks.",
+      "platform": "Windows 10 / 11",
+      "icon": "https://raw.githubusercontent.com/manucruzleiva/ptcgl-auto-battlelog/main/docs/icon.png",
+      "color": 15105570,
+      "links": {
+        "download": "https://github.com/manucruzleiva/ptcgl-auto-battlelog/releases/latest",
+        "source": "https://github.com/manucruzleiva/ptcgl-auto-battlelog",
+        "sponsor": "https://github.com/sponsors/manucruzleiva"
+      }
+    }
   },
   {
     "dir": "oto",
     "name": "OTO (OBS TCG Overlay)",
     "intake": false,
     "repo": "manucruzleiva/obs-tcg-overlay",
-    "emoji": "📺"
+    "emoji": "📺",
+    "app": {
+      "pitch": "A live overlay for Pokémon TCG streams in OBS: prizes, Pokémon, HP, energy, score and hype, run from a control panel on any device.",
+      "platform": "Windows",
+      "icon": "https://raw.githubusercontent.com/manucruzleiva/obs-tcg-overlay/main/assets/logo.gif",
+      "color": 10181046,
+      "links": {
+        "download": "https://github.com/manucruzleiva/obs-tcg-overlay/releases/latest",
+        "source": "https://github.com/manucruzleiva/obs-tcg-overlay",
+        "sponsor": "https://github.com/sponsors/manucruzleiva"
+      }
+    }
   },
   {
     "dir": "ccv",
     "name": "CCV (Capture Card Viewer)",
     "intake": false,
     "repo": "manucruzleiva/ccv",
-    "emoji": "🎮"
+    "emoji": "🎮",
+    "app": {
+      "pitch": "Play and record your Switch, PS5, Xbox or any USB capture card in a window on your PC. No second TV, no OBS scene.",
+      "platform": "Windows 10 / 11",
+      "icon": "https://raw.githubusercontent.com/manucruzleiva/ccv/main/assets/icon.png",
+      "color": 1752220,
+      "links": {
+        "download": "https://github.com/manucruzleiva/ccv/releases/latest",
+        "source": "https://github.com/manucruzleiva/ccv",
+        "sponsor": "https://github.com/sponsors/manucruzleiva"
+      }
+    }
   },
   {
     "dir": "intake-bots",

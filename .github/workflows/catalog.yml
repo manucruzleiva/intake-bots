@@ -1,6 +1,6 @@
 name: Mod catalog
 
-# El catálogo de #mods (lib/catalog.mjs): una card por proyecto de projects.json, editada en el lugar
+# El catálogo de #mods y #apps (lib/catalog.mjs): una card por proyecto de projects.json, editada en el lugar
 # con la versión, el Minecraft, los loaders y las descargas de Modrinth y CurseForge (vía cfwidget).
 # Cada hora alcanza: cfwidget cachea una hora, y la card sólo se edita cuando cambia lo que muestra.
 # Va aparte de intake.yml a propósito: una API de tienda caída no ensucia la cadena del intake.
