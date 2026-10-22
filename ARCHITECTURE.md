@@ -10,7 +10,7 @@ falla visible en el healthcheck**.
 
 | Pilar | Fuente de verdad | Escribe en | Hoy |
 |---|---|---|---|
-| 1. Intake | `#tickets` + `projects.json` | issues de cada mod, hilos de Discord, Linear | ✅ completo |
+| 1. Intake | `#mod-tickets` + `projects.json` | issues de cada mod, hilos de Discord, Linear | ✅ completo |
 | 2. Server de Discord | `server.json` | el guild | 🟡 reconciliador manual, sin detección de drift |
 | 3. Publicación de versiones | `CHANGELOG.md` del mod en su tag + `projects.json.announce` | `#announcements` | 🟡 existe, pero 4 de 9 mods no lo usan |
 | 4. Páginas de tienda | `DESCRIPTION.md`, `DESCRIPTION_SHORT.txt`, `art/gallery/` del mod | Modrinth (API), CurseForge (a mano) | 🔴 copiado en cada `publish.yml` |
@@ -56,7 +56,7 @@ Esto es deuda real, no hipotética, y la fase 0 la salda:
 ## Pilar 2 — Server de Discord
 
 Ya existe: `server.json` + `lib/server.mjs` + `server.yml` (manual), `lib/bootstrap.mjs`, el rol
-`Bug Catcher`, el catálogo de `#mods`, los mensajes fijos de `#rules` y el post fijado de `#tickets`.
+`Bug Catcher`, el catálogo de `#mods`, los mensajes fijos de `#rules` y el post fijado de `#mod-tickets`.
 
 Lo que falta:
 
@@ -85,7 +85,7 @@ Lo que falta:
 3. **Crosspost.** `#announcements` es tipo Announcement: la card se publica (*crosspost*) a los
    servers que siguen el canal. Un paso más, idempotente (`flags & CROSSPOSTED`).
 4. **Opcional, a decidir:** un hilo por release bajo la card para feedback de esa versión, que el
-   intake trata como `#tickets` con el tag del mod ya puesto.
+   intake trata como `#mod-tickets` con el tag del mod ya puesto.
 
 Lo que **no** entra: subir jars ni crear versiones en las tiendas. Eso necesita el build y sigue en
 el `publish.yml` de cada mod, con su `MODRINTH_TOKEN`/`CURSEFORGE_TOKEN` de *upload*.
@@ -112,7 +112,7 @@ art/gallery/  ──┘                      │   lib/store.mjs           │
 |---|---|---|
 | `body` | `DESCRIPTION.md` del mod, en el commit pedido | con la reescritura `metadata_src=curseforge → modrinth` que hoy hace picnic, generalizada |
 | `description` (summary) | `DESCRIPTION_SHORT.txt` | ≤ 256 caracteres; más largo es error, no truncado |
-| `issues_url`, `source_url`, `wiki_url`, `discord_url`, `donation_urls` | `projects.json.store.links` (+ `announce.links.wiki`/`sponsor`, sin duplicar) | `issues_url` apunta al canal `#tickets`, nunca al repo privado |
+| `issues_url`, `source_url`, `wiki_url`, `discord_url`, `donation_urls` | `projects.json.store.links` (+ `announce.links.wiki`/`sponsor`, sin duplicar) | `issues_url` apunta al canal `#mod-tickets`, nunca al repo privado |
 | `license` | `LICENSE` del mod → `license.url` | el `id` (`LicenseRef-…`) se declara en `projects.json` |
 | galería | `art/gallery/gallery.json` | reusa `lib/gallery.mjs` tal como está |
 | categorías, loaders, versiones de MC del proyecto | `projects.json.store.categories` | opcional; sin la clave no se toca |

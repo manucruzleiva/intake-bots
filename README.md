@@ -20,7 +20,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | Ruta | Qué es |
 |---|---|
 | [`lib/poller.mjs`](lib/poller.mjs) | El poller. Sin dependencias, Node ≥ 20 (CI corre 24) |
-| [`lib/bootstrap.mjs`](lib/bootstrap.mjs) | Agrega un mod a `server.json`: su tag en `#tickets`, su rol y su opción de onboarding. Imprime lo que queda a mano |
+| [`lib/bootstrap.mjs`](lib/bootstrap.mjs) | Agrega un mod a `server.json`: su tag en `#mod-tickets`, su rol y su opción de onboarding. Imprime lo que queda a mano |
 | [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
 | [`lib/releases.mjs`](lib/releases.mjs) | Le avisa a cada reporter, en su hilo, el día que sale el release con su fix |
 | [`lib/survey.mjs`](lib/survey.mjs) | La encuesta de satisfacción: el poll de ese aviso, y qué hace el voto del reporter |
@@ -131,7 +131,7 @@ ventana de follow-ups vuelve a contar desde ese voto, así que la respuesta lleg
 release haya salido semanas después del cierre. Sin voto en 168 h: `no-answer`. Cada resultado es una
 fila de `satisfaction.json`. Mientras el poll está abierto, y después de un Partly / No, el hilo no se
 archiva; tras Yes o `no-answer` se archiva como cualquier otro. Una corrida sin voto nuevo no toca el
-state. Necesita **Send Polls** en `#tickets` (en el overwrite del bot, `server.json`).
+state. Necesita **Send Polls** en `#mod-tickets` (en el overwrite del bot, `server.json`).
 
 **Métricas** (#14, `lib/metrics.mjs`): cada fila termina con una tabla en su job summary —
 ingest lag (el `created_at` del issue menos la hora del post, sacada del snowflake), primera respuesta
@@ -181,7 +181,7 @@ son reporteros de los bots viejos que no aparecen en ningún hilo ni como miembr
 
 ### El foro único
 
-`#tickets` (`TICKETS_FORUM_ID`) recibe los posts de todos los mods: cada post lleva un **tag de tipo**
+`#mod-tickets` (`TICKETS_FORUM_ID`) recibe los posts de todos los mods: cada post lleva un **tag de tipo**
 y un **tag de mod**. Cada fila lee ese foro además del suyo viejo y se queda sólo con los posts que
 llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 
@@ -215,7 +215,7 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `gate` | Opcional. `enabled-var` (ver abajo) |
 | `intake` | Opcional. `false` en un repo sin foro: no entra al poller, al catálogo de `#mods`, al healthcheck ni al bootstrap. Un mod que sólo anuncia releases lleva `dir`, `name`, `prefix` y `announce`; un repo que sólo cuenta en la tabla de tickets de la página (un mod en desarrollo, este bot, la wiki), `dir`, `name` y `repo`. **Todo repo del workspace tiene su entrada**, con o sin intake |
 | `repo` | Opcional. El `owner/repo` cuyos issues cuenta la tabla de tickets de la página (`lib/backlog.mjs`), en un proyecto sin la variable `<PREFIX>_GH_REPO` |
-| `emoji` | Opcional. El ícono de su fila en esa tabla cuando no hay tienda, `art/branding/icon.png` en el repo ni tag en `#tickets` que lo den |
+| `emoji` | Opcional. El ícono de su fila en esa tabla cuando no hay tienda, `art/branding/icon.png` en el repo ni tag en `#mod-tickets` que lo den |
 | `announce` | El anuncio de release: `content` (la línea de encabezado, sin links; `{version}` se reemplaza), `color` y `footer` del embed, y `links` (`modrinth`, `curseforge`, `wiki`, `sponsor`), que salen como botones (una tienda que falta no lleva botón). `sponsor` va pelado: el botón le suma `metadata_mod=<dir>` y `metadata_src=discord-announce` (o `discord-catalog` en la card de `#mods`), que el export de GitHub Sponsors muestra en su columna `metadata`. El changelog no tiene botón: ya va en el embed. El título del embed apunta a Modrinth `/changelog`, o CurseForge `/files/all` **sólo si el link tiene la forma `/minecraft/mc-mods/<slug>`** (`/projects/<id>` no redirige subpáginas). **El canal no va acá**: todo mod postea en `#announcements` de `server.json` (su id fijado) y menciona el rol que se llama como su `tag`, buscado por nombre; `allowed_mentions` nombra sólo ese rol. Sin rol, la card sale sin ping y con un `::warning::` |
 
 **Dar de alta un proyecto:**
@@ -225,7 +225,7 @@ node lib/bootstrap.mjs --dir <dir> --tag "<Tag>" --emoji <emoji> [--name "<Name>
 node lib/bootstrap.mjs --dir <dir> --tag "<Tag>" --emoji <emoji> --write
 ```
 
-Agrega a `server.json` el tag del mod en `#tickets`, un rol con su nombre (sin permisos, arriba de
+Agrega a `server.json` el tag del mod en `#mod-tickets`, un rol con su nombre (sin permisos, arriba de
 `@everyone`: el ping opt-in de su anuncio) y esa opción en el prompt de onboarding *Which mods do you
 want release pings for?*, y crea `<dir>/state.json` vacío. Sólo agrega lo que falta: una segunda
 corrida dice `nothing to do`. No toca Discord ni escribe ids ni variables: al final imprime el objeto
@@ -272,7 +272,7 @@ sin escribir nada). La lista autoritativa está en `Reference/Required Secrets a
 
 Server: https://discord.gg/SwcwXcCN4k
 
-Cada mod vive sólo en los dos canales globales: `#tickets` (`1560781769752445028`, foro único, un
+Cada mod vive sólo en los dos canales globales: `#mod-tickets` (`1560781769752445028`, foro único, un
 tag por mod) y `#announcements` (`1560858633049215047`, tipo Announcement, ping al rol del mod).
 
 ### El catálogo
@@ -329,7 +329,7 @@ gh workflow run server.yml --repo manucruzleiva/intake-bots -f dry_run=false    
   y bloqueado. El primer mensaje es el starter y el resto son mensajes del bot en el hilo, con la misma
   regla que `messages`. Se encuentra por el flag de fijado o por el título. Los `tags` van por nombre
   y en el orden del foro, y en un foro con *require tag* son obligatorios también para el bot (40067).
-  `#tickets` lo usa para el ejemplo de cómo reportar: los cuatro tags de tipo, un starter que explica
+  `#mod-tickets` lo usa para el ejemplo de cómo reportar: los cuatro tags de tipo, un starter que explica
   la información crucial y una plantilla por tipo. El poller y `unrouted` saltean los hilos fijados.
 - **`emojis` declara los emojis de aplicación del bot** (`{ name, file }`, con `file` relativo a la
   raíz): son de la app, sirven en cualquier server y no gastan slot del guild. El que falta se sube, y
@@ -431,7 +431,7 @@ el de este repo y no ve los otros) y `LINEAR_API_KEY`.
   `blocked` le ganan. Sin espejo abierto (mid-battle-exp no espeja), `Not in Linear`.
 - **Ícono**: el `icon_url` de Modrinth, el thumbnail de CurseForge si Modrinth todavía no lo aprobó, el
   placeholder del repo (`art/branding/icon.png`, embebido como data URI porque el repo es privado) si
-  no está en ninguna tienda, y si no el emoji del tag en `#tickets`.
+  no está en ninguna tienda, y si no el emoji del tag en `#mod-tickets`.
 
 Nada de esto pone rojo el chequeo: una fuente que no se pudo leer queda como línea bajo la tabla.
 
