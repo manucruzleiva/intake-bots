@@ -156,7 +156,9 @@
     "dir": "action-combat",
     "name": "Cobblemon Action Combat",
     "prefix": "ACTION_COMBAT",
-    "intake": false,
+    "tag": "Action Combat",
+    "ua": "cobblemon-action-combat-intake (+https://github.com/manucruzleiva/intake-bots)",
+    "gate": "enabled-var",
     "repo": "manucruzleiva/cobblemon-action-combat",
     "emoji": "⚔️",
     "announce": {
@@ -171,21 +173,30 @@
   {
     "dir": "poketowns",
     "name": "Cobblemon PokeTowns",
-    "intake": false,
+    "prefix": "POKETOWNS",
+    "tag": "PokeTowns",
+    "ua": "cobblemon-poketowns-intake (+https://github.com/manucruzleiva/intake-bots)",
+    "gate": "enabled-var",
     "repo": "manucruzleiva/cobblemon-poketowns",
     "emoji": "🏘️"
   },
   {
     "dir": "pokegyms",
     "name": "Cobblemon PokeGyms",
-    "intake": false,
+    "prefix": "POKEGYMS",
+    "tag": "PokeGyms",
+    "ua": "cobblemon-pokegyms-intake (+https://github.com/manucruzleiva/intake-bots)",
+    "gate": "enabled-var",
     "repo": "manucruzleiva/cobblemon-pokegyms",
     "emoji": "🏟️"
   },
   {
     "dir": "poketrades",
     "name": "Cobblemon PokeTrades",
-    "intake": false,
+    "prefix": "POKETRADES",
+    "tag": "PokeTrades",
+    "ua": "cobblemon-poketrades-intake (+https://github.com/manucruzleiva/intake-bots)",
+    "gate": "enabled-var",
     "repo": "manucruzleiva/cobblemon-poketrades",
     "emoji": "🔄"
   },

@@ -89,6 +89,22 @@
       "permissions": []
     },
     {
+      "name": "Action Combat",
+      "permissions": []
+    },
+    {
+      "name": "PokeTowns",
+      "permissions": []
+    },
+    {
+      "name": "PokeGyms",
+      "permissions": []
+    },
+    {
+      "name": "PokeTrades",
+      "permissions": []
+    },
+    {
       "name": "@everyone",
       "permissions": ["CreateInstantInvite", "AddReactions", "Stream", "ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "UseExternalEmojis", "Connect", "Speak", "UseVAD", "ChangeNickname", "UseApplicationCommands", "RequestToSpeak", "CreatePublicThreads", "CreatePrivateThreads", "UseExternalStickers", "SendMessagesInThreads", "UseEmbeddedActivities", "UseExternalSounds", "SendVoiceMessages", "bit47", "SetVoiceChannelStatus", "SendPolls", "UseExternalApps"]
     }
@@ -269,6 +285,22 @@
             {
               "name": "Tree Carve",
               "emoji_name": "🗡️"
+            },
+            {
+              "name": "Action Combat",
+              "emoji_name": "⚔️"
+            },
+            {
+              "name": "PokeTowns",
+              "emoji_name": "🏘️"
+            },
+            {
+              "name": "PokeGyms",
+              "emoji_name": "🏟️"
+            },
+            {
+              "name": "PokeTrades",
+              "emoji_name": "🔄"
             },
             {
               "name": "Resolved",
@@ -584,6 +616,30 @@
             "emoji_name": "🗡️",
             "channels": [],
             "roles": ["Tree Carve"]
+          },
+          {
+            "title": "Action Combat",
+            "emoji_name": "⚔️",
+            "channels": [],
+            "roles": ["Action Combat"]
+          },
+          {
+            "title": "PokeTowns",
+            "emoji_name": "🏘️",
+            "channels": [],
+            "roles": ["PokeTowns"]
+          },
+          {
+            "title": "PokeGyms",
+            "emoji_name": "🏟️",
+            "channels": [],
+            "roles": ["PokeGyms"]
+          },
+          {
+            "title": "PokeTrades",
+            "emoji_name": "🔄",
+            "channels": [],
+            "roles": ["PokeTrades"]
           }
         ]
       },
