@@ -211,7 +211,7 @@
           }
         },
         {
-          "name": "tickets",
+          "name": "mod-tickets",
           "id": "1560781769752445028",
           "type": "forum",
           "topic": "One post per bug, crash, idea or piece of feedback. Pick what kind of post it is AND which mod it is about: a post with no mod tag waits until it has one.\n\nFor a bug or a crash: your Minecraft version, the mod's version, the loader (Fabric or NeoForge), and logs/latest.log or the crash report.",
@@ -541,7 +541,7 @@
         "emoji_name": "❓"
       },
       {
-        "channel": "tickets",
+        "channel": "mod-tickets",
         "description": "Report a mod bug or share an idea",
         "emoji_name": "🎫"
       },
@@ -560,7 +560,7 @@
   "onboarding": {
     "enabled": true,
     "mode": 0,
-    "default_channels": ["rules", "faq", "mods", "announcements", "general", "showcase", "modpacks", "help", "tickets"],
+    "default_channels": ["rules", "faq", "mods", "announcements", "general", "showcase", "modpacks", "help", "mod-tickets"],
     "prompts": [
       {
         "title": "Which mods do you want release pings for?",
