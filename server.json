@@ -119,6 +119,16 @@
   ],
   "channels": [
     {
+      "name": "hoոeyрot",
+      "type": "text",
+      "topic": "⚠️ Do not write here. This channel is a trap for spam bots: anything posted here is treated as spam.",
+      "overwrites": {
+        "@everyone": {
+          "allow": ["ViewChannel", "SendMessages"]
+        }
+      }
+    },
+    {
       "name": "rules",
       "id": "1532092808595243018",
       "type": "text",
