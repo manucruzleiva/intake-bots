@@ -6,13 +6,12 @@
     "1564013031640268920": {
       "issue": 140,
       "kind": "bug",
-      "lastMsg": "1564013031640268920",
-      "awaitingReply": true,
-      "linearSince": "2026-10-25T20:31:15.423Z"
+      "lastMsg": "1564013496574677134",
+      "awaitingReply": true
     }
   },
   "lastRelease": "v1.0.0",
-  "repliesSince": "2026-10-21T22:37:53Z",
+  "repliesSince": "2026-10-25T20:31:19Z",
   "voice": {
     "filed.bug": 1
   }
