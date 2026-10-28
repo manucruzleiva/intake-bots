@@ -1,36 +1,101 @@
 {
- "project_id": "PVT_kwHOCSJSds4BpIef",
- "number": 4,
- "owner": "manucruzleiva",
- "url": "https://github.com/users/manucruzleiva/projects/4",
- "fields": {
-  "Status": {
-   "id": "PVTSSF_lAHOCSJSds4BpIefzhnlciA",
-   "options": {
-    "Triage": "78c78fd4",
-    "Backlog": "2ded5f19",
-    "Todo": "654142c4",
-    "In Progress": "17d7db5d",
-    "In Review": "5a3d339e",
-    "Done": "2f724eb1"
+ "boards": [
+  {
+   "name": "Cobblemon Mods",
+   "repos": "*",
+   "project_id": "PVT_kwHOCSJSds4BpIef",
+   "number": 4,
+   "owner": "manucruzleiva",
+   "url": "https://github.com/users/manucruzleiva/projects/4",
+   "triage": "Triage",
+   "priority_by_kind": {
+    "crash": "1 Urgent",
+    "bug": "2 High",
+    "idea": "4 Low",
+    "feedback": "4 Low"
+   },
+   "as": {
+    "Status": {},
+    "Priority": {}
+   },
+   "fields": {
+    "Status": {
+     "id": "PVTSSF_lAHOCSJSds4BpIefzhnlciA",
+     "options": {
+      "Triage": "78c78fd4",
+      "Backlog": "2ded5f19",
+      "Todo": "654142c4",
+      "In Progress": "17d7db5d",
+      "In Review": "5a3d339e",
+      "Done": "2f724eb1"
+     }
+    },
+    "Priority": {
+     "id": "PVTSSF_lAHOCSJSds4BpIefzhnlcmQ",
+     "options": {
+      "1 Urgent": "3a9bb0e6",
+      "2 High": "3ee61e69",
+      "3 Medium": "e7d6133f",
+      "4 Low": "c8faed28"
+     }
+    },
+    "Order": {
+     "id": "PVTF_lAHOCSJSds4BpIefzhnlcmY",
+     "options": {}
+    },
+    "Blocked by": {
+     "id": "PVTF_lAHOCSJSds4BpIefzhnlfOM",
+     "options": {}
+    }
    }
   },
-  "Priority": {
-   "id": "PVTSSF_lAHOCSJSds4BpIefzhnlcmQ",
-   "options": {
-    "1 Urgent": "3a9bb0e6",
-    "2 High": "3ee61e69",
-    "3 Medium": "e7d6133f",
-    "4 Low": "c8faed28"
+  {
+   "name": "TCGKB",
+   "repos": [
+    "manucruzleiva/tcgkb",
+    "manucruzleiva/ptcgl-auto-battlelog"
+   ],
+   "project_id": "PVT_kwHOCSJSds4BK8sd",
+   "number": 2,
+   "owner": "manucruzleiva",
+   "url": "https://github.com/users/manucruzleiva/projects/2",
+   "triage": "Backlog",
+   "priority_by_kind": {
+    "crash": "High",
+    "bug": "High",
+    "idea": "Low",
+    "feedback": "Low"
+   },
+   "as": {
+    "Status": {
+     "Planned": "Todo",
+     "In progress": "In Progress"
+    },
+    "Priority": {
+     "High": "2 High",
+     "Medium": "3 Medium",
+     "Low": "4 Low"
+    }
+   },
+   "fields": {
+    "Status": {
+     "id": "PVTSSF_lAHOCSJSds4BK8sdzg6qwjs",
+     "options": {
+      "Backlog": "f75ad846",
+      "Planned": "61e4505c",
+      "In progress": "47fc9ee4",
+      "Done": "98236657"
+     }
+    },
+    "Priority": {
+     "id": "PVTSSF_lAHOCSJSds4BK8sdzg6qxC4",
+     "options": {
+      "High": "79628723",
+      "Medium": "0a877460",
+      "Low": "da944a9c"
+     }
+    }
    }
-  },
-  "Order": {
-   "id": "PVTF_lAHOCSJSds4BpIefzhnlcmY",
-   "options": {}
-  },
-  "Blocked by": {
-   "id": "PVTF_lAHOCSJSds4BpIefzhnlfOM",
-   "options": {}
   }
- }
+ ]
 }

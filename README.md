@@ -24,7 +24,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
 | [`lib/releases.mjs`](lib/releases.mjs) | Le avisa a cada reporter, en su hilo, el día que sale el release con su fix |
 | [`lib/survey.mjs`](lib/survey.mjs) | La encuesta de satisfacción: el poll de ese aviso, y qué hace el voto del reporter |
-| [`lib/projects.mjs`](lib/projects.mjs) | El GitHub Project: carga el issue recién filado en `Triage` con la prioridad de su tipo, barre lo que falte y lee los items para la tabla de tickets. Los ids están en [`project.json`](project.json) |
+| [`lib/projects.mjs`](lib/projects.mjs) | Los GitHub Projects (Cobblemon Mods y TCGKB): carga el issue recién filado al board de su repo con la prioridad de su tipo, barre lo que falte y lee los items para la tabla de tickets. Los boards están en [`project.json`](project.json) |
 | [`lib/metrics.mjs`](lib/metrics.mjs) | Las métricas de intake de cada proyecto, en el job summary de su fila |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
@@ -151,16 +151,18 @@ la vez (el bot crea el label si no está). Con menos de 5 lo saca. Un issue cerr
 tenía. Cuenta todo 👍, incluido el del autor del post. Los posts `[TEST]` del bot también cuentan, y
 el fijado nunca entra a `tracked`.
 
-**Carga al GitHub Project** (`lib/projects.mjs`): cada issue filado entra al Project "Cobblemon Mods"
-— un solo ProjectV2 de usuario para todos los repos del workspace, el que reemplazó a Linear el
-2026-10-28 — con `Status = Triage` y la `Priority` de su tipo (Crash → `1 Urgent`, Bug → `2 High`,
-Idea y Feedback → `4 Low`, sin tag de tipo → sin prioridad, que decide un humano). El autor revisa
-Triage. Pasa **una sola vez, al filar**, con el `node_id` que devuelve el create: un `Status` o una
-`Priority` que alguien toque después son suyos. Los ids del project, de sus campos y de sus opciones
-viven en [`project.json`](project.json), copia del `.claude/github-project.json` del workspace (no
-son secrets), y el código resuelve cada opción por nombre — la prioridad, por el número con el que
-abre el suyo —, así que renombrar una opción es un edit ahí. Si la carga falla, la fila sale roja y el
-issue no se pierde: el barrido del healthcheck (abajo) lo suma después, en Triage y sin prioridad.
+**Carga al GitHub Project** (`lib/projects.mjs`): cada issue filado entra al board de su repo. Hay
+dos, declarados en [`project.json`](project.json): "Cobblemon Mods" (`repos: "*"`, todo el workspace, el
+que reemplazó a Linear el 2026-10-28) y "TCGKB" (`tcgkb` y `ptcgl-auto-battlelog`, por nombre). En
+Cobblemon Mods entra con `Status = Triage` y la `Priority` de su tipo (Crash → `1 Urgent`, Bug →
+`2 High`, Idea y Feedback → `4 Low`, sin tag de tipo → sin prioridad, que decide un humano); en TCGKB,
+que no tiene Triage, con `Backlog` y `High`/`Low`. Cada board declara su `triage`, su
+`priority_by_kind` y un `as` que traduce sus opciones a las de Cobblemon Mods para la tabla de tickets.
+Pasa **una sola vez, al filar**, con el `node_id` que devuelve el create: un `Status` o una
+`Priority` que alguien toque después son suyos. Los ids (no son secrets) se resuelven por nombre, así
+que renombrar una opción es un edit en `project.json`; el board de Cobblemon Mods es copia del
+`.claude/github-project.json` del workspace. Si la carga falla, la fila sale roja y el issue no se
+pierde: el barrido del healthcheck (abajo) lo suma después a su board, sin prioridad.
 Sin `PROJECTS_TOKEN`, un warning por corrida y nada más: la fila sigue verde.
 
 **Aviso de crash**: al filar un Crash, el bot postea en `#moderator-only` (por nombre, de
@@ -401,8 +403,8 @@ entra al GitHub Project en `Triage` con prioridad `2 High` (`lib/projects.mjs`, 
 una sola vez. Una falla del Project es un warning, no un chequeo rojo.
 
 **Barrido del Project**: cada corrida de `health.mjs` — al final de cada intake y desde
-`healthcheck.yml` — lee los items del Project y suma, en `Triage` y sin prioridad, todo issue abierto
-de todo repo de `projects.json` que todavía no esté: los creados a mano y los que una fila no pudo
+`healthcheck.yml` — lee los items de los dos boards y suma al de su repo, en su `triage` y sin
+prioridad, todo issue abierto de todo repo de `projects.json` que no esté en ninguno: los creados a mano y los que una fila no pudo
 cargar. Lo que ya está no se toca. Un repo que no se pudo leer es un warning y el barrido sigue con el
 resto. Corre antes de escribir la página, así la tabla de tickets ya los cuenta.
 
