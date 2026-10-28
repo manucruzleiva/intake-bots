@@ -24,7 +24,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`lib/replies.mjs`](lib/replies.mjs) | El otro sentido: un comentario del issue que empieza con `/reply` se postea en el hilo del reporter |
 | [`lib/releases.mjs`](lib/releases.mjs) | Le avisa a cada reporter, en su hilo, el día que sale el release con su fix |
 | [`lib/survey.mjs`](lib/survey.mjs) | La encuesta de satisfacción: el poll de ese aviso, y qué hace el voto del reporter |
-| [`lib/linear.mjs`](lib/linear.mjs) | Planifica el espejo de Linear de un issue: project, prioridad por tipo y `Backlog`, sólo lo vacío |
+| [`lib/projects.mjs`](lib/projects.mjs) | El GitHub Project: carga el issue recién filado en `Triage` con la prioridad de su tipo, barre lo que falte y lee los items para la tabla de tickets. Los ids están en [`project.json`](project.json) |
 | [`lib/metrics.mjs`](lib/metrics.mjs) | Las métricas de intake de cada proyecto, en el job summary de su fila |
 | [`lib/unrouted.mjs`](lib/unrouted.mjs) | Los posts del foro único sin tag de mod: les pide el tag una vez y no fila nada |
 | [`lib/matrix.mjs`](lib/matrix.mjs) | Arma la matrix del workflow desde `projects.json` |
@@ -151,24 +151,21 @@ la vez (el bot crea el label si no está). Con menos de 5 lo saca. Un issue cerr
 tenía. Cuenta todo 👍, incluido el del autor del post. Los posts `[TEST]` del bot también cuentan, y
 el fijado nunca entra a `tracked`.
 
-**Triage en Linear** (#9, `lib/linear.mjs`): cada issue filado espeja a Linear en `Triage`, sin
-project ni prioridad. La fila lo planifica: el project es el `linear` de su objeto en `projects.json`,
-buscado por nombre, y la prioridad sale del tipo (Crash → 1 Urgent, Bug → 2 High, Idea y Feedback →
-4 Low, sin tag de tipo → *No priority*, que decide un humano). El estado pasa a `Backlog`. **Sólo se
-llena lo vacío**: un project, una prioridad o un estado que alguien ya tocó se respetan, y nunca se
-crea nada en Linear (el sync es bidireccional: un issue creado ahí abre otro en GitHub). El espejo se
-busca **por la URL del issue de GitHub** en los attachments del COB (`attachmentsForURL`), nunca por
-título, con un solo request por issue. La entrada lleva `linearSince` hasta que queda planificado: el
-paso corre al final de la corrida, para darle tiempo a que el espejo llegue, y una corrida sin
-pendientes no llama a Linear ni escribe state. Si a la hora no hay espejo, la entrada queda
-`linear: "no mirror"` y la fila sale roja una vez: el repo no está en la lista de GitHub Issues de la
-integración. Una fila sin `linear` (mid-battle-exp, que no espeja) no hace nada. Sin
-`LINEAR_API_KEY`, warning y los pendientes esperan a que se cargue; una key rechazada corta en la
-primera llamada.
+**Carga al GitHub Project** (`lib/projects.mjs`): cada issue filado entra al Project "Cobblemon Mods"
+— un solo ProjectV2 de usuario para todos los repos del workspace, el que reemplazó a Linear el
+2026-10-28 — con `Status = Triage` y la `Priority` de su tipo (Crash → `1 Urgent`, Bug → `2 High`,
+Idea y Feedback → `4 Low`, sin tag de tipo → sin prioridad, que decide un humano). El autor revisa
+Triage. Pasa **una sola vez, al filar**, con el `node_id` que devuelve el create: un `Status` o una
+`Priority` que alguien toque después son suyos. Los ids del project, de sus campos y de sus opciones
+viven en [`project.json`](project.json), copia del `.claude/github-project.json` del workspace (no
+son secrets), y el código resuelve cada opción por nombre — la prioridad, por el número con el que
+abre el suyo —, así que renombrar una opción es un edit ahí. Si la carga falla, la fila sale roja y el
+issue no se pierde: el barrido del healthcheck (abajo) lo suma después, en Triage y sin prioridad.
+Sin `PROJECTS_TOKEN`, un warning por corrida y nada más: la fila sigue verde.
 
 **Aviso de crash**: al filar un Crash, el bot postea en `#moderator-only` (por nombre, de
 `server.json`) con mención al rol `Author`, el hilo y el `owner/repo#N`. Una prioridad Urgent en
-Linear no le avisa a nadie que no esté mirando el board. Sale una vez, al filar; si falla, la fila
+el Project no le avisa a nadie que no esté mirando el board. Sale una vez, al filar; si falla, la fila
 sale roja.
 
 **Bug Catcher** (#31): quien entra al tally de `reporters.json` recibe el rol `Bug Catcher` (hoisted,
@@ -211,7 +208,6 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `tag` | Su tag de mod en el foro único. Tiene que existir con ese nombre en `server.json`; si falta en el foro, la fila sale roja |
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
-| `linear` | Opcional. El **nombre** del project de Linear de sus espejos (`Routes`, `Cobblemon Champions`…: no siempre el del mod). Sin él, la fila no triagea; va vacío en un repo que no espeja |
 | `gate` | Opcional. `enabled-var` (ver abajo) |
 | `intake` | Opcional. `false` en un repo sin foro: no entra al poller, al catálogo de `#mods`, al healthcheck ni al bootstrap. Un mod que sólo anuncia releases lleva `dir`, `name`, `prefix` y `announce`; un repo que sólo cuenta en la tabla de tickets de la página (un mod en desarrollo, este bot, la wiki), `dir`, `name` y `repo`. **Todo repo del workspace tiene su entrada**, con o sin intake |
 | `repo` | Opcional. El `owner/repo` cuyos issues cuenta la tabla de tickets de la página (`lib/backlog.mjs`), en un proyecto sin la variable `<PREFIX>_GH_REPO` |
@@ -259,7 +255,7 @@ archivados del foro.
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
 | `GH_TOKEN` | secret | **Compartido**: el PAT con el que cada fila abre issues en el repo de su mod, `catalog.yml` lee el `DESCRIPTION_SHORT.txt` y `mod-released.yml` valida el release y lee el CHANGELOG |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
-| `LINEAR_API_KEY` | secret | **Compartido**: key personal de Linear (`intake-bots`, Write, team COB) con la que las filas triagean los espejos y `health.mjs` el de "Intake unhealthy" |
+| `PROJECTS_TOKEN` | secret | **Compartido**: PAT con scope `project` (el `GITHUB_PAT` del `.env`) con el que las filas cargan al GitHub Project lo que filan y `health.mjs` suma lo que falte y lee la tabla de tickets. Va aparte porque el `GITHUB_TOKEN` de un repo no ve un project de usuario |
 
 `DISCORD_GUILD_ID` no es opcional en la práctica: sin él, `/guilds/{id}/threads/active` no se llama y
 el bot **sólo ve threads archivados**, así que un reporte recién abierto no entra hasta que Discord lo
@@ -400,10 +396,15 @@ Corre en dos lados: como job `health` al final de cada intake (cada ~10 min) y d
 `healthcheck.yml` por `schedule`, que es el único que ve que la cadena se cortó. El aviso es **un
 issue, "Intake unhealthy"**, que abre el bot: las corridas del pacer las dispara el `GITHUB_TOKEN` y
 GitHub no le avisa a nadie cuando fallan. Mientras los problemas sigan iguales sólo se edita (sin
-notificar), cuando cambian se comenta, y se cierra solo cuando todo vuelve a estar sano. Su espejo de
-Linear recibe project `Intake Bots`, prioridad 2 High y `Backlog` (`lib/linear.mjs`, con
-`LINEAR_API_KEY`): se busca mientras el issue tiene menos de una hora, así que no hace falta state y
-un incidente cuesta unas pocas lecturas. Una falla de Linear es un warning, no un chequeo rojo.
+notificar), cuando cambian se comenta, y se cierra solo cuando todo vuelve a estar sano. Al abrirlo
+entra al GitHub Project en `Triage` con prioridad `2 High` (`lib/projects.mjs`, con `PROJECTS_TOKEN`),
+una sola vez. Una falla del Project es un warning, no un chequeo rojo.
+
+**Barrido del Project**: cada corrida de `health.mjs` — al final de cada intake y desde
+`healthcheck.yml` — lee los items del Project y suma, en `Triage` y sin prioridad, todo issue abierto
+de todo repo de `projects.json` que todavía no esté: los creados a mano y los que una fila no pudo
+cargar. Lo que ya está no se toca. Un repo que no se pudo leer es un warning y el barrido sigue con el
+resto. Corre antes de escribir la página, así la tabla de tickets ya los cuenta.
 
 ### La página de estado
 
@@ -422,13 +423,14 @@ con su ícono y cuántos issues abiertos tiene su repo, contados por **tipo**, *
 u **origen** (un selector) y ordenables por cualquier columna; la elección queda en el `localStorage`
 de quien mira. Sólo conteos, nunca títulos: la página es pública y los repos de mod no. `health.mjs`
 lo escribe como `backlog.json` con el secret `GH_TOKEN` (env `MODS_GH_TOKEN`: el `GH_TOKEN` del job es
-el de este repo y no ve los otros) y `LINEAR_API_KEY`.
+el de este repo y no ve los otros) y `PROJECTS_TOKEN`.
 
 - **Tipo**: labels del issue (`crash`, `bug`, `documentation`, `enhancement`) o `RESEARCH` en el
-  título; sin nada de eso, la prioridad del espejo de Linear, que se pone por tipo (1 Crash, 2 Bug,
-  3 Improvement, 4 Feature). Sin espejo ni label, `Untriaged`.
-- **Estado**: el state del espejo, buscado por la URL del issue en sus attachments. `needs-info` o
-  `blocked` le ganan. Sin espejo abierto (mid-battle-exp no espeja), `Not in Linear`.
+  título; sin nada de eso, la `Priority` de su item en el Project, que se pone por tipo (1 Crash,
+  2 Bug, 3 Improvement, 4 Feature). Sin item ni label, `Untriaged`.
+- **Estado**: el `Status` de su item en el Project, encontrado por repo y número (`Triage`, `Backlog`,
+  `Todo`, `In Progress`, `In Review`; un item sin `Status` cuenta como Triage). `needs-info` o
+  `blocked` le ganan. Un issue abierto que no está en el Project, `Not in Project`.
 - **Ícono**: el `icon_url` de Modrinth, el thumbnail de CurseForge si Modrinth todavía no lo aprobó, el
   placeholder del repo (`art/branding/icon.png`, embebido como data URI porque el repo es privado) si
   no está en ninguna tienda, y si no el emoji del tag en `#mod-tickets`.

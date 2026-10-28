@@ -11,11 +11,11 @@ name: Intake
 #              TICKETS_FORUM_ID  <- COMPARTIDA: el foro único. Cada fila se queda con los posts que llevan
 #                                   su `tag` de projects.json; los que no llevan ninguno los atiende
 #                                   el job `unrouted` (lib/unrouted.mjs), con el secret DISCORD_TOKEN
-#   Secret compartido: LINEAR_API_KEY  la key personal de Linear (write en el team COB) con la que cada
-#                                   fila triagea el espejo de lo que fila: project = `linear` de
-#                                   projects.json, prioridad por tipo, Backlog (lib/linear.mjs). El job
-#                                   `health` la usa para el espejo de "Intake unhealthy". Sin ella no
-#                                   falla nada: los espejos esperan en Triage con un warning
+#   Secret compartido: PROJECTS_TOKEN  PAT con scope `project` (el GITHUB_TOKEN de un repo no ve un
+#                                   project de usuario) con el que cada fila carga al GitHub Project lo
+#                                   que fila: Triage + prioridad por tipo (lib/projects.mjs). El job
+#                                   `health` suma con él lo que falte y lee la tabla de tickets. Sin él
+#                                   no falla nada: un warning, y los issues quedan fuera del Project
 #
 # DISCORD_GUILD_ID no es opcional en la práctica: sin él, `/guilds/{id}/threads/active` no se llama
 # y el bot SÓLO ve threads archivados, así que un reporte recién abierto no entra hasta que Discord
@@ -122,8 +122,7 @@ jobs:
           INTAKE_USER_AGENT: ${{ matrix.ua }}
           PROJECT_NAME: ${{ matrix.name }}
           SKIP_BEFORE_ID: ${{ matrix.skipBeforeId }}
-          LINEAR_PROJECT: ${{ matrix.linear }}
-          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          PROJECTS_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
         run: node ../lib/poller.mjs
 
       # También cuando el poll salió rojo: una corrida degradada (ver "Exit code" en poller.mjs)
@@ -213,7 +212,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO_VARS: ${{ toJSON(vars) }}
           HEALTH_PAGE_DIR: _site
-          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          PROJECTS_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
           # El PAT de los repos de mod, para la tabla de backlog de la página (lib/backlog.mjs).
           MODS_GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # El bot, sólo para leer #announcements: la columna de cards de la página (lib/surfaces.mjs).

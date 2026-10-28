@@ -1,0 +1,36 @@
+{
+ "project_id": "PVT_kwHOCSJSds4BpIef",
+ "number": 4,
+ "owner": "manucruzleiva",
+ "url": "https://github.com/users/manucruzleiva/projects/4",
+ "fields": {
+  "Status": {
+   "id": "PVTSSF_lAHOCSJSds4BpIefzhnlciA",
+   "options": {
+    "Triage": "78c78fd4",
+    "Backlog": "2ded5f19",
+    "Todo": "654142c4",
+    "In Progress": "17d7db5d",
+    "In Review": "5a3d339e",
+    "Done": "2f724eb1"
+   }
+  },
+  "Priority": {
+   "id": "PVTSSF_lAHOCSJSds4BpIefzhnlcmQ",
+   "options": {
+    "1 Urgent": "3a9bb0e6",
+    "2 High": "3ee61e69",
+    "3 Medium": "e7d6133f",
+    "4 Low": "c8faed28"
+   }
+  },
+  "Order": {
+   "id": "PVTF_lAHOCSJSds4BpIefzhnlcmY",
+   "options": {}
+  },
+  "Blocked by": {
+   "id": "PVTF_lAHOCSJSds4BpIefzhnlfOM",
+   "options": {}
+  }
+ }
+}

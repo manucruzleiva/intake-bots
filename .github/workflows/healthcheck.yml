@@ -55,7 +55,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO_VARS: ${{ toJSON(vars) }}
           HEALTH_PAGE_DIR: _site
-          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          PROJECTS_TOKEN: ${{ secrets.PROJECTS_TOKEN }}
           # El PAT de los repos de mod, para la tabla de backlog de la página (lib/backlog.mjs).
           MODS_GH_TOKEN: ${{ secrets.GH_TOKEN }}
           # El bot, sólo para leer #announcements: la columna de cards de la página (lib/surfaces.mjs).

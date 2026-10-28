@@ -216,8 +216,8 @@
 			Intake is checked by <code>lib/health.mjs</code> at the end of every intake run and hourly from the
 			healthcheck; that verdict is the one the <em>Intake unhealthy</em> issue follows. The other pillars are
 			read in the same run (<code>lib/surfaces.mjs</code>) and only inform: none of them opens an issue yet.
-			Open tickets are counted from each repo's GitHub issues, with status and priority from their Linear
-			mirror. This page re-reads its data every minute.
+			Open tickets are counted from each repo's GitHub issues, with status and priority from the GitHub
+			Project. This page re-reads its data every minute.
 		</p>
 		<p>
 			What the bot is for: <a href="https://github.com/manucruzleiva/intake-bots/blob/main/GOAL.MD">GOAL.MD</a> ·
@@ -551,11 +551,11 @@
 			+ `<td>${days(oldest)}</td></tr></tfoot>`;
 
 		$("backlog-table").innerHTML = head + body + foot;
-		// Status and priority come from Linear: a run that could not read it leaves them null.
+		// Status and priority come from the GitHub Project: a run that could not read it leaves them null.
 		const unknown = b.mods.some((m) => m.total !== null && !m.counts?.[view.dim]);
 		const age = Math.max(0, Math.round((Date.now() - Date.parse(b.generated_at)) / 60000));
 		$("backlog-note").innerHTML = `Counted ${ago(age)}.`
-			+ (unknown ? ` ${esc(DIM_LABEL[view.dim])} comes from Linear, which this run could not read.` : "")
+			+ (unknown ? ` ${esc(DIM_LABEL[view.dim])} comes from the GitHub Project, which this run could not read.` : "")
 			+ (b.errors.length ? "<ul>" + b.errors.map((e) => `<li>${esc(e)}</li>`).join("") + "</ul>" : "");
 		$("backlog").hidden = false;
 	}

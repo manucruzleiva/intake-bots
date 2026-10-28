@@ -4,7 +4,6 @@
     "name": "Routes",
     "prefix": "ROUTES",
     "tag": "Routes",
-    "linear": "Routes",
     "ua": "routes-intake (+https://modrinth.com/project/routes)",
     "announce": {
       "content": "# 🗺️✨ Routes v{version} is here! ✨",
@@ -23,7 +22,6 @@
     "name": "Cobblemon Picnic",
     "prefix": "PICNIC",
     "tag": "Picnic",
-    "linear": "Cobblemon Picnic",
     "ua": "cobblemon-picnic-intake (+https://modrinth.com/project/cobblemon-picnic)",
     "skipBeforeId": "1516437610648834058",
     "announce": {
@@ -43,7 +41,6 @@
     "name": "Cobblemon Ditto HMs",
     "prefix": "DITTO",
     "tag": "Ditto HMs",
-    "linear": "Cobblemon Ditto HMs",
     "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)",
     "announce": {
       "content": "# 🟣✨ Cobblemon Ditto HMs v{version} is here! ✨",
@@ -62,7 +59,6 @@
     "name": "Cobblemon Nuzlocke & Soul Link",
     "prefix": "NUZLOCKE",
     "tag": "Nuzlocke",
-    "linear": "Cobblemon Nuzlocke & Soul Link",
     "ua": "cobblemon-nuzlocke-intake (+https://modrinth.com/project/cobblemon-nuzlocke-soullink)",
     "gate": "enabled-var",
     "announce": {
@@ -82,7 +78,6 @@
     "name": "Cobblemon Raid Icons",
     "prefix": "RAID_ICONS",
     "tag": "Raid Icons",
-    "linear": "Cobblemon Raid Icons",
     "ua": "cobblemon-raid-icons-intake (+https://modrinth.com/project/S01tPZTk)",
     "announce": {
       "content": "# 💎🗺️ Cobblemon Raid Icons v{version} is here! ✨",
@@ -119,7 +114,6 @@
     "name": "Cobblemon Champions Training",
     "prefix": "CHAMPIONS",
     "tag": "Champions Training",
-    "linear": "Cobblemon Champions",
     "ua": "cobblemon-champions-training-intake (+https://modrinth.com/project/PlTQXswh)",
     "announce": {
       "content": "# 🏆✨ Cobblemon Champions Training v{version} is here! ✨",
@@ -138,7 +132,6 @@
     "name": "Tree Carve",
     "prefix": "TREE_CARVE",
     "tag": "Tree Carve",
-    "linear": "Tree Carve",
     "ua": "tree-carve-intake (+https://modrinth.com/project/qkkteeJr)",
     "announce": {
       "content": "# 🌳🗡️ Tree Carve v{version} is here! ✨",
