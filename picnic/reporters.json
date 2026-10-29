@@ -39,5 +39,13 @@
     },
     "id": "384695991594385419",
     "bugCatcher": true
+  },
+  "samtsalamander": {
+    "count": 1,
+    "kinds": {
+      "idea": 1
+    },
+    "id": "261953750497886211",
+    "bugCatcher": true
   }
 }
