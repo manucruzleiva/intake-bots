@@ -40,7 +40,7 @@
     "dir": "ditto-hms",
     "name": "Cobblemon HMs",
     "prefix": "DITTO",
-    "tag": "Ditto HMs",
+    "tag": "HMs",
     "ua": "cobblemon-hms-intake (+https://modrinth.com/project/cobblemon-hms)",
     "announce": {
       "content": "# 🟣✨ Cobblemon HMs v{version} is here! ✨",

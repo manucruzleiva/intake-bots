@@ -51,7 +51,7 @@ Source: [`picnic/reporters.json`](picnic/reporters.json)
 | kurosock | 1 | 1 | 0 |
 | airierurchin | 1 | 1 | 0 |
 
-## Ditto HMs
+## HMs
 
 No reports yet. That bot (`ditto-hms/bot/intake.js`) does not keep a `reporters.json` — it is the
 simplest of the three pollers. If credit tracking is wanted there, it needs the tally logic the
