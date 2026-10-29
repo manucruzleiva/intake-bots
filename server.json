@@ -43,7 +43,7 @@
       "permissions": []
     },
     {
-      "name": "Ditto HMs",
+      "name": "HMs",
       "id": "1560858623175958529",
       "permissions": []
     },
@@ -239,7 +239,7 @@
             "tags": ["Bug", "Crash", "Feedback", "Idea"],
             "messages": [
               {
-                "content": "# 📌 How to make a ticket\n**This post is the example, and it is locked: open your own with the New Post button.** One post = one bug, crash, idea or piece of feedback.\n\n## 1 · Pick two tags\n- **What it is:** 🐛 Bug · 💥 Crash · 💡 Idea · 💬 Feedback\n- **Which mod:** its tag — 🗺️ Routes, 🧺 Picnic, 💿 Ditto HMs… A post without a mod tag waits until it has one.\n\n## 2 · Give us the crucial information\nFor a **bug** or a **crash**, this is what we need before we can start. Without it we cannot reproduce the problem, so the post gets the ❓ **Needs info** tag and waits until it arrives:\n- **Minecraft version and the mod's version** (like `1.21.1` and `2.0.31`). A bug fixed in one version can still be there in an older one.\n- **Your loader: Fabric or NeoForge.** Each has its own build of the mod, and a bug can live in only one of them.\n- **Your log** — required for a crash, and it speeds up any bug. `logs/latest.log`, or the newest file in `crash-reports/` after a crash. It shows the exact error *and* every other mod you run, and another mod is often the real cause. Its first lines also say your versions and loader, so a log alone covers all three. Attach the file or paste an mclo.gs link: <#1532088850422305019> explains both.\n\n## 3 · Copy the template for your kind of post\nThe messages below have one each. Copy it into your post, fill it in, and delete what does not apply.\n\nThe bot answers in your post: when it is tracked, when it is fixed, and when the fix is out."
+                "content": "# 📌 How to make a ticket\n**This post is the example, and it is locked: open your own with the New Post button.** One post = one bug, crash, idea or piece of feedback.\n\n## 1 · Pick two tags\n- **What it is:** 🐛 Bug · 💥 Crash · 💡 Idea · 💬 Feedback\n- **Which mod:** its tag — 🗺️ Routes, 🧺 Picnic, 💿 HMs… A post without a mod tag waits until it has one.\n\n## 2 · Give us the crucial information\nFor a **bug** or a **crash**, this is what we need before we can start. Without it we cannot reproduce the problem, so the post gets the ❓ **Needs info** tag and waits until it arrives:\n- **Minecraft version and the mod's version** (like `1.21.1` and `2.0.31`). A bug fixed in one version can still be there in an older one.\n- **Your loader: Fabric or NeoForge.** Each has its own build of the mod, and a bug can live in only one of them.\n- **Your log** — required for a crash, and it speeds up any bug. `logs/latest.log`, or the newest file in `crash-reports/` after a crash. It shows the exact error *and* every other mod you run, and another mod is often the real cause. Its first lines also say your versions and loader, so a log alone covers all three. Attach the file or paste an mclo.gs link: <#1532088850422305019> explains both.\n\n## 3 · Copy the template for your kind of post\nThe messages below have one each. Copy it into your post, fill it in, and delete what does not apply.\n\nThe bot answers in your post: when it is tracked, when it is fixed, and when the fix is out."
               },
               {
                 "content": "### 🐛 Bug — something does not work as it should\nTags: **Bug** + the mod\n```text\nTitle: what goes wrong, in a few words\n\nWhat happened:\nWhat I expected instead:\nSteps to make it happen:\n1.\n2.\n3.\n\nMinecraft version:\nMod version:\nLoader: Fabric / NeoForge\nLog (recommended): attach logs/latest.log or paste an mclo.gs link\nScreenshot or video (if it helps):\n```"
@@ -282,7 +282,8 @@
               "emoji_name": "🧺"
             },
             {
-              "name": "Ditto HMs",
+              "name": "HMs",
+              "renamed_from": "Ditto HMs",
               "emoji_name": "💿"
             },
             {
@@ -606,10 +607,10 @@
             "roles": ["Picnic"]
           },
           {
-            "title": "Ditto HMs",
+            "title": "HMs",
             "emoji_name": "💿",
             "channels": [],
-            "roles": ["Ditto HMs"]
+            "roles": ["HMs"]
           },
           {
             "title": "Nuzlocke",
