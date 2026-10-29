@@ -38,16 +38,16 @@
   },
   {
     "dir": "ditto-hms",
-    "name": "Cobblemon Ditto HMs",
+    "name": "Cobblemon HMs",
     "prefix": "DITTO",
     "tag": "Ditto HMs",
-    "ua": "cobblemon-ditto-hms-intake (+https://modrinth.com/project/cobblemon-ditto-hms)",
+    "ua": "cobblemon-hms-intake (+https://modrinth.com/project/cobblemon-hms)",
     "announce": {
-      "content": "# 🟣✨ Cobblemon Ditto HMs v{version} is here! ✨",
+      "content": "# 🟣✨ Cobblemon HMs v{version} is here! ✨",
       "links": {
-        "modrinth": "https://modrinth.com/mod/cobblemon-ditto-hms",
-        "curseforge": "https://www.curseforge.com/minecraft/mc-mods/cobblemon-ditto-hms",
-        "wiki": "https://manucruzleiva.github.io/mod-wiki/ditto-hms/",
+        "modrinth": "https://modrinth.com/mod/cobblemon-hms",
+        "curseforge": "https://www.curseforge.com/projects/1587850",
+        "wiki": "https://manucruzleiva.github.io/mod-wiki/cobblemon-hms/",
         "sponsor": "https://github.com/sponsors/manucruzleiva"
       },
       "color": 10233776,
