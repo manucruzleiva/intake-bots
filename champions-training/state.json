@@ -7,12 +7,16 @@
       "issue": 140,
       "kind": "bug",
       "lastMsg": "1564020310221787228",
-      "awaitingReply": true
+      "firstReplyAt": "2026-10-29T21:10:01Z",
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     }
   },
   "lastRelease": "v1.0.0",
-  "repliesSince": "2026-10-28T22:54:18Z",
+  "repliesSince": "2026-10-29T21:10:01Z",
   "voice": {
-    "filed.bug": 1
+    "filed.bug": 1,
+    "fixed.bug": 1
   }
 }
