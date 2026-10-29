@@ -6,7 +6,7 @@
     "1564013031640268920": {
       "issue": 140,
       "kind": "bug",
-      "lastMsg": "1564020310221787228",
+      "lastMsg": "1565473099036491777",
       "firstReplyAt": "2026-10-29T21:10:01Z",
       "closedAs": "completed",
       "closedAnnounced": true,
@@ -14,7 +14,7 @@
     }
   },
   "lastRelease": "v1.0.0",
-  "repliesSince": "2026-10-29T21:10:01Z",
+  "repliesSince": "2026-10-29T21:18:30Z",
   "voice": {
     "filed.bug": 1,
     "fixed.bug": 1
