@@ -118,7 +118,6 @@
     "announce": {
       "content": "# 🏆✨ Cobblemon Champions Training v{version} is here! ✨",
       "links": {
-        "modrinth": "https://modrinth.com/mod/cobblemon-champions-training",
         "curseforge": "https://www.curseforge.com/minecraft/mc-mods/cobblemon-champions-training",
         "wiki": "https://manucruzleiva.github.io/mod-wiki/champions/",
         "sponsor": "https://github.com/sponsors/manucruzleiva"
