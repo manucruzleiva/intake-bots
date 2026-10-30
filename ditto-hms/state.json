@@ -6,7 +6,7 @@
     "1565713063598887052": {
       "issue": 251,
       "kind": "feedback",
-      "lastMsg": "1565715635453829202",
+      "lastMsg": "1565718318227128461",
       "awaitingReply": true,
       "closedAs": "completed",
       "closedAnnounced": true,
@@ -14,7 +14,7 @@
     }
   },
   "lastRelease": "v4.0.0",
-  "repliesSince": "2026-10-30T13:14:59Z",
+  "repliesSince": "2026-10-30T13:25:40Z",
   "voice": {
     "filed.feedback": 1,
     "fixed.feedback": 1
