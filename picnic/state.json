@@ -42,7 +42,7 @@
     "1565361168061567067": {
       "issue": 40,
       "kind": "idea",
-      "lastMsg": "1565363358033780837",
+      "lastMsg": "1565566260291305604",
       "awaitingReply": true,
       "closedAs": "completed",
       "closedAnnounced": true,
@@ -50,7 +50,7 @@
     }
   },
   "lastRelease": "v4.0.0",
-  "repliesSince": "2026-10-30T03:19:51Z",
+  "repliesSince": "2026-10-30T03:29:08Z",
   "voice": {
     "fixed.bug": 1,
     "release": 1,
