@@ -1,8 +1,8 @@
 {
   "venussystem": {
-    "count": 1,
+    "count": 2,
     "kinds": {
-      "feedback": 1
+      "feedback": 2
     },
     "id": "107935572940607488",
     "bugCatcher": true
