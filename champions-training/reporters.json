@@ -6,5 +6,13 @@
     },
     "id": "1320714607215513654",
     "bugCatcher": true
+  },
+  "finedust_": {
+    "count": 1,
+    "kinds": {
+      "idea": 1
+    },
+    "id": "510645915175092236",
+    "bugCatcher": true
   }
 }

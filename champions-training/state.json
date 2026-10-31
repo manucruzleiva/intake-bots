@@ -1,6 +1,7 @@
 {
   "processed": [
-    "1564013031640268920"
+    "1564013031640268920",
+    "1566013110081425551"
   ],
   "tracked": {
     "1564013031640268920": {
@@ -11,12 +12,19 @@
       "closedAs": "completed",
       "closedAnnounced": true,
       "archived": true
+    },
+    "1566013110081425551": {
+      "issue": 155,
+      "kind": "idea",
+      "lastMsg": "1566013110081425551",
+      "awaitingReply": true
     }
   },
   "lastRelease": "v2.0.0",
   "repliesSince": "2026-10-30T00:57:52Z",
   "voice": {
     "filed.bug": 1,
-    "fixed.bug": 1
+    "fixed.bug": 1,
+    "filed.idea": 1
   }
 }
