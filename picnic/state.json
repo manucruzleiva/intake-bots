@@ -46,14 +46,15 @@
       "awaitingReply": true,
       "closedAs": "completed",
       "closedAnnounced": true,
-      "archived": true
+      "archived": true,
+      "releaseAnnounced": "v5.0.0"
     }
   },
-  "lastRelease": "v4.0.0",
+  "lastRelease": "v5.0.0",
   "repliesSince": "2026-10-31T01:31:14Z",
   "voice": {
     "fixed.bug": 1,
-    "release": 1,
+    "release": 2,
     "filed.idea": 1,
     "fixed.idea": 1
   }
