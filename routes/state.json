@@ -138,12 +138,12 @@
     "1565786904237187173": {
       "issue": 418,
       "kind": "feedback",
-      "lastMsg": "1565992345835405364",
+      "lastMsg": "1566015425676836945",
       "awaitingReply": true
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-10-31T07:38:18Z",
+  "repliesSince": "2026-10-31T09:13:58Z",
   "voice": {
     "filed.feedback": 1
   }
