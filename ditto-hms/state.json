@@ -1,7 +1,8 @@
 {
   "processed": [
     "1565713063598887052",
-    "1566105176643993630"
+    "1566105176643993630",
+    "1566480040114257960"
   ],
   "tracked": {
     "1565713063598887052": {
@@ -18,12 +19,18 @@
       "kind": "feedback",
       "lastMsg": "1566105548351479821",
       "awaitingReply": true
+    },
+    "1566480040114257960": {
+      "issue": 259,
+      "kind": "feedback",
+      "lastMsg": "1566480040114257960",
+      "awaitingReply": true
     }
   },
   "lastRelease": "v4.0.0",
   "repliesSince": "2026-10-31T15:04:21Z",
   "voice": {
-    "filed.feedback": 2,
+    "filed.feedback": 3,
     "fixed.feedback": 1
   }
 }
