@@ -16,12 +16,12 @@
     "1566013110081425551": {
       "issue": 155,
       "kind": "idea",
-      "lastMsg": "1566457281518899221",
+      "lastMsg": "1566460371114528829",
       "awaitingReply": true
     }
   },
   "lastRelease": "v2.0.0",
-  "repliesSince": "2026-11-01T07:42:59Z",
+  "repliesSince": "2026-11-01T14:35:35Z",
   "voice": {
     "filed.bug": 1,
     "fixed.bug": 1,
