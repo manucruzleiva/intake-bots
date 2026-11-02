@@ -19,7 +19,8 @@
     "1560868715707367445",
     "1560868711538237490",
     "1560868707062915135",
-    "1565786904237187173"
+    "1565786904237187173",
+    "1566892887138898000"
   ],
   "tracked": {
     "1529197739659890849": {
@@ -140,11 +141,22 @@
       "kind": "feedback",
       "lastMsg": "1566103568807633097",
       "awaitingReply": true
+    },
+    "1566892887138898000": {
+      "issue": 445,
+      "kind": "crash",
+      "lastMsg": "1566892887138898000",
+      "awaitingReply": true,
+      "missing": [
+        "log"
+      ]
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-10-31T09:13:58Z",
+  "repliesSince": "2026-11-02T19:13:15Z",
   "voice": {
-    "filed.feedback": 1
+    "filed.feedback": 1,
+    "filed.crash": 1,
+    "ask": 1
   }
 }
