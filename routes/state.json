@@ -139,21 +139,21 @@
     "1565786904237187173": {
       "issue": 418,
       "kind": "feedback",
-      "lastMsg": "1567577574341607547",
+      "lastMsg": "1567617131384930315",
       "awaitingReply": true
     },
     "1566892887138898000": {
       "issue": 445,
       "kind": "crash",
       "lastMsg": "1566892961726472243",
-      "awaitingReply": true,
       "missing": [
         "log"
-      ]
+      ],
+      "firstReplyAt": "2026-11-04T22:28:02Z"
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-04T17:16:26Z",
+  "repliesSince": "2026-11-04T22:42:26Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
