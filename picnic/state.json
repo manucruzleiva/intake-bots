@@ -4,7 +4,8 @@
     "1548479508166869052",
     "1560868715707367445",
     "1561045561270997052",
-    "1565361168061567067"
+    "1565361168061567067",
+    "1568337890876854302"
   ],
   "tracked": {
     "1547824273962573864": {
@@ -48,6 +49,12 @@
       "closedAnnounced": true,
       "archived": true,
       "releaseAnnounced": "v5.0.0"
+    },
+    "1568337890876854302": {
+      "issue": 79,
+      "kind": "bug",
+      "lastMsg": "1568337890876854302",
+      "awaitingReply": true
     }
   },
   "lastRelease": "v5.0.0",
@@ -56,6 +63,7 @@
     "fixed.bug": 1,
     "release": 2,
     "filed.idea": 1,
-    "fixed.idea": 1
+    "fixed.idea": 1,
+    "filed.bug": 1
   }
 }

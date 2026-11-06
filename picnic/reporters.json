@@ -47,5 +47,13 @@
     },
     "id": "261953750497886211",
     "bugCatcher": true
+  },
+  "dhzsquared": {
+    "count": 1,
+    "kinds": {
+      "bug": 1
+    },
+    "id": "129266680810438656",
+    "bugCatcher": true
   }
 }
