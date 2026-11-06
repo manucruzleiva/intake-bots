@@ -140,7 +140,7 @@
       "issue": 418,
       "kind": "feedback",
       "lastMsg": "1567617131384930315",
-      "awaitingReply": true
+      "firstReplyAt": "2026-11-06T16:34:23Z"
     },
     "1566892887138898000": {
       "issue": 445,
@@ -153,7 +153,7 @@
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-05T23:54:00Z",
+  "repliesSince": "2026-11-06T18:02:20Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
