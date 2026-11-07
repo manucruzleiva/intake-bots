@@ -53,12 +53,12 @@
     "1568337890876854302": {
       "issue": 79,
       "kind": "bug",
-      "lastMsg": "1568337890876854302",
+      "lastMsg": "1568440920150380595",
       "awaitingReply": true
     }
   },
   "lastRelease": "v5.0.0",
-  "repliesSince": "2026-11-04T12:36:19Z",
+  "repliesSince": "2026-11-07T03:09:13Z",
   "voice": {
     "fixed.bug": 1,
     "release": 2,
