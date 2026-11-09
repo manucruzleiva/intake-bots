@@ -124,7 +124,8 @@
       "closedAs": "completed",
       "closeAttempts": 3,
       "closedAnnounced": true,
-      "archiveAttempts": 2
+      "archiveAttempts": 3,
+      "archived": true
     },
     "1556977508568531057": {
       "issue": 260,
