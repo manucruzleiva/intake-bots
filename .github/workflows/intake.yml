@@ -271,10 +271,12 @@ jobs:
           # Una sola cadena: si ya hay un pacer esperando, éste no agrega otro. Sólo cuentan los que
           # todavía no arrancaron; uno in_progress es el que disparó esta corrida, o está a punto de
           # disparar la siguiente, y de las dos corridas que resulten la segunda ya ve el nuevo.
+          # Un pacer sano espera 10 min (wait timer); uno "queued" de más de 30 min es una corrida
+          # fantasma de GitHub (2026-11-04: una quedó queued sin jobs y cortó la cadena 5 días).
           waiting=""
           for i in 1 2 3 4 5; do
             if waiting=$(gh api "repos/$REPO/actions/workflows/intake-pacer.yml/runs?per_page=20" \
-                --jq '[.workflow_runs[] | select(.status == "queued" or .status == "waiting" or .status == "pending" or .status == "requested")] | length'); then
+                --jq '[.workflow_runs[] | select(.status == "queued" or .status == "waiting" or .status == "pending" or .status == "requested") | select(now - (.created_at | fromdateiso8601) < 1800)] | length'); then
               break
             fi
             waiting=""
