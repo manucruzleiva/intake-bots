@@ -120,7 +120,9 @@
     "1554658672821403729": {
       "issue": 259,
       "kind": "feedback",
-      "lastMsg": "1554674857378062418"
+      "lastMsg": "1554674857378062418",
+      "closedAs": "completed",
+      "closeAttempts": 1
     },
     "1556977508568531057": {
       "issue": 260,
@@ -153,10 +155,11 @@
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-08T21:56:28Z",
+  "repliesSince": "2026-11-08T23:30:12Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
-    "ask": 1
+    "ask": 1,
+    "fixed.feedback": 1
   }
 }
