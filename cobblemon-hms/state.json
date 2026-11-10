@@ -24,13 +24,16 @@
       "issue": 259,
       "kind": "feedback",
       "lastMsg": "1566482080030916679",
-      "awaitingReply": true
+      "awaitingReply": true,
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     }
   },
   "lastRelease": "v4.0.0",
-  "repliesSince": "2026-11-10T02:23:12Z",
+  "repliesSince": "2026-11-10T11:50:42Z",
   "voice": {
     "filed.feedback": 3,
-    "fixed.feedback": 1
+    "fixed.feedback": 2
   }
 }
