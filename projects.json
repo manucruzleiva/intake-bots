@@ -165,16 +165,6 @@
     }
   },
   {
-    "dir": "poketowns",
-    "name": "Cobblemon PokeTowns",
-    "prefix": "POKETOWNS",
-    "tag": "PokeTowns",
-    "ua": "cobblemon-poketowns-intake (+https://github.com/manucruzleiva/intake-bots)",
-    "gate": "enabled-var",
-    "repo": "manucruzleiva/cobblemon-poketowns",
-    "emoji": "🏘️"
-  },
-  {
     "dir": "pokegyms",
     "name": "Cobblemon PokeGyms",
     "prefix": "POKEGYMS",
