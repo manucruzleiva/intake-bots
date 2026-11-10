@@ -54,13 +54,16 @@
       "issue": 79,
       "kind": "bug",
       "lastMsg": "1568440920150380595",
-      "awaitingReply": true
+      "awaitingReply": true,
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     }
   },
   "lastRelease": "v5.0.0",
-  "repliesSince": "2026-11-09T11:24:22Z",
+  "repliesSince": "2026-11-10T11:09:19Z",
   "voice": {
-    "fixed.bug": 1,
+    "fixed.bug": 2,
     "release": 2,
     "filed.idea": 1,
     "fixed.idea": 1,
