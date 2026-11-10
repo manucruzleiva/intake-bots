@@ -108,6 +108,10 @@
       "permissions": []
     },
     {
+      "name": "Defeated Catch",
+      "permissions": []
+    },
+    {
       "name": "@everyone",
       "permissions": ["CreateInstantInvite", "AddReactions", "Stream", "ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "UseExternalEmojis", "Connect", "Speak", "UseVAD", "ChangeNickname", "UseApplicationCommands", "RequestToSpeak", "CreatePublicThreads", "CreatePrivateThreads", "UseExternalStickers", "SendMessagesInThreads", "UseEmbeddedActivities", "UseExternalSounds", "SendVoiceMessages", "bit47", "SetVoiceChannelStatus", "SendPolls", "UseExternalApps"]
     }
@@ -312,6 +316,10 @@
             {
               "name": "PokeTrades",
               "emoji_name": "🔄"
+            },
+            {
+              "name": "Defeated Catch",
+              "emoji_name": "💫"
             },
             {
               "name": "Resolved",
@@ -650,6 +658,12 @@
             "emoji_name": "🔄",
             "channels": [],
             "roles": ["PokeTrades"]
+          },
+          {
+            "title": "Defeated Catch",
+            "emoji_name": "💫",
+            "channels": [],
+            "roles": ["Defeated Catch"]
           }
         ]
       },

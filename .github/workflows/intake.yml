@@ -118,7 +118,7 @@ jobs:
           DISCORD_SHARED_FORUM_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || matrix.forum || vars.TICKETS_FORUM_ID }}
           MOD_TAG: ${{ matrix.tag }}
           GH_TOKEN: ${{ inputs.break == format('{0}:github', matrix.dir) && 'healthcheck-test-invalid-token' || secrets.GH_TOKEN }}
-          GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}
+          GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] || matrix.repo }}
           INTAKE_USER_AGENT: ${{ matrix.ua }}
           PROJECT_NAME: ${{ matrix.name }}
           SKIP_BEFORE_ID: ${{ matrix.skipBeforeId }}
