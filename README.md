@@ -211,6 +211,8 @@ llevan su `tag`. Los tags de mod nunca deciden el tipo: `classify` no los ve.
 | `ua` | `User-Agent` hacia Discord y GitHub |
 | `skipBeforeId` | Opcional. Snowflake de corte (ver abajo) |
 | `gate` | Opcional. `enabled-var` (ver abajo) |
+| `forum` | Opcional. Id del foro que lee la fila en lugar de `TICKETS_FORUM_ID`. PAB lleva el de `#app-tickets`, donde su tag `PAB` ya existe en `server.json`. El job `unrouted` sigue mirando sólo `#mod-tickets` |
+| `needs` / `ask` | Opcionales. Qué le falta a un bug o crash (`needs`, por tipo) y cómo se pide cada pieza (`ask`), en lugar de los de Minecraft de `lib/completeness.mjs` y `lib/voice.mjs`. PAB no tiene loader ni `latest.log`: pide versión de PAB y de Windows, y su log en un crash |
 | `intake` | Opcional. `false` en un repo sin foro: no entra al poller, al catálogo de `#mods`, al healthcheck ni al bootstrap. Un mod que sólo anuncia releases lleva `dir`, `name`, `prefix` y `announce`; un repo que sólo cuenta en la tabla de tickets de la página (un mod en desarrollo, este bot, la wiki), `dir`, `name` y `repo`. **Todo repo del workspace tiene su entrada**, con o sin intake |
 | `repo` | Opcional. El `owner/repo` cuyos issues cuenta la tabla de tickets de la página (`lib/backlog.mjs`), en un proyecto sin la variable `<PREFIX>_GH_REPO` |
 | `emoji` | Opcional. El ícono de su fila en esa tabla cuando no hay tienda, `art/branding/icon.png` en el repo ni tag en `#mod-tickets` que lo den |
@@ -236,7 +238,7 @@ hace falta un workflow nuevo.
 
 | Gate | Corre cuando | Quién lo usa |
 |---|---|---|
-| `enabled-var` | `<PREFIX>_INTAKE_ENABLED == 'true'`, o siempre en un `workflow_dispatch` manual (el del pacer no cuenta) | nuzlocke |
+| `enabled-var` | `<PREFIX>_INTAKE_ENABLED == 'true'`, o siempre en un `workflow_dispatch` manual (el del pacer no cuenta) | nuzlocke, action-combat, pokegyms, poketrades, pab |
 
 Un proyecto con el gate cerrado sigue en la matrix: su fila sale verde con un único step que dice por
 qué no corrió.

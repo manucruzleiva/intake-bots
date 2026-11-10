@@ -115,7 +115,7 @@ jobs:
         env:
           DISCORD_BOT_TOKEN: ${{ inputs.break == format('{0}:discord', matrix.dir) && 'healthcheck-test-invalid-token' || secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
-          DISCORD_SHARED_FORUM_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || vars.TICKETS_FORUM_ID }}
+          DISCORD_SHARED_FORUM_ID: ${{ inputs.break == format('{0}:forum', matrix.dir) && '1' || matrix.forum || vars.TICKETS_FORUM_ID }}
           MOD_TAG: ${{ matrix.tag }}
           GH_TOKEN: ${{ inputs.break == format('{0}:github', matrix.dir) && 'healthcheck-test-invalid-token' || secrets.GH_TOKEN }}
           GH_ISSUES_REPO: ${{ vars[format('{0}_GH_REPO', matrix.prefix)] }}

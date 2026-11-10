@@ -204,7 +204,16 @@
   {
     "dir": "pab",
     "name": "PTCGL Auto Battle Log",
-    "intake": false,
+    "prefix": "PAB",
+    "tag": "PAB",
+    "ua": "ptcgl-auto-battlelog-intake (+https://github.com/manucruzleiva/ptcgl-auto-battlelog)",
+    "gate": "enabled-var",
+    "forum": "1562799951006662716",
+    "needs": { "bug": ["version"], "crash": ["version", "log"] },
+    "ask": {
+      "version": "PAB's version (e.g. `1.4.2`) and your Windows version (10 or 11)",
+      "log": "PAB's log file, attached here (its README says where it is)"
+    },
     "repo": "manucruzleiva/ptcgl-auto-battlelog",
     "emoji": "📜",
     "app": {
