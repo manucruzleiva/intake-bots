@@ -194,6 +194,15 @@
     "emoji": "💫"
   },
   {
+    "dir": "trainers-satchel",
+    "name": "Cobblemon Trainer's Satchel",
+    "prefix": "SATCHEL",
+    "tag": "Trainer's Satchel",
+    "ua": "cobblemon-trainers-satchel-intake (+https://github.com/manucruzleiva/intake-bots)",
+    "repo": "manucruzleiva/cobblemon-trainers-satchel",
+    "emoji": "🎒"
+  },
+  {
     "dir": "tcgkb",
     "name": "TCGKB",
     "intake": false,
