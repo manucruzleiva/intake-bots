@@ -45,7 +45,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
         run: |
-          for wf in intake.yml healthcheck.yml; do
+          for wf in intake.yml healthcheck.yml server.yml; do
             gh api -X PUT "repos/$REPO/actions/workflows/$wf/enable" \
               || echo "::warning::could not re-enable $wf"
           done

@@ -35,8 +35,8 @@ Esto es deuda real, no hipotética, y la fase 0 la salda:
    proyecto. La galería ya está centralizada (`gallery.yml`), pero sólo picnic la adoptó.
 4. **`announce.mjs` no tiene dedup**: un segundo dispatch de la misma versión postea una segunda card.
    El grupo de concurrencia por versión evita dos a la vez, no dos seguidas.
-5. **`server.yml` sólo corre a mano.** Un cambio hecho a mano en el guild no se ve hasta el próximo
-   dry run que alguien lance.
+5. **`server.yml` sólo aplica a mano.** Hay un dry run diario por cron, pero todavía nadie lee su
+   diff: un cambio hecho a mano en el guild no abre aviso (falta el issue "Discord drift").
 
 ## Principios que se mantienen (y cómo se aplican a lo nuevo)
 
@@ -55,7 +55,7 @@ Esto es deuda real, no hipotética, y la fase 0 la salda:
 
 ## Pilar 2 — Server de Discord
 
-Ya existe: `server.json` + `lib/server.mjs` + `server.yml` (manual), `lib/bootstrap.mjs`, el rol
+Ya existe: `server.json` + `lib/server.mjs` + `server.yml` (apply a mano, dry run diario), `lib/bootstrap.mjs`, el rol
 `Bug Catcher`, el catálogo de `#mods`, los mensajes fijos de `#rules` y el post fijado de `#mod-tickets`.
 
 Lo que falta:
