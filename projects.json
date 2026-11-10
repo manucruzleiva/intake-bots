@@ -37,7 +37,7 @@
     }
   },
   {
-    "dir": "ditto-hms",
+    "dir": "cobblemon-hms",
     "name": "Cobblemon HMs",
     "prefix": "DITTO",
     "tag": "HMs",
