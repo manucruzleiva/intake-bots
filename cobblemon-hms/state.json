@@ -18,12 +18,15 @@
       "issue": 258,
       "kind": "feedback",
       "lastMsg": "1566105548351479821",
-      "awaitingReply": true
+      "awaitingReply": true,
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     },
     "1566480040114257960": {
       "issue": 259,
       "kind": "feedback",
-      "lastMsg": "1566482080030916679",
+      "lastMsg": "1569681476134375505",
       "awaitingReply": true,
       "closedAs": "completed",
       "closedAnnounced": true,
@@ -34,6 +37,6 @@
   "repliesSince": "2026-11-10T11:50:42Z",
   "voice": {
     "filed.feedback": 3,
-    "fixed.feedback": 2
+    "fixed.feedback": 3
   }
 }
