@@ -112,6 +112,10 @@
       "permissions": []
     },
     {
+      "name": "Trainer's Satchel",
+      "permissions": []
+    },
+    {
       "name": "@everyone",
       "permissions": ["CreateInstantInvite", "AddReactions", "Stream", "ViewChannel", "SendMessages", "EmbedLinks", "AttachFiles", "ReadMessageHistory", "UseExternalEmojis", "Connect", "Speak", "UseVAD", "ChangeNickname", "UseApplicationCommands", "RequestToSpeak", "CreatePublicThreads", "CreatePrivateThreads", "UseExternalStickers", "SendMessagesInThreads", "UseEmbeddedActivities", "UseExternalSounds", "SendVoiceMessages", "bit47", "SetVoiceChannelStatus", "SendPolls", "UseExternalApps"]
     }
@@ -320,6 +324,10 @@
             {
               "name": "Defeated Catch",
               "emoji_name": "💫"
+            },
+            {
+              "name": "Trainer's Satchel",
+              "emoji_name": "🎒"
             },
             {
               "name": "Resolved",
@@ -664,6 +672,12 @@
             "emoji_name": "💫",
             "channels": [],
             "roles": ["Defeated Catch"]
+          },
+          {
+            "title": "Trainer's Satchel",
+            "emoji_name": "🎒",
+            "channels": [],
+            "roles": ["Trainer's Satchel"]
           }
         ]
       },
