@@ -10,7 +10,7 @@
   monthly development cost, kept by hand at the repo root) and revenue.json (CurseForge's monthly
   revenue, kept the same way); the workflows copy in downloads.json and, when they exist,
   modrinth-daily.json, revenue-fetched.json (Modrinth and GitHub Sponsors) and apps-daily.json (the
-  apps' GitHub release downloads and repo views; mods.json flags the apps with `app`) from the
+  apps' GitHub release downloads, split by version and asset kind, and repo views; mods.json flags the apps with `app`) from the
   `stats` branch.
 
   Per day, a mod's downloads are the deltas between its snapshots (lib/stats.mjs). A delta is spread
@@ -92,6 +92,8 @@
 		display: inline-flex; align-items: center; gap: 6px;
 	}
 	.legend button[aria-pressed="false"] { color: var(--muted); }
+	.legend > span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin-right: 8px; }
+	#app-charts h3 { font-size: 14px; margin: 20px 0 4px; }
 	.legend button[aria-pressed="false"] .swatch { background: none !important; box-shadow: inset 0 0 0 1.5px var(--muted); }
 	.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; display: inline-block; }
 	.chart { position: relative; }
@@ -159,6 +161,7 @@
 		<h2>Apps</h2>
 		<p class="meta" id="apps-meta">From GitHub: the downloads of every release asset, and the views of the app's repo.</p>
 		<div class="table-wrap"><table id="apps-table"></table></div>
+		<div id="app-charts"></div>
 	</section>
 	<section class="card" id="cost" hidden>
 		<h2>Development cost</h2>
@@ -339,8 +342,59 @@
 				+ `<td>${cell(r.uniques, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td></tr>`).join("")
 			+ "</tbody>";
 		const first = Math.min(...rows.map((r) => r.viewsFrom ?? Infinity));
+		drawAppCharts(len);
 		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice."
 			+ (Number.isFinite(first) ? ` Views kept since ${date(first, { month: "short", day: "numeric", year: "numeric" })}.` : "");
+	}
+
+	// Per app with a split by asset kind (kinds, versions): downloads per day by kind, the updater's
+	// checks per day (installs in use, roughly), and every release's downloads by kind.
+	const KINDS = [
+		{ key: "exe", name: "Installer (.exe)", color: "var(--s1)" },
+		{ key: "portable", name: "Portable", color: "var(--s2)" },
+		{ key: "other", name: "Other", color: "var(--s4)" },
+	];
+	const CHECKS = [{ key: "update", name: "Update checks", color: "var(--s5)" }];
+	const dayAxis = {
+		fmt: num,
+		title: (k) => date(keyDay(k), { month: "short", day: "numeric", year: "numeric" }),
+		tick: (k, i, n) => n <= 12 || i % Math.ceil(n / (innerWidth < 500 ? 4 : 7)) === 0 ? date(keyDay(k)) : null,
+	};
+	const versionAxis = { fmt: num, title: (v) => `v${v}`, tick: (v, i, n) => n <= 12 || i % Math.ceil(n / 12) === 0 ? v : null };
+
+	/** Each recorded day's gain per kind over the day recorded before it, as bar rows for the range. */
+	function kindRows(kinds, len) {
+		const keys = Object.keys(kinds).sort(), gains = {};
+		for (let i = 1; i < keys.length; i++) {
+			const cur = kinds[keys[i]], prev = kinds[keys[i - 1]], g = {};
+			for (const k of Object.keys(cur)) g[k] = Math.max(0, cur[k] - (prev[k] ?? 0));
+			gains[keys[i]] = g;
+		}
+		if (keys.length < 2) return [];
+		const end = dayOf(Date.now()), from = Math.max(keyDay(keys[1]), len ? end - len + 1 : -Infinity);
+		const rows = [];
+		for (let d = from; d <= end; d++) rows.push({ month: dayKey(d), ...gains[dayKey(d)] });
+		return rows;
+	}
+
+	function drawAppCharts(len) {
+		const box = $("app-charts");
+		const apps = appList.filter((m) => appData[m.dir]?.versions && Object.keys(appData[m.dir].versions).length);
+		const legend = (series) => `<div class="legend">${series.map((s) => `<span><span class="swatch" style="background:${s.color}"></span>${esc(s.name)}</span>`).join(" ")}</div>`;
+		box.innerHTML = apps.map((m, i) => `<h3>${esc(m.name)}</h3>`
+			+ `<p class="meta">Downloads per day, by type.</p>${legend(KINDS)}<div class="chart" id="app-days-${i}"></div>`
+			+ `<p class="meta">Update checks per day: the app's updater fetching update.json, so roughly the installs in use.</p><div class="chart" id="app-checks-${i}"></div>`
+			+ `<p class="meta">Downloads per version, all time.</p>${legend(KINDS)}<div class="chart" id="app-versions-${i}"></div>`).join("");
+		apps.forEach((m, i) => {
+			const a = appData[m.dir], days = kindRows(a.kinds ?? {}, len);
+			const empty = '<p class="empty">Not enough days recorded yet: it takes two.</p>';
+			if (days.length) {
+				drawBars($(`app-days-${i}`), days, KINDS, `${m.name} downloads per day`, dayAxis);
+				drawBars($(`app-checks-${i}`), days, CHECKS, `${m.name} update checks per day`, dayAxis);
+			} else $(`app-days-${i}`).innerHTML = $(`app-checks-${i}`).innerHTML = empty;
+			const versions = Object.entries(a.versions).map(([v, k]) => ({ month: v, ...k }));
+			drawBars($(`app-versions-${i}`), versions, KINDS, `${m.name} downloads per version`, versionAxis);
+		});
 	}
 
 	/** 0 → step for 4–5 gridlines: 1, 2 or 5 times a power of ten. */
@@ -462,7 +516,14 @@
 	 * Monthly bars, `series` stacked in their order from the baseline up: each row of `rows` is
 	 * { month, [series.key]: usd }. The tooltip lists every series of the month, top first.
 	 */
-	function drawBars(box, rows, series, label) {
+	// The month axis: rows keyed by `month` ("2026-10"), amounts in USD. dayAxis and versionAxis below
+	// draw the apps' bars with the same function.
+	const monthAxis = {
+		fmt: usd,
+		title: (k) => monthName(k),
+		tick: (k, i, n) => n <= 12 || i % Math.ceil(n / 12) === 0 ? monthName(k, { month: "short" }) + (k.endsWith("-01") || i === 0 ? ` ${k.slice(2, 4)}` : "") : null,
+	};
+	function drawBars(box, rows, series, label, axis = monthAxis) {
 		const n = rows.length;
 		const totals = rows.map((row) => series.reduce((s, x) => s + (row[x.key] || 0), 0));
 		const max = Math.max(1, ...totals);
@@ -473,10 +534,10 @@
 		const y = (v) => mt + ih - v / top * ih;
 		// Every bar wears its amount while they fit; past a year the tooltip carries it alone.
 		const labels = n <= 12;
-		let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}, ${esc(monthName(rows[0].month))} to ${esc(monthName(rows[n - 1].month))}">`;
+		let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}, ${esc(axis.title(rows[0].month))} to ${esc(axis.title(rows[n - 1].month))}">`;
 		for (let v = 0; v <= top; v += step) {
 			svg += `<line x1="${ml}" x2="${W - mr}" y1="${y(v)}" y2="${y(v)}" stroke="var(--grid)"/>`
-				+ `<text x="${ml - 6}" y="${y(v) + 4}" text-anchor="end">${usd(v)}</text>`;
+				+ `<text x="${ml - 6}" y="${y(v) + 4}" text-anchor="end">${axis.fmt(v)}</text>`;
 		}
 		const base = mt + ih;
 		rows.forEach((row, i) => {
@@ -492,10 +553,9 @@
 				if (k) svg += `<line x1="${x0}" x2="${x0 + bw}" y1="${floor}" y2="${floor}" stroke="var(--card)" stroke-width="1.5"/>`;
 				floor = t;
 			});
-			if (labels) svg += `<text class="value" x="${cx}" y="${floor - 5}" text-anchor="middle">${usd(totals[i])}</text>`;
-			const [yy, mm] = row.month.split("-");
-			const tick = n <= 12 || i % Math.ceil(n / 12) === 0;
-			if (tick) svg += `<text x="${cx}" y="${H - 4}" text-anchor="middle">${esc(monthName(row.month, { month: "short" }))}${mm === "01" || i === 0 ? ` ${yy.slice(2)}` : ""}</text>`;
+			if (labels) svg += `<text class="value" x="${cx}" y="${floor - 5}" text-anchor="middle">${axis.fmt(totals[i])}</text>`;
+			const tick = axis.tick(row.month, i, n);
+			if (tick) svg += `<text x="${cx}" y="${H - 4}" text-anchor="middle">${esc(tick)}</text>`;
 			svg += `<rect x="${ml + band * i}" y="${mt}" width="${band}" height="${ih}" fill="transparent" data-i="${i}"/>`;
 		});
 		box.innerHTML = svg + '</svg><div class="tip" hidden></div>';
@@ -505,9 +565,9 @@
 			hit.addEventListener("pointerenter", () => {
 				const i = +hit.dataset.i, r = box.querySelector("svg").getBoundingClientRect();
 				const swatch = (s) => series.length > 1 ? `<span class="swatch" style="background:${s.color}"></span>` : "";
-				tip.innerHTML = `<strong>${esc(monthName(rows[i].month))}</strong>`
-					+ [...series].reverse().map((s) => `<div>${swatch(s)}${esc(s.name)}<span class="v">${usd(rows[i][s.key] || 0)}</span></div>`).join("")
-					+ (series.length > 1 ? `<div class="sum">Total<span class="v">${usd(totals[i])}</span></div>` : "");
+				tip.innerHTML = `<strong>${esc(axis.title(rows[i].month))}</strong>`
+					+ [...series].reverse().map((s) => `<div>${swatch(s)}${esc(s.name)}<span class="v">${axis.fmt(rows[i][s.key] || 0)}</span></div>`).join("")
+					+ (series.length > 1 ? `<div class="sum">Total<span class="v">${axis.fmt(totals[i])}</span></div>` : "");
 				tip.hidden = false;
 				const left = (ml + band * (i + 0.5)) * r.width / W, w = tip.offsetWidth;
 				tip.style.left = `${left + 12 + w > r.width ? Math.max(0, left - 12 - w) : left + 12}px`;
@@ -594,6 +654,7 @@
 			if (data) drawChart(currentRange());
 			if (costMonths.length) drawCost();
 			if (revenueMonths.length) drawRevenue();
+			if (appData) renderApps();
 		});
 	});
 
