@@ -9,7 +9,9 @@
   writes it with mods.json (each mod's dir, name and Modrinth slug or id), costs.json (the
   monthly development cost, kept by hand at the repo root) and revenue.json (CurseForge's monthly
   revenue, kept the same way); the workflows copy in downloads.json and, when they exist,
-  modrinth-daily.json and revenue-fetched.json (Modrinth and GitHub Sponsors) from the `stats` branch.
+  modrinth-daily.json, revenue-fetched.json (Modrinth and GitHub Sponsors) and apps-daily.json (the
+  apps' GitHub release downloads and repo views; mods.json flags the apps with `app`) from the
+  `stats` branch.
 
   Per day, a mod's downloads are the deltas between its snapshots (lib/stats.mjs). A delta is spread
   over the time between the two snapshots, so a gap (a skipped cron, a quiet mod) is never a spike.
@@ -153,6 +155,11 @@
 		<h2>Per mod</h2>
 		<div class="table-wrap"><table id="table"></table></div>
 	</section>
+	<section class="card" id="apps" hidden>
+		<h2>Apps</h2>
+		<p class="meta" id="apps-meta">From GitHub: the downloads of every release asset, and the views of the app's repo.</p>
+		<div class="table-wrap"><table id="apps-table"></table></div>
+	</section>
 	<section class="card" id="cost" hidden>
 		<h2>Development cost</h2>
 		<div class="figures">
@@ -290,6 +297,50 @@
 				+ `<td>${total ? (r.total / total * 100).toFixed(1) + "%" : "—"}</td></tr>`).join("")
 			+ `</tbody><tfoot><tr><td>All mods</td><td>${num(rows.reduce((n, r) => n + (r.mr ?? 0), 0))}</td>`
 			+ `<td>${num(rows.reduce((n, r) => n + (r.cf ?? 0), 0))}</td><td>${num(total)}</td><td>${total ? "100%" : "—"}</td></tr></tfoot>`;
+
+		renderApps();
+	}
+
+	// Apps: apps-daily.json keeps each app's release total per day (a running total) and its repo's
+	// views per day ([views, uniques]). They have their own range, ending today: they are not in `data`.
+	let appList = [], appData = null;
+	const dayKey = (d) => new Date(d * DAY).toISOString().slice(0, 10);
+	const keyDay = (k) => dayOf(Date.parse(k + "T00:00:00Z"));
+	function appFigures(a, len) {
+		const dl = Object.entries(a?.downloads ?? {}).map(([k, n]) => [keyDay(k), n]).sort((x, y) => x[0] - y[0]);
+		const views = Object.entries(a?.views ?? {}).map(([k, v]) => [keyDay(k), v]);
+		const end = dayOf(Date.now()), from = len ? end - len + 1 : -Infinity;
+		const total = dl.length ? dl[dl.length - 1][1] : null;
+		// The range's downloads: the total now minus the last one before the range. Without one
+		// (history shorter than the range), the delta since the first snapshot, flagged as such.
+		const before = dl.filter(([d]) => d < from).pop();
+		const inRange = !len ? total : total == null ? null : total - (before ?? dl[0])[1];
+		const since = len && !before && dl.length ? dl[0][0] : null;
+		const shown = views.filter(([d]) => d >= from);
+		return {
+			total, inRange, since,
+			views: views.length ? shown.reduce((n, [, v]) => n + v[0], 0) : null,
+			uniques: views.length ? shown.reduce((n, [, v]) => n + v[1], 0) : null,
+			viewsFrom: views.length ? Math.min(...views.map(([d]) => d)) : null,
+		};
+	}
+	function renderApps() {
+		if (!appList.length || !appData) return;
+		$("apps").hidden = false;
+		const [, label, len] = RANGES.find((r) => r[0] === rangeKey);
+		const rows = appList.map((m) => ({ m, ...appFigures(appData[m.dir], len) }));
+		const cell = (n, why) => n == null ? `<span title="${esc(why)}">—</span>` : num(n);
+		const head = len ? `last ${label}` : "all time";
+		$("apps-table").innerHTML = `<thead><tr><th>App</th><th>Downloads, ${esc(head)}</th>${len ? "<th>Downloads, all time</th>" : ""}<th>Repo views, ${esc(head)}</th><th>Visitors, ${esc(head)}</th></tr></thead><tbody>`
+			+ rows.map((r) => `<tr><td>${esc(r.m.name)}</td>`
+				+ `<td>${cell(r.inRange, "No GitHub releases")}${r.since != null ? ` <span class="meta" title="The history starts later than the range">(since ${esc(date(r.since))})</span>` : ""}</td>`
+				+ (len ? `<td>${cell(r.total, "No GitHub releases")}</td>` : "")
+				+ `<td>${cell(r.views, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td>`
+				+ `<td>${cell(r.uniques, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td></tr>`).join("")
+			+ "</tbody>";
+		const first = Math.min(...rows.map((r) => r.viewsFrom ?? Infinity));
+		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice."
+			+ (Number.isFinite(first) ? ` Views kept since ${date(first, { month: "short", day: "numeric", year: "numeric" })}.` : "");
 	}
 
 	/** 0 → step for 4–5 gridlines: 1, 2 or 5 times a power of ten. */
@@ -561,7 +612,10 @@
 		Promise.all([json("revenue-fetched.json", true).catch(() => null), json("revenue.json", true).catch(() => null)])
 			.then(([fetched, manual]) => { revenueMonths = revenueRows(fetched, manual); renderRevenue(); });
 		try {
-			const [mods, rows, daily] = await Promise.all([json("mods.json"), json("downloads.json", true), json("modrinth-daily.json", true).catch(() => null)]);
+			const [list, rows, daily] = await Promise.all([json("mods.json"), json("downloads.json", true), json("modrinth-daily.json", true).catch(() => null)]);
+			const mods = list.filter((m) => !m.app);
+			appList = list.filter((m) => m.app);
+			json("apps-daily.json", true).then((a) => { appData = a?.apps && typeof a.apps === "object" ? a.apps : null; renderApps(); }).catch(() => {});
 			const usable = daily && typeof daily.start === "string" && daily.days && typeof daily.days === "object" ? daily : null;
 			if (!rows?.length && !usable) {
 				$("total").textContent = "No data yet";
