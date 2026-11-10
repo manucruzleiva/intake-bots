@@ -98,11 +98,6 @@
       "permissions": []
     },
     {
-      "name": "PokeTowns",
-      "id": "1562799941217423450",
-      "permissions": []
-    },
-    {
       "name": "PokeGyms",
       "id": "1562799941590712363",
       "permissions": []
@@ -309,10 +304,6 @@
             {
               "name": "Action Combat",
               "emoji_name": "⚔️"
-            },
-            {
-              "name": "PokeTowns",
-              "emoji_name": "🏘️"
             },
             {
               "name": "PokeGyms",
@@ -647,12 +638,6 @@
             "emoji_name": "⚔️",
             "channels": [],
             "roles": ["Action Combat"]
-          },
-          {
-            "title": "PokeTowns",
-            "emoji_name": "🏘️",
-            "channels": [],
-            "roles": ["PokeTowns"]
           },
           {
             "title": "PokeGyms",
