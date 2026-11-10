@@ -42,7 +42,7 @@ foro de tickets ──▶  intake.yml (una fila de matrix por proyecto)  ──�
 | [`.github/workflows/intake.yml`](.github/workflows/intake.yml) | El único workflow de intake |
 | [`.github/workflows/intake-pacer.yml`](.github/workflows/intake-pacer.yml) | Le pone cadencia: espera 10 min y vuelve a disparar `intake.yml` |
 | [`.github/workflows/healthcheck.yml`](.github/workflows/healthcheck.yml) | El healthcheck desde afuera de la cadena, por `schedule`: ve si la cadena se cortó |
-| [`.github/workflows/server.yml`](.github/workflows/server.yml) | A mano: hace que el guild coincida con `server.json` (`dry_run` por defecto, `prune` apagado) |
+| [`.github/workflows/server.yml`](.github/workflows/server.yml) | Hace que el guild coincida con `server.json`: dry run diario por cron; apply y `prune` sólo a mano |
 | [`.github/workflows/catalog.yml`](.github/workflows/catalog.yml) | Cada hora: corre `lib/catalog.mjs` y pushea el snapshot de descargas a la rama `stats`. Aparte de `intake.yml`, para que una tienda caída no toque la cadena |
 | [`.github/workflows/mod-released.yml`](.github/workflows/mod-released.yml) | `repository_dispatch` `mod-released`: el `publish.yml` de cada mod lo dispara cuando las tiendas aceptaron los jars, y postea la card. A mano, con `dry` (por defecto), valida e imprime sin postear |
 | `unrouted.json` | Los posts del foro único a los que ya se les pidió el tag de mod |
