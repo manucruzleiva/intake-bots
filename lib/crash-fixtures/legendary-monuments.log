@@ -1,0 +1,10 @@
+[23:10:02] [Server thread/INFO] [minecraft/MinecraftServer]: Shiero joined the game
+[23:12:27] [Server thread/ERROR] [cobblemon/]: Error while evaluating MoLang: for_each(t.loser, c.npc_losers, ...) in legendarymonuments:battle_end
+[23:12:27] [Server thread/ERROR] [minecraft/MinecraftServer]: Encountered an unexpected exception
+java.lang.IllegalStateException: MoLang script legendarymonuments:battle_end failed: no such variable c.npc_losers
+	at com.bedrockk.molang.runtime.MoLangRuntime.execute(MoLangRuntime.java:44) ~[cobblemon-fabric-1.7.3+1.21.1.jar:?]
+	at com.cobblemon.mod.common.api.molang.MoLangFunctions.runScript(MoLangFunctions.kt:210) ~[cobblemon-fabric-1.7.3+1.21.1.jar:?]
+	at com.cobblemon.mod.common.battles.PokemonBattle.stop(PokemonBattle.kt:512) ~[cobblemon-fabric-1.7.3+1.21.1.jar:?]
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:907) ~[client-intermediary.jar:?]
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?]
+[23:12:28] [Server thread/INFO] [minecraft/MinecraftServer]: Stopping server

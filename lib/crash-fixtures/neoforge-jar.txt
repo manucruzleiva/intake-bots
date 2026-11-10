@@ -1,0 +1,6 @@
+---- Minecraft Crash Report ----
+Description: Rendering screen
+
+java.lang.NullPointerException: Cannot invoke "Object.toString()" because "name" is null
+	at TRANSFORMER/waystones@21.1.5/net.blay09.mods.waystones.client.gui.screen.WaystoneSelectionScreen.init(WaystoneSelectionScreen.java:77) ~[waystones-neoforge-1.21.1-21.1.5.jar%23412!/:21.1.5]
+	at TRANSFORMER/minecraft@1.21.1/net.minecraft.client.gui.screens.Screen.init(Screen.java:310) ~[client-1.21.1-20240808.144430-srg.jar%23500!/:?]
