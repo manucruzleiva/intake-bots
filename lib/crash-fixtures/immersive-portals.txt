@@ -1,0 +1,9 @@
+---- Minecraft Crash Report ----
+Description: Ticking player
+
+java.util.ConcurrentModificationException
+	at java.base/java.util.HashMap$HashIterator.nextNode(HashMap.java:1605)
+	at qouteall.imm_ptl.core.chunk_loading.EntitySync.update(EntitySync.java:63)
+	at net.minecraft.server.level.ServerLevel.tick(ServerLevel.java:400)
+
+-- Head --

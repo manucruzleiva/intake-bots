@@ -68,6 +68,12 @@ el issue lleva `needs-info` (el bot crea el label en el repo si no está) y el p
 Cuando un mensaje posterior trae lo que faltaba, el comentario del follow-up lo dice en su primera
 línea, y con la última pieza se sacan el label y el tag. Nunca se cierra solo.
 
+**Triage de crashes** (#63, `lib/crash.mjs`): el primer crash que trae un issue (en el post o en un
+follow-up: crash report, `latest.log` o un stack pegado) recibe un comentario interno con la excepción,
+el primer frame y de quién es el código — nuestro (qué mod), de otro mod, o ambos — y el label
+`crash:ours` o `crash:third-party`. Si es de otro, el comentario trae un borrador de respuesta al
+reporter; no se envía solo, se manda con `/reply` si sirve. Fixtures y self-check: `node lib/crash.mjs`.
+
 **Imágenes del reporte** (#39, `lib/assets.mjs`): el link de un adjunto de Discord muere a las 24 h,
 así que al filar el issue (y al comentar un follow-up) cada imagen (`png/jpe?g/gif/webp`) se baja y se
 sube a la rama huérfana `intake-assets` del repo del mod, en `<threadId>/<attachmentId>-<archivo>`, y el

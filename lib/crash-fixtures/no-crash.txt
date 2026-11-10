@@ -1,0 +1,2 @@
+The picnic table shows the wrong colour on NeoForge 1.21.1 with Cobblemon 1.7.3.
+Error: none, it just looks wrong. See screenshot.

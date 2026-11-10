@@ -1,0 +1,5 @@
+the game closes when I load the world, here is what it says:
+
+java.lang.ArrayIndexOutOfBoundsException: Index 8 out of bounds for length 8
+    at com.routes.gen2.PathCarver.carve(PathCarver.java:211)
+    at net.minecraft.world.level.chunk.ChunkGenerator.applyBiomeDecoration(ChunkGenerator.java:90)

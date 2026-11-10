@@ -1,0 +1,27 @@
+---- Minecraft Crash Report ----
+// Shall we play a game?
+
+Time: 2026-10-25 14:19:08
+Description: Exception in server tick loop
+
+kotlin.UninitializedPropertyAccessException: lateinit property actor has not been initialized
+	at com.cobblemon.mod.common.battles.pokemon.BattlePokemon.getActor(BattlePokemon.kt:52)
+	at com.shier.midbattleexp.exp.KnockoutExperience.isSettled(KnockoutExperience.kt:79)
+	at com.shier.midbattleexp.exp.KnockoutExperience$SettledExperienceCalculator.calculate(KnockoutExperience.kt:160)
+	at com.shier.actioncombat.rewards.Rewards.pay(Rewards.kt:124)
+	at com.shier.actioncombat.rewards.Rewards.onKnockOut(Rewards.kt:105)
+	at com.shier.actioncombat.battle.KnockOuts.fainted(KnockOuts.kt:40)
+	at com.shier.actioncombat.moves.MoveExecutor.tick(MoveExecutor.kt:88)
+	at dev.architectury.event.EventFactory.invokeMethod(EventFactory.java:62)
+	at net.minecraft.server.MinecraftServer.tickServer(MinecraftServer.java:907)
+	at java.base/java.lang.Thread.run(Thread.java:1583)
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.1
+	Fabric Mods:
+		cobblemon: Cobblemon 1.7.3+1.21.1
+		cobblemon_action_combat: Cobblemon Action Combat 0.1.41
