@@ -53,7 +53,7 @@
     "1568337890876854302": {
       "issue": 79,
       "kind": "bug",
-      "lastMsg": "1568440920150380595",
+      "lastMsg": "1569670751450304604",
       "awaitingReply": true,
       "closedAs": "completed",
       "closedAnnounced": true,
@@ -61,7 +61,7 @@
     }
   },
   "lastRelease": "v5.0.0",
-  "repliesSince": "2026-11-10T11:09:19Z",
+  "repliesSince": "2026-11-10T11:19:29Z",
   "voice": {
     "fixed.bug": 2,
     "release": 2,
