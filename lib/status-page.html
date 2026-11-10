@@ -240,7 +240,7 @@
 	const pill = (level, text, title) => `<span class="pill ${esc(level)}"${title ? ` title="${esc(title)}"` : ""}>${esc(text)}</span>`;
 	const dash = '<span class="dash">—</span>';
 	const LABEL = { ok: "Healthy", warn: "One failed poll", fail: "Failing", off: "Not watched" };
-	// server.yml only runs by hand: a guild nobody has diffed in a week reads as unchecked.
+	// server.yml dry-runs daily by cron: a guild nobody has diffed in a week means that cron stopped.
 	const CHECK_DAYS = 7;
 
 	let last = null, backlog = null, surfaces = null;
@@ -312,7 +312,7 @@
 				`${link(d.dry_run, "Last dry run")} ${since(d.dry_run?.at)}`,
 				`${link(d.catalog, "#mods catalog")} refreshed ${since(d.catalog?.at)}`,
 			],
-			next: "Next: a daily drift check that opens an issue (phase 3)",
+			next: "Next: the daily dry run opens an issue on drift (phase 3)",
 			html: true,
 		};
 	}
