@@ -230,6 +230,9 @@
 			hi = Math.max(hi, dayOf(t));
 			last = Math.max(last ?? 0, t);
 		}
+		// Not public on Modrinth (the latest snapshot reads null): analytics still counts the owner's own
+		// private downloads, which are not real ones, so the mod's Modrinth half is dropped.
+		for (const m of out) if (m.latest && m.latest.modrinth == null) { m.mr = {}; m.daily = false; }
 		return { mods: out, lo, hi, last, daily };
 	}
 
@@ -280,10 +283,10 @@
 		drawChart(range);
 
 		const sortedRows = [...rows].sort((a, b) => b.total - a.total);
-		const cell = (n) => n == null ? '<span title="Not on this store">—</span>' : num(n);
+		const cell = (n, why) => n == null ? `<span title="${why}">—</span>` : num(n);
 		$("table").innerHTML = "<thead><tr><th>Mod</th><th>Modrinth</th><th>CurseForge</th><th>Total</th><th>Share</th></tr></thead><tbody>"
 			+ sortedRows.map((r) => `<tr><td><span class="swatch" style="background:${r.m.color}"></span>${esc(r.m.name)}</td>`
-				+ `<td>${cell(r.mr)}</td><td>${cell(r.cf)}</td><td>${num(r.total)}</td>`
+				+ `<td>${cell(r.mr, "Not on Modrinth yet")}</td><td>${cell(r.cf, "Not on CurseForge")}</td><td>${num(r.total)}</td>`
 				+ `<td>${total ? (r.total / total * 100).toFixed(1) + "%" : "—"}</td></tr>`).join("")
 			+ `</tbody><tfoot><tr><td>All mods</td><td>${num(rows.reduce((n, r) => n + (r.mr ?? 0), 0))}</td>`
 			+ `<td>${num(rows.reduce((n, r) => n + (r.cf ?? 0), 0))}</td><td>${num(total)}</td><td>${total ? "100%" : "—"}</td></tr></tfoot>`;
@@ -336,6 +339,13 @@
 				+ `<path d="M${line}" fill="none" stroke="var(--card)" stroke-width="1.5" stroke-linejoin="round"/>`;
 			upper.forEach((u, i) => { base[i] = u; });
 		});
+		// The newest day is today in UTC, still counting, so it always dips: shade it as partial.
+		const partial = b === dayOf(Date.now());
+		if (partial) {
+			const x0 = x(n - 2);
+			svg += `<rect x="${x0}" y="${mt}" width="${x(n - 1) - x0}" height="${ih}" fill="var(--card)" fill-opacity="0.65"/>`
+				+ `<text x="${x(n - 1) - 6}" y="${mt + 14}" text-anchor="end">today, partial</text>`;
+		}
 		svg += `<line id="cross" y1="${mt}" y2="${mt + ih}" stroke="var(--muted)" stroke-dasharray="3 3" visibility="hidden"/>`
 			+ `<rect x="${ml}" y="${mt}" width="${iw}" height="${ih}" fill="transparent" id="hit"/></svg>`;
 		box.innerHTML = svg + '<div class="tip" id="tip" hidden></div>';
@@ -348,7 +358,7 @@
 			cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
 			const lines = shown.map((m, k) => ({ m, v: values[k][i] })).reverse()
 				.map(({ m, v }) => `<div><span class="swatch" style="background:${m.color}"></span>${esc(m.name)}<span class="v">${num(v)}</span></div>`);
-			tip.innerHTML = `<strong>${esc(date(days[i], { weekday: "short", month: "short", day: "numeric", year: "numeric" }))}</strong>`
+			tip.innerHTML = `<strong>${esc(date(days[i], { weekday: "short", month: "short", day: "numeric", year: "numeric" }))}${partial && i === n - 1 ? " (partial)" : ""}</strong>`
 				+ lines.join("") + `<div class="sum">Total<span class="v">${num(stackTop[i])}</span></div>`;
 			tip.hidden = false;
 			const left = x(i) * r.width / W, w = tip.offsetWidth;
