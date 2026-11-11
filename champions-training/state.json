@@ -2,7 +2,8 @@
   "processed": [
     "1564013031640268920",
     "1566013110081425551",
-    "1569993738749616148"
+    "1569993738749616148",
+    "1570045700794749078"
   ],
   "tracked": {
     "1564013031640268920": {
@@ -28,14 +29,25 @@
       "kind": "idea",
       "lastMsg": "1569998185026420827",
       "awaitingReply": true
+    },
+    "1570045700794749078": {
+      "issue": 163,
+      "kind": "bug",
+      "lastMsg": "1570045700794749078",
+      "awaitingReply": true,
+      "missing": [
+        "version",
+        "loader"
+      ]
     }
   },
   "lastRelease": "v2.0.0",
   "repliesSince": "2026-11-11T09:02:00Z",
   "voice": {
-    "filed.bug": 1,
+    "filed.bug": 2,
     "fixed.bug": 1,
     "filed.idea": 2,
-    "fixed.idea": 1
+    "fixed.idea": 1,
+    "ask": 1
   }
 }

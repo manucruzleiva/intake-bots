@@ -8,9 +8,10 @@
     "bugCatcher": true
   },
   "finedust_": {
-    "count": 2,
+    "count": 3,
     "kinds": {
-      "idea": 2
+      "idea": 2,
+      "bug": 1
     },
     "id": "510645915175092236",
     "bugCatcher": true
