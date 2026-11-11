@@ -203,6 +203,15 @@
     "emoji": "🎒"
   },
   {
+    "dir": "cobblemon-modpack",
+    "name": "Cobblemon Modpack",
+    "prefix": "MODPACK",
+    "tag": "Modpack",
+    "ua": "cobblemon-modpack-intake (+https://github.com/manucruzleiva/intake-bots)",
+    "repo": "manucruzleiva/cobblemon-modpack",
+    "emoji": "📦"
+  },
+  {
     "dir": "tcgkb",
     "name": "TCGKB",
     "intake": false,

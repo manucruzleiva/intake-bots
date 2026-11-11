@@ -73,6 +73,10 @@
       "permissions": []
     },
     {
+      "name": "Modpack",
+      "permissions": []
+    },
+    {
       "name": "TCGKB",
       "id": "1562799936209420378",
       "permissions": []
@@ -306,10 +310,6 @@
               "emoji_name": "🏆"
             },
             {
-              "name": "Tree Carve",
-              "emoji_name": "🗡️"
-            },
-            {
               "name": "Action Combat",
               "emoji_name": "⚔️"
             },
@@ -328,6 +328,10 @@
             {
               "name": "Trainer's Satchel",
               "emoji_name": "🎒"
+            },
+            {
+              "name": "Modpack",
+              "emoji_name": "📦"
             },
             {
               "name": "Resolved",
