@@ -212,7 +212,7 @@
               "content": "### 🧩 Which Minecraft and loader versions are supported?\n<#1560884963967246506> lists every mod's current version, Minecraft version and loaders, read live from the stores. Pick the file that matches your loader.\n→ [Each mod's requirements](<https://manucruzleiva.github.io/mod-wiki/#the-mods>)"
             },
             {
-              "content": "### 🐛 How do I report a bug?\nOpen a post in <#1560781769752445028> with **the mod's tag** and a **type** (Bug, Crash, Idea, Feedback). Say what you did, what you expected and what happened, plus your mod version and loader. The bot files it and replies in your post.\n→ [Reporting bugs & ideas](<https://manucruzleiva.github.io/mod-wiki/reporting/>)"
+              "content": "### 🐛 How do I report a bug?\nOpen a post in <#1560781769752445028> with **the mod's tag** and a **type** (Bug, Crash, Idea). Say what you did, what you expected and what happened, plus your mod version and loader. The bot files it and replies in your post.\n→ [Reporting bugs & ideas](<https://manucruzleiva.github.io/mod-wiki/reporting/>)"
             },
             {
               "content": "### 📄 Where are `latest.log` and the crash reports?\nIn your game folder: `logs/latest.log` and `crash-reports/`. In a launcher, open the profile's folder (Modrinth App: ⋮ → **Open folder**). Attach the file to your post, or share an mclo.gs link.\n→ [Where to find your logs](<https://manucruzleiva.github.io/mod-wiki/reporting/#where-to-find-your-logs>)"
@@ -240,13 +240,13 @@
           "name": "mod-tickets",
           "id": "1560781769752445028",
           "type": "forum",
-          "topic": "One post per bug, crash, idea or piece of feedback. Pick what kind of post it is AND which mod it is about: a post with no mod tag waits until it has one.\n\nFor a bug or a crash: your Minecraft version, the mod's version, the loader (Fabric or NeoForge), and logs/latest.log or the crash report.",
+          "topic": "One post per bug, crash or idea. Pick what kind of post it is AND which mod it is about: a post with no mod tag waits until it has one.\n\nFor a bug or a crash: your Minecraft version, the mod's version, the loader (Fabric or NeoForge), and logs/latest.log or the crash report.",
           "pinned": {
             "title": "📌 How to make a ticket — read me first",
-            "tags": ["Bug", "Crash", "Feedback", "Idea"],
+            "tags": ["Bug", "Crash", "Idea"],
             "messages": [
               {
-                "content": "# 📌 How to make a ticket\n**This post is the example, and it is locked: open your own with the New Post button.** One post = one bug, crash, idea or piece of feedback.\n\n## 1 · Pick two tags\n- **What it is:** 🐛 Bug · 💥 Crash · 💡 Idea · 💬 Feedback\n- **Which mod:** its tag — 🗺️ Routes, 🧺 Picnic, 💿 HMs… A post without a mod tag waits until it has one.\n\n## 2 · Give us the crucial information\nFor a **bug** or a **crash**, this is what we need before we can start. Without it we cannot reproduce the problem, so the post gets the ❓ **Needs info** tag and waits until it arrives:\n- **Minecraft version and the mod's version** (like `1.21.1` and `2.0.31`). A bug fixed in one version can still be there in an older one.\n- **Your loader: Fabric or NeoForge.** Each has its own build of the mod, and a bug can live in only one of them.\n- **Your log** — required for a crash, and it speeds up any bug. `logs/latest.log`, or the newest file in `crash-reports/` after a crash. It shows the exact error *and* every other mod you run, and another mod is often the real cause. Its first lines also say your versions and loader, so a log alone covers all three. Attach the file or paste an mclo.gs link: <#1532088850422305019> explains both.\n\n## 3 · Copy the template for your kind of post\nThe messages below have one each. Copy it into your post, fill it in, and delete what does not apply.\n\nThe bot answers in your post: when it is tracked, when it is fixed, and when the fix is out."
+                "content": "# 📌 How to make a ticket\n**This post is the example, and it is locked: open your own with the New Post button.** One post = one bug, crash or idea.\n\n## 1 · Pick two tags\n- **What it is:** 🐛 Bug · 💥 Crash · 💡 Idea\n- **Which mod:** its tag — 🗺️ Routes, 🧺 Picnic, 💿 HMs… A post without a mod tag waits until it has one.\n\n## 2 · Give us the crucial information\nFor a **bug** or a **crash**, this is what we need before we can start. Without it we cannot reproduce the problem, so the post gets the ❓ **Needs info** tag and waits until it arrives:\n- **Minecraft version and the mod's version** (like `1.21.1` and `2.0.31`). A bug fixed in one version can still be there in an older one.\n- **Your loader: Fabric or NeoForge.** Each has its own build of the mod, and a bug can live in only one of them.\n- **Your log** — required for a crash, and it speeds up any bug. `logs/latest.log`, or the newest file in `crash-reports/` after a crash. It shows the exact error *and* every other mod you run, and another mod is often the real cause. Its first lines also say your versions and loader, so a log alone covers all three. Attach the file or paste an mclo.gs link: <#1532088850422305019> explains both.\n\n## 3 · Copy the template for your kind of post\nThe messages below have one each. Copy it into your post, fill it in, and delete what does not apply.\n\nThe bot answers in your post: when it is tracked, when it is fixed, and when the fix is out."
               },
               {
                 "content": "### 🐛 Bug — something does not work as it should\nTags: **Bug** + the mod\n```text\nTitle: what goes wrong, in a few words\n\nWhat happened:\nWhat I expected instead:\nSteps to make it happen:\n1.\n2.\n3.\n\nMinecraft version:\nMod version:\nLoader: Fabric / NeoForge\nLog (recommended): attach logs/latest.log or paste an mclo.gs link\nScreenshot or video (if it helps):\n```"
@@ -256,9 +256,6 @@
               },
               {
                 "content": "### 💡 Idea — something the mod could do\nTags: **Idea** + the mod\n```text\nTitle: the idea in a few words\n\nWhat it would do:\nWhy it would help (what problem it solves):\nHow you would use it in your game:\n```\nNo versions needed for an idea."
-              },
-              {
-                "content": "### 💬 Feedback — what you think of the mod\nTags: **Feedback** + the mod\n```text\nTitle: what it is about\n\nWhat I like or dislike:\nWhat I would change, if anything:\nMod version (optional):\n```"
               }
             ]
           },
@@ -271,10 +268,6 @@
             {
               "name": "Crash",
               "emoji_name": "💥"
-            },
-            {
-              "name": "Feedback",
-              "emoji_name": "💬"
             },
             {
               "name": "Idea",
@@ -308,6 +301,10 @@
             {
               "name": "Champions Training",
               "emoji_name": "🏆"
+            },
+            {
+              "name": "Tree Carve",
+              "emoji_name": "🗡️"
             },
             {
               "name": "Action Combat",

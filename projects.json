@@ -133,7 +133,6 @@
     "name": "Tree Carve",
     "prefix": "TREE_CARVE",
     "tag": "Tree Carve",
-    "tickets": false,
     "ua": "tree-carve-intake (+https://modrinth.com/project/qkkteeJr)",
     "announce": {
       "content": "# 🌳🗡️ Tree Carve v{version} is here! ✨",
