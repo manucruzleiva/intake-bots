@@ -26,12 +26,12 @@
     "1569993738749616148": {
       "issue": 162,
       "kind": "idea",
-      "lastMsg": "1569993892604940331",
+      "lastMsg": "1569995310556651562",
       "awaitingReply": true
     }
   },
   "lastRelease": "v2.0.0",
-  "repliesSince": "2026-11-10T13:00:03Z",
+  "repliesSince": "2026-11-11T08:40:53Z",
   "voice": {
     "filed.bug": 1,
     "fixed.bug": 1,
