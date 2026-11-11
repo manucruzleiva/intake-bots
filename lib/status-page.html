@@ -426,6 +426,14 @@
 		return v + (p.modrinth.released_at ? `<span class="sub">${since(p.modrinth.released_at)}</span>` : "");
 	}
 
+	// The default branch's version against the published one: "Main ahead" is a release still to cut.
+	function mainCell(p) {
+		if (!p.main) return dash;
+		if (!p.published) return `v${esc(p.main)}` + pill("off", "Unpublished", "Nothing published yet");
+		if (p.main_ahead) return `v${esc(p.main)}` + pill("warn", "Main ahead", `main is v${p.main}, published is v${p.published}`);
+		return `v${esc(p.main)}`;
+	}
+
 	function cardCell(p) {
 		if (!p.announces) return dash;
 		const failed = p.dispatch && p.dispatch.conclusion === "failure" && p.dispatch.version === p.modrinth?.version;
@@ -462,7 +470,7 @@
 	function renderProjects() {
 		if (!surfaces) return;
 		const mods = new Map((backlog?.mods || []).map((m) => [m.dir, m]));
-		const head = "<thead><tr><th class=\"mod\">Project</th><th>Intake</th><th>Latest version</th><th>Release card</th><th>Modrinth page</th><th>CurseForge page</th><th>Open tickets</th><th>Open PRs</th></tr></thead>";
+		const head = "<thead><tr><th class=\"mod\">Project</th><th>Intake</th><th>Latest version</th><th>Main</th><th>Release card</th><th>Modrinth page</th><th>CurseForge page</th><th>Open tickets</th><th>Open PRs</th></tr></thead>";
 		const body = "<tbody>" + surfaces.projects.map((p) => {
 			const m = mods.get(p.dir);
 			const link = p.links.modrinth || p.links.curseforge || m?.link;
@@ -472,7 +480,7 @@
 			const pulls = m?.pulls === null || m?.pulls === undefined ? dash : m.pulls;
 			return `<tr${dev ? ' class="dev"' : ""}>`
 				+ `<td class="mod"><span class="mod-cell">${iconHtml({ ...m, name: p.name })}${name}</span></td>`
-				+ `<td>${intakeCell(p)}</td><td>${versionCell(p)}</td><td>${cardCell(p)}</td><td>${modrinthCell(p)}</td><td>${curseforgeCell(p)}</td><td>${open}</td><td>${pulls}</td></tr>`;
+				+ `<td>${intakeCell(p)}</td><td>${versionCell(p)}</td><td>${mainCell(p)}</td><td>${cardCell(p)}</td><td>${modrinthCell(p)}</td><td>${curseforgeCell(p)}</td><td>${open}</td><td>${pulls}</td></tr>`;
 		}).join("") + "</tbody>";
 		$("projects-table").innerHTML = head + body;
 		$("projects-note").innerHTML = `Read ${since(surfaces.generated_at)}. The release card is looked for in the last 50 posts of <code>#announcements</code>; `
