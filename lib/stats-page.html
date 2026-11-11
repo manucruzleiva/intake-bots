@@ -340,8 +340,11 @@
 		const checks = !ck.length ? null : !len ? ck[ck.length - 1][1] : ck[ck.length - 1][1] - (ckBefore ?? ck[0])[1];
 		const latest = latestVersion(a?.versions);
 		const latestDl = latest ? Object.entries(a.versions[latest]).reduce((n, [k, v]) => n + (k === "update" ? 0 : v), 0) : null;
+		const web = Object.entries(a?.web ?? {}).map(([k, v]) => [keyDay(k), v]), webShown = web.filter(([d]) => d >= from);
 		return {
 			total, inRange, since, checks, latest, latestDl,
+			webViews: web.length ? webShown.reduce((n, [, v]) => n + v[0], 0) : null,
+			webVisitors: web.length ? webShown.reduce((n, [, v]) => n + v[1], 0) : null,
 			views: views.length ? shown.reduce((n, [, v]) => n + v[0], 0) : null,
 			uniques: views.length ? shown.reduce((n, [, v]) => n + v[1], 0) : null,
 			viewsFrom: views.length ? Math.min(...views.map(([d]) => d)) : null,
@@ -352,14 +355,15 @@
 		$("apps").hidden = false;
 		const [, label, len] = RANGES.find((r) => r[0] === rangeKey);
 		const rows = appList.map((m) => ({ m, ...appFigures(appData[m.dir], len) }));
-		const cell = (n, why) => n == null ? `<span title="${esc(why)}">—</span>` : num(n);
+		const cell = (n, why, extra) => n == null ? `<span title="${esc(why)}">—</span>` : extra == null ? num(n) : `<span title="${num(extra)} visitors">${num(n)}</span>`;
 		const head = len ? `last ${label}` : "all time";
 		// Totals: a column sums what the apps have; "—" when none of them has it.
 		const sumOf = (k) => rows.some((r) => r[k] != null) ? rows.reduce((n, r) => n + (r[k] ?? 0), 0) : null;
 		const noViews = "Not read yet: GH_TOKEN needs Administration: read on the repo";
+		const webWhy = "Not read yet: VERCEL_TOKEN is not set, or Web Analytics is off on the Vercel project";
 		const th = (t) => `<th>${t}</th>`;
 		$("apps-table").innerHTML = "<thead><tr>" + th("App") + th(`Downloads, ${esc(head)}`) + (len ? th("Downloads, all time") : "") + th("Latest release")
-			+ th("Latest release downloads") + th(`Update checks, ${esc(head)}`) + th(`Repo views, ${esc(head)}`) + th(`Visitors, ${esc(head)}`) + th("Web visits") + "</tr></thead><tbody>"
+			+ th("Latest release downloads") + th(`Update checks, ${esc(head)}`) + th(`Repo views, ${esc(head)}`) + th(`Visitors, ${esc(head)}`) + th(`Web visits, ${esc(head)}`) + "</tr></thead><tbody>"
 			+ rows.map((r) => `<tr><td>${esc(r.m.name)}</td>`
 				+ `<td>${cell(r.inRange, "No GitHub releases")}${r.since != null ? ` <span class="meta" title="The history starts later than the range">(since ${esc(date(r.since))})</span>` : ""}</td>`
 				+ (len ? `<td>${cell(r.total, "No GitHub releases")}</td>` : "")
@@ -367,13 +371,13 @@
 				+ `<td>${cell(r.latestDl, "No GitHub releases")}</td>`
 				+ `<td>${cell(r.checks, "The app has no updater feed")}</td>`
 				+ `<td>${cell(r.views, noViews)}</td><td>${cell(r.uniques, noViews)}</td>`
-				+ `<td>${cell(null, "Not measured yet")}</td></tr>`).join("")
+				+ `<td>${cell(r.webViews, r.m.web ? webWhy : "The app has no site tracked", r.webVisitors)}</td></tr>`).join("")
 			+ `</tbody><tfoot><tr><td>All apps</td><td>${cell(sumOf("inRange"), "")}</td>${len ? `<td>${cell(sumOf("total"), "")}</td>` : ""}<td>—</td>`
-			+ `<td>${cell(sumOf("latestDl"), "")}</td><td>${cell(sumOf("checks"), "")}</td><td>${cell(sumOf("views"), "")}</td><td>${cell(sumOf("uniques"), "")}</td><td>—</td></tr></tfoot>`;
+			+ `<td>${cell(sumOf("latestDl"), "")}</td><td>${cell(sumOf("checks"), "")}</td><td>${cell(sumOf("views"), "")}</td><td>${cell(sumOf("uniques"), "")}</td><td>${cell(sumOf("webViews"), "")}</td></tr></tfoot>`;
 		const first = Math.min(...rows.map((r) => r.viewsFrom ?? Infinity));
 		drawAppsCombined(len);
 		drawAppCharts(len);
-		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice."
+		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice. Web visits are the app site's pageviews from Vercel Web Analytics (hover for visitors), apart from the repo views."
 			+ (Number.isFinite(first) ? ` Views kept since ${date(first, { month: "short", day: "numeric", year: "numeric" })}.` : "");
 	}
 
