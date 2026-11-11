@@ -93,7 +93,7 @@
 	}
 	.legend button[aria-pressed="false"] { color: var(--muted); }
 	.legend > span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin-right: 8px; }
-	#apps h3, #app-charts h3 { font-size: 14px; margin: 20px 0 4px; }
+	#apps-all h3, #app-charts h3 { font-size: 14px; margin: 20px 0 4px; }
 	.legend button[aria-pressed="false"] .swatch { background: none !important; box-shadow: inset 0 0 0 1.5px var(--muted); }
 	.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; display: inline-block; }
 	.chart { position: relative; }
@@ -157,14 +157,18 @@
 		<h2>Per mod</h2>
 		<div class="table-wrap"><table id="table"></table></div>
 	</section>
+	<section class="card" id="apps-all" hidden>
+		<h2>Apps per day</h2>
+		<p class="meta">Every app stacked, like the mods. Click an app to hide it. Downloads are installers and portable builds; update checks are the updaters fetching update.json.</p>
+		<div class="legend" id="apps-legend"></div>
+		<h3>Downloads per day</h3><div class="chart" id="apps-downloads"></div>
+		<h3>Update checks per day</h3><div class="chart" id="apps-checks"></div>
+		<h3>Repo views per day</h3><div class="chart" id="apps-views"></div>
+	</section>
 	<section class="card" id="apps" hidden>
 		<h2>Apps</h2>
 		<p class="meta" id="apps-meta">From GitHub: the downloads of every release asset, and the views of the app's repo.</p>
 		<div class="table-wrap"><table id="apps-table"></table></div>
-		<h3 id="apps-days-title" hidden>All apps</h3>
-		<p class="meta" id="apps-days-meta" hidden>Downloads per day, every app stacked (installers and portable builds; update checks are not counted).</p>
-		<div class="legend" id="apps-days-legend"></div>
-		<div class="chart" id="apps-days"></div>
 		<div id="app-charts"></div>
 	</section>
 	<section class="card" id="cost" hidden>
@@ -403,22 +407,30 @@
 		return rows;
 	}
 
-	/** Combined view: each recorded day's download gain per app (the apps' own gains, as in kindRows), stacked. */
+	/** The apps' charts together, like the mods': one stacked bar per day, a series per app, click to hide. */
+	const hiddenApps = new Set();
 	function drawAppsCombined(len) {
-		const series = appList.map((m, i) => ({ key: m.dir, name: m.name, color: `var(--s${i % 6 + 1})` }));
-		const gains = {};
-		for (const m of appList) {
-			const keys = Object.keys(appData[m.dir]?.downloads ?? {}).sort();
-			for (let i = 1; i < keys.length; i++) (gains[keys[i]] ??= {})[m.dir] = Math.max(0, appData[m.dir].downloads[keys[i]] - appData[m.dir].downloads[keys[i - 1]]);
+		const series = appList.map((m, i) => ({ key: m.dir, name: m.name, color: `var(--s${i % 8 + 1})` }));
+		// A day's value per app: the gain of a running total over the day recorded before it, or a day's own count.
+		const gain = (get) => (a) => { const e = Object.entries(get(a)).sort(([x], [y]) => x.localeCompare(y)); return Object.fromEntries(e.slice(1).map(([k, v], i) => [k, Math.max(0, v - e[i][1])])); };
+		const charts = [
+			["apps-downloads", gain((a) => a.downloads ?? {}), "downloads"],
+			["apps-checks", gain((a) => Object.fromEntries(Object.entries(a.kinds ?? {}).map(([k, v]) => [k, v.update ?? 0]))), "update checks"],
+			["apps-views", (a) => Object.fromEntries(Object.entries(a.views ?? {}).map(([k, v]) => [k, v[0]])), "repo views"],
+		];
+		$("apps-all").hidden = false;
+		$("apps-legend").innerHTML = series.map((s) => `<button type="button" data-app="${esc(s.key)}" aria-pressed="${!hiddenApps.has(s.key)}"><span class="swatch" style="background:${s.color}"></span>${esc(s.name)}</button>`).join("");
+		const shown = series.filter((s) => !hiddenApps.has(s.key));
+		for (const [id, perApp, what] of charts) {
+			const byDay = {};
+			for (const m of appList) for (const [k, v] of Object.entries(perApp(appData[m.dir] ?? {}))) (byDay[k] ??= {})[m.dir] = v;
+			const keys = Object.keys(byDay).sort();
+			const end = dayOf(Date.now()), from = Math.max(keys.length ? keyDay(keys[0]) : 0, len ? end - len + 1 : -Infinity);
+			const rows = [];
+			for (let d = from; keys.length && d <= end; d++) rows.push({ month: dayKey(d), ...byDay[dayKey(d)] });
+			if (rows.length) drawBars($(id), rows, shown, `All apps, ${what} per day`, dayAxis);
+			else $(id).innerHTML = '<p class="empty">Not enough days recorded yet: it takes two.</p>';
 		}
-		const keys = Object.keys(gains).sort();
-		const end = dayOf(Date.now()), from = Math.max(keys.length ? keyDay(keys[0]) : 0, len ? end - len + 1 : -Infinity);
-		const rows = [];
-		for (let d = from; keys.length && d <= end; d++) rows.push({ month: dayKey(d), ...gains[dayKey(d)] });
-		$("apps-days-legend").innerHTML = series.map((s) => `<span><span class="swatch" style="background:${s.color}"></span>${esc(s.name)}</span>`).join(" ");
-		for (const id of ["apps-days-title", "apps-days-meta"]) $(id).hidden = false;
-		if (rows.length) drawBars($("apps-days"), rows, series, "All apps downloads per day", dayAxis);
-		else $("apps-days").innerHTML = '<p class="empty">Not enough days recorded yet: it takes two.</p>';
 	}
 
 	function drawAppCharts(len) {
@@ -684,6 +696,12 @@
 		if (!dir) return;
 		hidden.has(dir) ? hidden.delete(dir) : hidden.add(dir);
 		render();
+	});
+	$("apps-legend").addEventListener("click", (e) => {
+		const key = e.target.closest("button")?.dataset.app;
+		if (!key) return;
+		hiddenApps.has(key) ? hiddenApps.delete(key) : hiddenApps.add(key);
+		renderApps();
 	});
 	$("revenue-legend").addEventListener("click", (e) => {
 		const key = e.target.closest("button")?.dataset.source;
