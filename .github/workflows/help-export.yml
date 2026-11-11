@@ -1,0 +1,36 @@
+name: Export #help
+
+# Solo lectura: baja el historial de #help a un artefacto JSON para revisar que cada comentario
+# tenga ticket o respuesta. No escribe en Discord ni en GitHub.
+#
+#   Secret:   DISCORD_TOKEN      el bot del server (ya tiene View Channel + Read Message History)
+#   Variable: DISCORD_GUILD_ID
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Days of history (0 = all)"
+        default: "0"
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+      - name: Export #help
+        env:
+          DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+        run: node lib/help-export.mjs --days "${{ inputs.days }}"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: help-export
+          path: help-export.json
+          retention-days: 7
