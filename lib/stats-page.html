@@ -93,7 +93,7 @@
 	}
 	.legend button[aria-pressed="false"] { color: var(--muted); }
 	.legend > span { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; margin-right: 8px; }
-	#app-charts h3 { font-size: 14px; margin: 20px 0 4px; }
+	#apps-all h3, #app-charts h3 { font-size: 14px; margin: 20px 0 4px; }
 	.legend button[aria-pressed="false"] .swatch { background: none !important; box-shadow: inset 0 0 0 1.5px var(--muted); }
 	.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; display: inline-block; }
 	.chart { position: relative; }
@@ -156,6 +156,14 @@
 	<section class="card">
 		<h2>Per mod</h2>
 		<div class="table-wrap"><table id="table"></table></div>
+	</section>
+	<section class="card" id="apps-all" hidden>
+		<h2>Apps per day</h2>
+		<p class="meta">Every app stacked, like the mods. Click an app to hide it. Downloads are installers and portable builds; update checks are the updaters fetching update.json.</p>
+		<div class="legend" id="apps-legend"></div>
+		<h3>Downloads per day</h3><div class="chart" id="apps-downloads"></div>
+		<h3>Update checks per day</h3><div class="chart" id="apps-checks"></div>
+		<h3>Repo views per day</h3><div class="chart" id="apps-views"></div>
 	</section>
 	<section class="card" id="apps" hidden>
 		<h2>Apps</h2>
@@ -309,6 +317,12 @@
 	let appList = [], appData = null;
 	const dayKey = (d) => new Date(d * DAY).toISOString().slice(0, 10);
 	const keyDay = (k) => dayOf(Date.parse(k + "T00:00:00Z"));
+	/** The highest release tag in a `versions` map: numeric order, a pre-release under its release; non-numeric keys skipped. */
+	function latestVersion(versions) {
+		const key = (v) => [v.replace(/-.*/, "").split(".").map(Number), v.includes("-") ? 0 : 1];
+		const cmp = (a, b) => { const [x, xr] = key(a), [y, yr] = key(b); for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] ?? 0) !== (y[i] ?? 0)) return (x[i] ?? 0) - (y[i] ?? 0); return xr - yr; };
+		return Object.keys(versions ?? {}).filter((v) => /^\d/.test(v)).sort(cmp).pop() ?? null;
+	}
 	function appFigures(a, len) {
 		const dl = Object.entries(a?.downloads ?? {}).map(([k, n]) => [keyDay(k), n]).sort((x, y) => x[0] - y[0]);
 		const views = Object.entries(a?.views ?? {}).map(([k, v]) => [keyDay(k), v]);
@@ -320,8 +334,14 @@
 		const inRange = !len ? total : total == null ? null : total - (before ?? dl[0])[1];
 		const since = len && !before && dl.length ? dl[0][0] : null;
 		const shown = views.filter(([d]) => d >= from);
+		// Update checks: update.json fetches, a running total per day in `kinds`, ranged like the downloads.
+		const ck = Object.entries(a?.kinds ?? {}).map(([k, v]) => [keyDay(k), v.update ?? 0]).sort((x, y) => x[0] - y[0]);
+		const ckBefore = ck.filter(([d]) => d < from).pop();
+		const checks = !ck.length ? null : !len ? ck[ck.length - 1][1] : ck[ck.length - 1][1] - (ckBefore ?? ck[0])[1];
+		const latest = latestVersion(a?.versions);
+		const latestDl = latest ? Object.entries(a.versions[latest]).reduce((n, [k, v]) => n + (k === "update" ? 0 : v), 0) : null;
 		return {
-			total, inRange, since,
+			total, inRange, since, checks, latest, latestDl,
 			views: views.length ? shown.reduce((n, [, v]) => n + v[0], 0) : null,
 			uniques: views.length ? shown.reduce((n, [, v]) => n + v[1], 0) : null,
 			viewsFrom: views.length ? Math.min(...views.map(([d]) => d)) : null,
@@ -334,14 +354,24 @@
 		const rows = appList.map((m) => ({ m, ...appFigures(appData[m.dir], len) }));
 		const cell = (n, why) => n == null ? `<span title="${esc(why)}">—</span>` : num(n);
 		const head = len ? `last ${label}` : "all time";
-		$("apps-table").innerHTML = `<thead><tr><th>App</th><th>Downloads, ${esc(head)}</th>${len ? "<th>Downloads, all time</th>" : ""}<th>Repo views, ${esc(head)}</th><th>Visitors, ${esc(head)}</th></tr></thead><tbody>`
+		// Totals: a column sums what the apps have; "—" when none of them has it.
+		const sumOf = (k) => rows.some((r) => r[k] != null) ? rows.reduce((n, r) => n + (r[k] ?? 0), 0) : null;
+		const noViews = "Not read yet: GH_TOKEN needs Administration: read on the repo";
+		const th = (t) => `<th>${t}</th>`;
+		$("apps-table").innerHTML = "<thead><tr>" + th("App") + th(`Downloads, ${esc(head)}`) + (len ? th("Downloads, all time") : "") + th("Latest release")
+			+ th("Latest release downloads") + th(`Update checks, ${esc(head)}`) + th(`Repo views, ${esc(head)}`) + th(`Visitors, ${esc(head)}`) + th("Web visits") + "</tr></thead><tbody>"
 			+ rows.map((r) => `<tr><td>${esc(r.m.name)}</td>`
 				+ `<td>${cell(r.inRange, "No GitHub releases")}${r.since != null ? ` <span class="meta" title="The history starts later than the range">(since ${esc(date(r.since))})</span>` : ""}</td>`
 				+ (len ? `<td>${cell(r.total, "No GitHub releases")}</td>` : "")
-				+ `<td>${cell(r.views, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td>`
-				+ `<td>${cell(r.uniques, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td></tr>`).join("")
-			+ "</tbody>";
+				+ `<td>${r.latest ? "v" + esc(r.latest) : cell(null, "No GitHub releases")}</td>`
+				+ `<td>${cell(r.latestDl, "No GitHub releases")}</td>`
+				+ `<td>${cell(r.checks, "The app has no updater feed")}</td>`
+				+ `<td>${cell(r.views, noViews)}</td><td>${cell(r.uniques, noViews)}</td>`
+				+ `<td>${cell(null, "Not measured yet")}</td></tr>`).join("")
+			+ `</tbody><tfoot><tr><td>All apps</td><td>${cell(sumOf("inRange"), "")}</td>${len ? `<td>${cell(sumOf("total"), "")}</td>` : ""}<td>—</td>`
+			+ `<td>${cell(sumOf("latestDl"), "")}</td><td>${cell(sumOf("checks"), "")}</td><td>${cell(sumOf("views"), "")}</td><td>${cell(sumOf("uniques"), "")}</td><td>—</td></tr></tfoot>`;
 		const first = Math.min(...rows.map((r) => r.viewsFrom ?? Infinity));
+		drawAppsCombined(len);
 		drawAppCharts(len);
 		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice."
 			+ (Number.isFinite(first) ? ` Views kept since ${date(first, { month: "short", day: "numeric", year: "numeric" })}.` : "");
@@ -375,6 +405,32 @@
 		const rows = [];
 		for (let d = from; d <= end; d++) rows.push({ month: dayKey(d), ...gains[dayKey(d)] });
 		return rows;
+	}
+
+	/** The apps' charts together, like the mods': one stacked bar per day, a series per app, click to hide. */
+	const hiddenApps = new Set();
+	function drawAppsCombined(len) {
+		const series = appList.map((m, i) => ({ key: m.dir, name: m.name, color: `var(--s${i % 8 + 1})` }));
+		// A day's value per app: the gain of a running total over the day recorded before it, or a day's own count.
+		const gain = (get) => (a) => { const e = Object.entries(get(a)).sort(([x], [y]) => x.localeCompare(y)); return Object.fromEntries(e.slice(1).map(([k, v], i) => [k, Math.max(0, v - e[i][1])])); };
+		const charts = [
+			["apps-downloads", gain((a) => a.downloads ?? {}), "downloads"],
+			["apps-checks", gain((a) => Object.fromEntries(Object.entries(a.kinds ?? {}).map(([k, v]) => [k, v.update ?? 0]))), "update checks"],
+			["apps-views", (a) => Object.fromEntries(Object.entries(a.views ?? {}).map(([k, v]) => [k, v[0]])), "repo views"],
+		];
+		$("apps-all").hidden = false;
+		$("apps-legend").innerHTML = series.map((s) => `<button type="button" data-app="${esc(s.key)}" aria-pressed="${!hiddenApps.has(s.key)}"><span class="swatch" style="background:${s.color}"></span>${esc(s.name)}</button>`).join("");
+		const shown = series.filter((s) => !hiddenApps.has(s.key));
+		for (const [id, perApp, what] of charts) {
+			const byDay = {};
+			for (const m of appList) for (const [k, v] of Object.entries(perApp(appData[m.dir] ?? {}))) (byDay[k] ??= {})[m.dir] = v;
+			const keys = Object.keys(byDay).sort();
+			const end = dayOf(Date.now()), from = Math.max(keys.length ? keyDay(keys[0]) : 0, len ? end - len + 1 : -Infinity);
+			const rows = [];
+			for (let d = from; keys.length && d <= end; d++) rows.push({ month: dayKey(d), ...byDay[dayKey(d)] });
+			if (rows.length) drawBars($(id), rows, shown, `All apps, ${what} per day`, dayAxis);
+			else $(id).innerHTML = '<p class="empty">Not enough days recorded yet: it takes two.</p>';
+		}
 	}
 
 	function drawAppCharts(len) {
@@ -640,6 +696,12 @@
 		if (!dir) return;
 		hidden.has(dir) ? hidden.delete(dir) : hidden.add(dir);
 		render();
+	});
+	$("apps-legend").addEventListener("click", (e) => {
+		const key = e.target.closest("button")?.dataset.app;
+		if (!key) return;
+		hiddenApps.has(key) ? hiddenApps.delete(key) : hiddenApps.add(key);
+		renderApps();
 	});
 	$("revenue-legend").addEventListener("click", (e) => {
 		const key = e.target.closest("button")?.dataset.source;
