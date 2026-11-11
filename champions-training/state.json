@@ -33,7 +33,7 @@
     "1570045700794749078": {
       "issue": 163,
       "kind": "bug",
-      "lastMsg": "1570045700794749078",
+      "lastMsg": "1570046083848212550",
       "awaitingReply": true,
       "missing": [
         "version",
@@ -42,7 +42,7 @@
     }
   },
   "lastRelease": "v2.0.0",
-  "repliesSince": "2026-11-11T09:02:00Z",
+  "repliesSince": "2026-11-11T12:02:38Z",
   "voice": {
     "filed.bug": 2,
     "fixed.bug": 1,
