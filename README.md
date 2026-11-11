@@ -264,6 +264,7 @@ archivados del foro.
 | `DISCORD_TOKEN` | secret | **Compartido**: el bot único, para cada fila del intake, `server.yml`, `catalog.yml`, `mod-released.yml` y el job `unrouted` |
 | `TICKETS_FORUM_ID` | variable | **Compartida**: el foro único de tickets |
 | `GH_TOKEN` | secret | **Compartido**: el PAT con el que cada fila abre issues en el repo de su mod, `catalog.yml` lee el `DESCRIPTION_SHORT.txt` y `mod-released.yml` valida el release y lee el CHANGELOG |
+| `VERCEL_TOKEN` | secret | Opcional, solo `catalog.yml`: token de Vercel con acceso de lectura al team `tcgkb-team`. Lee las visitas web de tcgkb.app (Web Analytics, `GET /v1/query/web-analytics/visits/aggregate`, pageviews y visitantes por día) a `web` en `stats/apps-daily.json`. Los ids de team y proyecto no son secretos: van en `projects.json` (`app.vercel`). Sin el token, warning y la columna queda en "—". Web Analytics debe estar activo en el proyecto Vercel (si no, la API responde 404) |
 | `<PREFIX>_GH_REPO` | variable | `owner/repo` destino |
 | `PROJECTS_TOKEN` | secret | **Compartido**: PAT con scope `project` (el `GITHUB_PAT` del `.env`) con el que las filas cargan al GitHub Project lo que filan y `health.mjs` suma lo que falte y lee la tabla de tickets. Va aparte porque el `GITHUB_TOKEN` de un repo no ve un project de usuario |
 

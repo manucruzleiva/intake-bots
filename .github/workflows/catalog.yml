@@ -20,6 +20,8 @@ name: Mod catalog
 #              MODRINTH_ANALYTICS_TOKEN  PAT de Modrinth con Read analytics y Read payouts. Sin él, la
 #                                     serie y el revenue de Modrinth no se actualizan (warning) y el
 #                                     resto corre igual
+#              VERCEL_TOKEN           token de Vercel (lectura del team tcgkb-team) para las visitas web
+#                                     de tcgkb.app (Web Analytics). Sin él, warning y la columna queda en "—"
 #   Variables: <PREFIX>_GH_REPO       el repo del mod
 
 run-name: Mod catalog (${{ inputs.dry_run && 'dry run' || github.event_name }}${{ inputs.prune && ' + prune' || '' }})
@@ -67,6 +69,7 @@ jobs:
           REPO_VARS: ${{ toJSON(vars) }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           MODRINTH_ANALYTICS_TOKEN: ${{ secrets.MODRINTH_ANALYTICS_TOKEN }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run && '--dry-run' || '' }}
           PRUNE: ${{ inputs.prune && '--prune' || '' }}
           STATS: ${{ !inputs.dry_run && '--stats stats-branch/stats/downloads.json' || '' }}

@@ -320,8 +320,11 @@
 		const inRange = !len ? total : total == null ? null : total - (before ?? dl[0])[1];
 		const since = len && !before && dl.length ? dl[0][0] : null;
 		const shown = views.filter(([d]) => d >= from);
+		const web = Object.entries(a?.web ?? {}).map(([k, v]) => [keyDay(k), v]), webShown = web.filter(([d]) => d >= from);
 		return {
 			total, inRange, since,
+			webViews: web.length ? webShown.reduce((n, [, v]) => n + v[0], 0) : null,
+			webVisitors: web.length ? webShown.reduce((n, [, v]) => n + v[1], 0) : null,
 			views: views.length ? shown.reduce((n, [, v]) => n + v[0], 0) : null,
 			uniques: views.length ? shown.reduce((n, [, v]) => n + v[1], 0) : null,
 			viewsFrom: views.length ? Math.min(...views.map(([d]) => d)) : null,
@@ -334,16 +337,20 @@
 		const rows = appList.map((m) => ({ m, ...appFigures(appData[m.dir], len) }));
 		const cell = (n, why) => n == null ? `<span title="${esc(why)}">—</span>` : num(n);
 		const head = len ? `last ${label}` : "all time";
-		$("apps-table").innerHTML = `<thead><tr><th>App</th><th>Downloads, ${esc(head)}</th>${len ? "<th>Downloads, all time</th>" : ""}<th>Repo views, ${esc(head)}</th><th>Visitors, ${esc(head)}</th></tr></thead><tbody>`
+		// The site columns show only when an app has a site tracked (mods.json `web`, from projects.json app.vercel).
+		const hasWeb = appList.some((m) => m.web);
+		const webWhy = "Not read yet: VERCEL_TOKEN is not set, or Web Analytics is off on the Vercel project";
+		$("apps-table").innerHTML = `<thead><tr><th>App</th><th>Downloads, ${esc(head)}</th>${len ? "<th>Downloads, all time</th>" : ""}<th>Repo views, ${esc(head)}</th><th>Visitors, ${esc(head)}</th>${hasWeb ? `<th>Web visits, ${esc(head)}</th><th>Web visitors, ${esc(head)}</th>` : ""}</tr></thead><tbody>`
 			+ rows.map((r) => `<tr><td>${esc(r.m.name)}</td>`
 				+ `<td>${cell(r.inRange, "No GitHub releases")}${r.since != null ? ` <span class="meta" title="The history starts later than the range">(since ${esc(date(r.since))})</span>` : ""}</td>`
 				+ (len ? `<td>${cell(r.total, "No GitHub releases")}</td>` : "")
 				+ `<td>${cell(r.views, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td>`
-				+ `<td>${cell(r.uniques, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td></tr>`).join("")
+				+ `<td>${cell(r.uniques, "Not read yet: GH_TOKEN needs Administration: read on the repo")}</td>`
+				+ (hasWeb ? (r.m.web ? `<td>${cell(r.webViews, webWhy)}</td><td>${cell(r.webVisitors, webWhy)}</td>` : "<td></td><td></td>") : "") + "</tr>").join("")
 			+ "</tbody>";
 		const first = Math.min(...rows.map((r) => r.viewsFrom ?? Infinity));
 		drawAppCharts(len);
-		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice."
+		$("apps-meta").textContent = "From GitHub: the downloads of every release asset, and the views of the app's repo. Visitors add up each day's unique visitors, so one person on two days counts twice. Web visits are the site's pageviews from Vercel Web Analytics, apart from the repo views."
 			+ (Number.isFinite(first) ? ` Views kept since ${date(first, { month: "short", day: "numeric", year: "numeric" })}.` : "");
 	}
 

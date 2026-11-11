@@ -222,6 +222,10 @@
       "platform": "Web, installable on mobile",
       "icon": "https://tcgkb.app/icons/icon-512.png",
       "color": 3447003,
+      "vercel": {
+        "teamId": "team_giPQ5OUJb5Cvr0I0avnEcasY",
+        "projectId": "prj_pse4EmV9XAgbCfQ0GiWSSRUB6dCz"
+      },
       "links": {
         "website": "https://tcgkb.app",
         "sponsor": "https://github.com/sponsors/manucruzleiva"
