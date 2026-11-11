@@ -1,4 +1,4 @@
-name: Export #help
+name: "Export #help"
 
 # Solo lectura: baja el historial de #help a un artefacto JSON para revisar que cada comentario
 # tenga ticket o respuesta. No escribe en Discord ni en GitHub.
@@ -24,11 +24,13 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: "24"
-      - name: Export #help
+      - name: "Export #help"
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
           DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
         run: node lib/help-export.mjs --days "${{ inputs.days }}"
+      - name: Print export to the log
+        run: cat help-export.json
       - uses: actions/upload-artifact@v5
         with:
           name: help-export
