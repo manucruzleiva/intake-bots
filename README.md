@@ -430,7 +430,7 @@ minuto. No guarda historial: un deploy estático no tiene dónde.
 
 **Open tickets** (`lib/backlog.mjs`): debajo del veredicto, una fila por proyecto de `projects.json`
 con su ícono y cuántos issues abiertos tiene su repo, contados por **tipo**, **estado**, **prioridad**
-u **origen** (un selector) y ordenables por cualquier columna; la elección queda en el `localStorage`
+u **origen** (un selector) y ordenables por cualquier columna; junto a los tickets abiertos cuenta los **PRs abiertos** de cada repo (de la misma consulta de issues, sin llamadas extra); la elección queda en el `localStorage`
 de quien mira. Sólo conteos, nunca títulos: la página es pública y los repos de mod no. `health.mjs`
 lo escribe como `backlog.json` con el secret `GH_TOKEN` (env `MODS_GH_TOKEN`: el `GH_TOKEN` del job es
 el de este repo y no ve los otros) y `PROJECTS_TOKEN`.
