@@ -28,21 +28,21 @@
       "issue": 162,
       "kind": "idea",
       "lastMsg": "1569998185026420827",
-      "awaitingReply": true
+      "firstReplyAt": "2026-11-11T18:01:02Z"
     },
     "1570045700794749078": {
       "issue": 163,
       "kind": "bug",
       "lastMsg": "1570046083848212550",
-      "awaitingReply": true,
       "missing": [
         "version",
         "loader"
-      ]
+      ],
+      "firstReplyAt": "2026-11-11T18:01:12Z"
     }
   },
   "lastRelease": "v2.0.0",
-  "repliesSince": "2026-11-11T12:02:38Z",
+  "repliesSince": "2026-11-11T18:01:12Z",
   "voice": {
     "filed.bug": 2,
     "fixed.bug": 1,
