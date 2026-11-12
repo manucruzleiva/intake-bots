@@ -28,7 +28,10 @@
       "issue": 162,
       "kind": "idea",
       "lastMsg": "1569998185026420827",
-      "firstReplyAt": "2026-11-11T18:01:02Z"
+      "firstReplyAt": "2026-11-11T18:01:02Z",
+      "closedAs": "not_planned",
+      "closedAnnounced": true,
+      "archived": true
     },
     "1570045700794749078": {
       "issue": 163,
@@ -42,12 +45,13 @@
     }
   },
   "lastRelease": "v2.0.0",
-  "repliesSince": "2026-11-11T18:12:32Z",
+  "repliesSince": "2026-11-12T16:43:23Z",
   "voice": {
     "filed.bug": 2,
     "fixed.bug": 1,
     "filed.idea": 2,
     "fixed.idea": 1,
-    "ask": 1
+    "ask": 1,
+    "notPlanned": 1
   }
 }
