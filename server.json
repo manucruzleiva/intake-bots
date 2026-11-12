@@ -673,12 +673,6 @@
             "emoji_name": "💫",
             "channels": [],
             "roles": ["Defeated Catch"]
-          },
-          {
-            "title": "Trainer's Satchel",
-            "emoji_name": "🎒",
-            "channels": [],
-            "roles": ["Trainer's Satchel"]
           }
         ]
       },
