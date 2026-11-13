@@ -75,9 +75,11 @@
     "bugCatcher": true
   },
   "comicfox": {
-    "count": 1,
+    "count": 3,
     "kinds": {
-      "feedback": 1
+      "feedback": 1,
+      "idea": 1,
+      "bug": 1
     },
     "id": "422064074566795264",
     "bugCatcher": true

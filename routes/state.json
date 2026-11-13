@@ -20,7 +20,9 @@
     "1560868711538237490",
     "1560868707062915135",
     "1565786904237187173",
-    "1566892887138898000"
+    "1566892887138898000",
+    "1570805026291720405",
+    "1570804587244556409"
   ],
   "tracked": {
     "1529197739659890849": {
@@ -161,15 +163,33 @@
       "closedAs": "completed",
       "closedAnnounced": true,
       "archived": true
+    },
+    "1570805026291720405": {
+      "issue": 564,
+      "kind": "idea",
+      "lastMsg": "1570805026291720405",
+      "awaitingReply": true
+    },
+    "1570804587244556409": {
+      "issue": 565,
+      "kind": "bug",
+      "lastMsg": "1570804587244556409",
+      "awaitingReply": true,
+      "missing": [
+        "version",
+        "loader"
+      ]
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-13T13:54:23Z",
+  "repliesSince": "2026-11-13T14:22:47Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
-    "ask": 1,
+    "ask": 2,
     "fixed.feedback": 4,
-    "fixed.crash": 1
+    "fixed.crash": 1,
+    "filed.idea": 1,
+    "filed.bug": 1
   }
 }
