@@ -157,15 +157,19 @@
       "missing": [
         "log"
       ],
-      "firstReplyAt": "2026-11-04T22:28:02Z"
+      "firstReplyAt": "2026-11-04T22:28:02Z",
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-13T04:17:01Z",
+  "repliesSince": "2026-11-13T04:41:45Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
     "ask": 1,
-    "fixed.feedback": 4
+    "fixed.feedback": 4,
+    "fixed.crash": 1
   }
 }
