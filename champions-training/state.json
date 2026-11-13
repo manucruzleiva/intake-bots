@@ -41,14 +41,17 @@
         "version",
         "loader"
       ],
-      "firstReplyAt": "2026-11-11T18:01:12Z"
+      "firstReplyAt": "2026-11-11T18:01:12Z",
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     }
   },
   "lastRelease": "v2.0.0",
-  "repliesSince": "2026-11-13T04:23:25Z",
+  "repliesSince": "2026-11-13T04:34:59Z",
   "voice": {
     "filed.bug": 2,
-    "fixed.bug": 1,
+    "fixed.bug": 2,
     "filed.idea": 2,
     "fixed.idea": 1,
     "ask": 1,
