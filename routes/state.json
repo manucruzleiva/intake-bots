@@ -153,7 +153,7 @@
     "1566892887138898000": {
       "issue": 445,
       "kind": "crash",
-      "lastMsg": "1566892961726472243",
+      "lastMsg": "1570660719421030401",
       "missing": [
         "log"
       ],
@@ -164,7 +164,7 @@
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-13T04:41:45Z",
+  "repliesSince": "2026-11-13T04:46:53Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
