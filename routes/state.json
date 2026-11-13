@@ -167,22 +167,18 @@
     "1570805026291720405": {
       "issue": 564,
       "kind": "idea",
-      "lastMsg": "1570805026291720405",
+      "lastMsg": "1570806125698224229",
       "awaitingReply": true
     },
     "1570804587244556409": {
       "issue": 565,
       "kind": "bug",
-      "lastMsg": "1570804587244556409",
-      "awaitingReply": true,
-      "missing": [
-        "version",
-        "loader"
-      ]
+      "lastMsg": "1570807241735671820",
+      "awaitingReply": true
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-13T14:22:47Z",
+  "repliesSince": "2026-11-13T14:33:35Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
