@@ -677,6 +677,21 @@
         ]
       },
       {
+        "title": "Which other mods do you want release pings for?",
+        "type": 0,
+        "single_select": false,
+        "required": false,
+        "in_onboarding": true,
+        "options": [
+          {
+            "title": "Modpack",
+            "emoji_name": "📦",
+            "channels": [],
+            "roles": ["Modpack"]
+          }
+        ]
+      },
+      {
         "title": "Which TCG tools and apps do you use?",
         "type": 0,
         "single_select": false,
