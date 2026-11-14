@@ -168,7 +168,10 @@
       "issue": 564,
       "kind": "idea",
       "lastMsg": "1570845714228051981",
-      "awaitingReply": true
+      "firstReplyAt": "2026-11-14T21:07:46Z",
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     },
     "1570804587244556409": {
       "issue": 565,
@@ -181,7 +184,7 @@
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-14T16:37:17Z",
+  "repliesSince": "2026-11-14T21:07:46Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
@@ -190,6 +193,7 @@
     "fixed.crash": 1,
     "filed.idea": 1,
     "filed.bug": 1,
-    "fixed.bug": 1
+    "fixed.bug": 1,
+    "fixed.idea": 1
   }
 }
