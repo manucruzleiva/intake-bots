@@ -22,7 +22,8 @@
     "1565786904237187173",
     "1566892887138898000",
     "1570805026291720405",
-    "1570804587244556409"
+    "1570804587244556409",
+    "1571629571726643302"
   ],
   "tracked": {
     "1529197739659890849": {
@@ -181,6 +182,12 @@
       "closedAs": "completed",
       "closedAnnounced": true,
       "archived": true
+    },
+    "1571629571726643302": {
+      "issue": 615,
+      "kind": "bug",
+      "lastMsg": "1571629571726643302",
+      "awaitingReply": true
     }
   },
   "lastRelease": "v2.0.0-beta.2",
@@ -192,7 +199,7 @@
     "fixed.feedback": 4,
     "fixed.crash": 1,
     "filed.idea": 1,
-    "filed.bug": 1,
+    "filed.bug": 2,
     "fixed.bug": 1,
     "fixed.idea": 1
   }
