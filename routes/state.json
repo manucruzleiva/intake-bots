@@ -187,11 +187,14 @@
       "issue": 615,
       "kind": "bug",
       "lastMsg": "1571994560442138637",
-      "awaitingReply": true
+      "firstReplyAt": "2026-11-21T14:09:21Z",
+      "closedAs": "completed",
+      "closedAnnounced": true,
+      "archived": true
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-21T11:16:23Z",
+  "repliesSince": "2026-11-21T14:09:21Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
@@ -200,7 +203,7 @@
     "fixed.crash": 1,
     "filed.idea": 1,
     "filed.bug": 2,
-    "fixed.bug": 1,
+    "fixed.bug": 2,
     "fixed.idea": 1
   }
 }
