@@ -186,7 +186,7 @@
     "1571629571726643302": {
       "issue": 615,
       "kind": "bug",
-      "lastMsg": "1571994560442138637",
+      "lastMsg": "1573702624824270871",
       "firstReplyAt": "2026-11-21T14:09:21Z",
       "closedAs": "completed",
       "closedAnnounced": true,
@@ -194,7 +194,7 @@
     }
   },
   "lastRelease": "v2.0.0-beta.2",
-  "repliesSince": "2026-11-21T14:09:21Z",
+  "repliesSince": "2026-11-21T14:15:18Z",
   "voice": {
     "filed.feedback": 1,
     "filed.crash": 1,
